@@ -1,2 +1,4 @@
 /docs/
 /esc-simulator-virtual-env/
+__pycache__/
+.env
