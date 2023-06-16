@@ -48,6 +48,7 @@ class CeremonyType(Base):
     __tablename__ = 'ceremony_type'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
+    code = Column(String(5), nullable=False)
     ceremonies = relationship("Ceremony")
 
 class Voting(Base):
