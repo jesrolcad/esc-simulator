@@ -20,6 +20,8 @@ class Song(Base):
     country_id = Column(Integer, ForeignKey('country.id'))
     title = Column(String(50), nullable=False)
     artist = Column(String(50), nullable=False)
+    jury_potential_score = Column(Integer, nullable=False)
+    televote_potential_score = Column(Integer, nullable=False)
     ceremonies = relationship("Ceremony", secondary=song_ceremony, back_populates="songs")
     votes = relationship("Voting")
 

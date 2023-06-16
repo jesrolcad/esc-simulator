@@ -17,3 +17,5 @@ app.add_middleware(
 @app.get('/api/healthchecker')
 def root():
     return {'message': 'Hello World'}
+
+
