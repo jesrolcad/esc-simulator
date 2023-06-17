@@ -3,14 +3,14 @@ from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
-song_ceremony = Table('song_ceremony', Base.metadata, Column("song_id", Integer, ForeignKey('song.id')), 
+song_ceremony = Table('song_ceremony', Base.metadata, Column("song_ceremony_id", Integer), Column("song_id", Integer, ForeignKey('song.id')), 
 Column("ceremony_id", Integer, ForeignKey('ceremony.id')))
 
 class Country(Base):
     __tablename__ = 'country'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
-    code = Column(String(2), nullable=False)
+    code = Column(String(5), nullable=False)
     songs = relationship("Song")
     votings = relationship("Voting")
 
@@ -28,7 +28,6 @@ class Song(Base):
 class Event(Base):
     __tablename__ = 'event'
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False)
     year = Column(Integer, nullable=False)
     slogan = Column(String(50), nullable=False)
     host_city = Column(String(50), nullable=False)
