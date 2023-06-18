@@ -51,7 +51,6 @@ def populate_ceremony_types():
         db.add(CeremonyType(name='Semifinal 1', code='SF1'))
         db.add(CeremonyType(name='Semifinal 2', code='SF2'))
         db.add(CeremonyType(name='Grand Final', code="GF"))
-    
 
 
 def check_dataframe_has_columns(dataframe: pd.DataFrame, columns: list[str]): 
