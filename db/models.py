@@ -39,7 +39,7 @@ class Ceremony(Base):
     id = Column(Integer, primary_key=True)
     ceremony_type_id = Column(Integer, ForeignKey("ceremony_type.id"))
     event_id = Column(Integer, ForeignKey("event.id"))
-    date = Column(Date, nullable=False)
+    date = Column(Date, nullable=True)
     songs = relationship("Song", secondary=song_ceremony, back_populates="ceremonies")
     votings = relationship("Voting")
 
