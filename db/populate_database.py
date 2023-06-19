@@ -1,6 +1,6 @@
 import datetime
 from database import get_db
-from models import Event, Country, Song, Ceremony, CeremonyType
+from models import Event, Country, Song, Ceremony, CeremonyType, ScoreType
 import pandas as pd
 from utils.constants import COUNTRY_NAME_TO_CODE
 from random import randint
@@ -35,15 +35,17 @@ def populate_countries(path: str):
 
 def populate_songs(path: str):
     dataframe = pd.read_csv(path)
-    check_dataframe_has_columns(dataframe, ['title', 'artist', 'country_id'])
+    check_dataframe_has_columns(dataframe, ['title', 'artist', 'country_id', 'event_id', 'belongs_to_host_country'])
 
     with get_db() as db:
         db.query(Song).delete()
-        for row in dataframe.itertuples(index=False):
-            jury_potential_score, televote_potential_score = calculate_potential_scores(row.position)
-            song = Song(title=row.title, artist=row.artist, country_id=row.country_id, jury_potential_score=jury_potential_score,
-                televote_potential_score=televote_potential_score)
-            db.add(song)
+        data = [{'title': row.title, 'artist': row.artist, 'country_id': row.country_id, 'event_id': row.event_id,
+        'jury_potential_score': calculate_potential_scores(row.position)[0],
+        'televote_potential_score': calculate_potential_scores(row.position)[1],
+        'belongs_to_host_country': row.belongs_to_host_country} for row in dataframe.itertuples(index=False)]
+
+        db.bulk_insert_mappings(Song, data)
+
 
 def populate_ceremony_types():
     with get_db() as db:
@@ -51,6 +53,13 @@ def populate_ceremony_types():
         db.add(CeremonyType(name='Semifinal 1', code='SF1'))
         db.add(CeremonyType(name='Semifinal 2', code='SF2'))
         db.add(CeremonyType(name='Grand Final', code="GF"))
+
+
+def populate_score_types():
+    with get_db() as db:
+        db.query(ScoreType).delete()
+        db.add(ScoreType(name='Jury'))
+        db.add(ScoreType(name='Televote'))
 
 
 def check_dataframe_has_columns(dataframe: pd.DataFrame, columns: list[str]): 
@@ -85,7 +94,12 @@ def calculate_potential_scores(position: int)-> tuple:
         return (randint(1, 4), randint(1, 4))
 
 if __name__ == '__main__':
+    # Add here your source files
+    events_csv = r""
+    countries_csv = r""
+    songs_csv = r""
     populate_ceremony_types()
-    populate_events_with_ceremonies(r'C:\Users\Jesus\Desktop\Proyectos\esc-simulator\db\data\events.csv')
-    populate_countries(r'C:\Users\Jesus\Desktop\Proyectos\esc-simulator\db\data\countries.csv')
-    populate_songs(r'C:\Users\Jesus\Desktop\Proyectos\esc-simulator\db\data\songs.csv')
+    populate_events_with_ceremonies(events_csv)
+    populate_countries(countries_csv)
+    populate_songs(songs_csv)
+    populate_score_types()
