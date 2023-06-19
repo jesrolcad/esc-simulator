@@ -1,10 +1,10 @@
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from models import Base
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
+from models import Base
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 from core.config import settings
 
 
@@ -13,10 +13,18 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
 
+@contextmanager
 def get_db():
     db = SessionLocal()
     try:
         yield db
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise Exception(e)
     finally:
         db.close()
+
+Base.metadata.drop_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
