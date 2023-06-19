@@ -44,3 +44,6 @@ COUNTRY_NAME_TO_CODE = {
     "Montenegro": "MNE",
     "Bosnia & Herzegovina": "BIH",
 }
+
+
+BIG_FIVE = ["Spain", "Germany", "Italy", "France", "United Kingdom"]
