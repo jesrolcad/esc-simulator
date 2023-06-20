@@ -2,3 +2,5 @@
 /esc-simulator-virtual-env/
 __pycache__/
 .env
+/db/data
+/esc_simulator.egg-info
