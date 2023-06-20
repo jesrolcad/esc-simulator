@@ -7,14 +7,10 @@ assignees: jesrolcad
 
 ---
 
-## Descripción
+## Description
+Provide high-level valuable information, such as functional aspects or complex constraints. Do not provide generic information or implementation details. 
 
-Aquí puedes proporcionar una descripción detallada del problema o la tarea. Puedes incluir cualquier información relevante, como pasos para reproducir el problema, contexto adicional o sugerencias de solución.
-
-## Comentarios
-
-<!---
-¡Gracias por colaborar en este issue! Por favor, deja tus comentarios y pensamientos sobre el problema o la tarea aquí.
--->
+## Related Epic
+Epic: #EpicId
 
 
