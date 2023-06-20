@@ -4,7 +4,6 @@ about: Template used for sub epic issues
 title: "[Issue Group] [Epic #EpicId] Issue Name"
 labels: feature, subepic, test
 assignees: jesrolcad
-projects: 3
 
 ---
 
