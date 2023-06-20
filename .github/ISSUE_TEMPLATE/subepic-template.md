@@ -1,9 +1,10 @@
 ---
 name: Subepic Template
-about: Template used for subepic issues
+about: Template used for sub epic issues
 title: "[Issue Group] [Epic #EpicId] Issue Name"
 labels: feature, subepic, test
 assignees: jesrolcad
+projects: esc-simulator
 
 ---
 
