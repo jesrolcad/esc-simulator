@@ -32,7 +32,7 @@ def populate_db(years: list[int]):
             country_link_info = "https://eurovisionworld.com" + data.a['href']
             song_link_info = country_link_info.split("/")[-1]
             country_name = data.a['title'].split(" in")[0].strip()
-            if not country_repository.exists_country_by_name(country_name):
+            if not country_repository.exists_country_by_name_or_code(country_name):
                 country = Country(name=country_name, code=constants.COUNTRY_NAME_TO_CODE.get(country_name, constants.UNREGISTERED_COUNTRY_CODE))
                 # country_repository.create_country(country_name, COUNTRY_NAME_TO_CODE[country_name])
 
