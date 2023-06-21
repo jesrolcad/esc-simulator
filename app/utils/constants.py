@@ -45,7 +45,8 @@ COUNTRY_NAME_TO_CODE = {
     "Bosnia & Herzegovina": "BIH",
 }
 
+UNREGISTERED_COUNTRY_CODE = "UNR"
+
 
 BIG_FIVE = ["Spain", "Germany", "Italy", "France", "United Kingdom"]
 
-SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
