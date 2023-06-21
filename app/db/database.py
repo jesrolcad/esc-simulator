@@ -3,9 +3,7 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
-from models import Base
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-from core.config import settings
+from app.core.config import settings
 
 
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL

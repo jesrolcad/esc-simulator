@@ -2,7 +2,7 @@ from database import get_db
 from models import Event, Country, Song, Ceremony, CeremonyType, ScoreType
 import pandas as pd
 from utils.constants import COUNTRY_NAME_TO_CODE
-from app.utils.functions import calculate_potential_scores
+from app.utils.song_functions import calculate_potential_scores
 
 #Ceremony dates must be populated manually in the database
 
