@@ -1,24 +1,24 @@
 from database import get_db
-from models import Event, Country, Song, Ceremony, CeremonyType, ScoreType
+from app.persistence.entities import EventEntity, CountryEntity, SongEntity, CeremonyEntity, CeremonyEntity, ScoreTypeEntity
 import pandas as pd
 from utils.constants import COUNTRY_NAME_TO_CODE
 from app.utils.song_functions import calculate_potential_scores
 
-#Ceremony dates must be populated manually in the database
+#CeremonyEntity dates must be populated manually in the database
 
 def populate_events_with_ceremonies(path: str):
     dataframe = pd.read_csv(path)
     check_dataframe_has_columns(dataframe, ['year', 'slogan', 'host_city', 'arena'])
     
     with get_db() as db:
-        db.query(Event).delete()
-        db.query(Ceremony).delete()
+        db.query(EventEntity).delete()
+        db.query(CeremonyEntity).delete()
         for row in dataframe.itertuples(index=False):
-            event = Event(year=row.year, slogan=row.slogan, 
+            event = EventEntity(year=row.year, slogan=row.slogan, 
                     host_city=row.host_city, arena=row.arena)
             db.add(event)
             for ceremony_type_id in range(1,4):
-                ceremony = Ceremony(ceremony_type_id=ceremony_type_id, event_id=row.id)
+                ceremony = CeremonyEntity(ceremony_type_id=ceremony_type_id, event_id=row.id)
                 db.add(ceremony)
 
 
@@ -27,9 +27,9 @@ def populate_countries(path: str):
     check_dataframe_has_columns(dataframe, ['name'])
 
     with get_db() as db:
-        db.query(Country).delete()
+        db.query(CountryEntity).delete()
         for row in dataframe.itertuples(index=False):
-            country = Country(name=row.name, code=COUNTRY_NAME_TO_CODE[row.name])
+            country = CountryEntity(name=row.name, code=COUNTRY_NAME_TO_CODE[row.name])
             db.add(country)
 
 
@@ -38,28 +38,28 @@ def populate_songs(path: str):
     check_dataframe_has_columns(dataframe, ['title', 'artist', 'country_id', 'event_id', 'belongs_to_host_country'])
 
     with get_db() as db:
-        db.query(Song).delete()
+        db.query(SongEntity).delete()
         data = [{'title': row.title, 'artist': row.artist, 'country_id': row.country_id, 'event_id': row.event_id,
         'jury_potential_score': calculate_potential_scores(row.position)[0],
         'televote_potential_score': calculate_potential_scores(row.position)[1],
         'belongs_to_host_country': row.belongs_to_host_country} for row in dataframe.itertuples(index=False)]
 
-        db.bulk_insert_mappings(Song, data)
+        db.bulk_insert_mappings(SongEntity, data)
 
 
 def populate_ceremony_types():
     with get_db() as db:
-        db.query(CeremonyType).delete()
-        db.add(CeremonyType(name='Semifinal 1', code='SF1'))
-        db.add(CeremonyType(name='Semifinal 2', code='SF2'))
-        db.add(CeremonyType(name='Grand Final', code="GF"))
+        db.query(CeremonyEntity).delete()
+        db.add(CeremonyEntity(name='Semifinal 1', code='SF1'))
+        db.add(CeremonyEntity(name='Semifinal 2', code='SF2'))
+        db.add(CeremonyEntity(name='Grand Final', code="GF"))
 
 
 def populate_score_types():
     with get_db() as db:
-        db.query(ScoreType).delete()
-        db.add(ScoreType(name='Jury'))
-        db.add(ScoreType(name='Televote'))
+        db.query(ScoreTypeEntity).delete()
+        db.add(ScoreTypeEntity(name='Jury'))
+        db.add(ScoreTypeEntity(name='Televote'))
 
 
 def check_dataframe_has_columns(dataframe: pd.DataFrame, columns: list[str]): 

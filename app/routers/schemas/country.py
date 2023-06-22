@@ -5,5 +5,5 @@ def CountryBase(BaseModel):
     name: str
     code: str
 
-class CountryCreate(CountryBase):
+class CountryCreateRequest(CountryBase):
     pass

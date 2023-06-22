@@ -6,7 +6,7 @@ Base = declarative_base()
 SongCeremony = Table('song_ceremony', Base.metadata, Column("song_ceremony_id", Integer), Column("song_id", Integer, ForeignKey('song.id')), 
 Column("ceremony_id", Integer, ForeignKey('ceremony.id')))
 
-class Country(Base):
+class CountryEntity(Base):
     __tablename__ = 'country'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
@@ -14,7 +14,7 @@ class Country(Base):
     songs = relationship("Song", back_populates="country")
     votings = relationship("Voting", back_populates="country")
 
-class Song(Base):
+class SongEntity(Base):
     __tablename__ = 'song'
     id = Column(Integer, primary_key=True)
     country_id = Column(Integer, ForeignKey('country.id'))
@@ -29,7 +29,7 @@ class Song(Base):
     ceremonies = relationship("Ceremony", secondary=SongCeremony, back_populates="songs")
     votings = relationship("Voting", back_populates="song")
 
-class Event(Base):
+class EventEntity(Base):
     __tablename__ = 'event'
     id = Column(Integer, primary_key=True)
     year = Column(Integer, nullable=False)
@@ -38,7 +38,7 @@ class Event(Base):
     arena = Column(String(50), nullable=False)
     ceremonies = relationship("Ceremony")
 
-class Ceremony(Base):
+class CeremonyEntity(Base):
     __tablename__ = 'ceremony'
     id = Column(Integer, primary_key=True)
     ceremony_type_id = Column(Integer, ForeignKey("ceremony_type.id"))
@@ -48,14 +48,14 @@ class Ceremony(Base):
     songs = relationship("Song", secondary=SongCeremony, back_populates="ceremonies")
     votings = relationship("Voting", back_populates="ceremony")
 
-class CeremonyType(Base):
+class CeremonyTypeEntity(Base):
     __tablename__ = 'ceremony_type'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     code = Column(String(5), nullable=False)
     ceremonies = relationship("Ceremony", back_populates="ceremony_type")
 
-class Voting(Base):
+class VotingEntity(Base):
     __tablename__ = 'score'
     id = Column(Integer, primary_key=True)
     country_id = Column(Integer, ForeignKey("country.id"))
@@ -69,7 +69,7 @@ class Voting(Base):
     score_type = relationship("ScoreType", uselist=False)
     
 
-class ScoreType(Base):
+class ScoreTypeEntity(Base):
     __tablename__ = 'score_type'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)

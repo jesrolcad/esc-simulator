@@ -1,12 +1,10 @@
-import os
-import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from app.core.config import Settings
 from app.utils import constants
-from app.repositories import country_repository
-from app.db.models import Country
+from app.persistence.repositories import country_repository
+from app.persistence.entities import Country
 
 SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
 
