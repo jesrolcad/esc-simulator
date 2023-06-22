@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-def CountryBase(BaseModel):
+class CountryBase(BaseModel):
     name: str
     code: str
 
