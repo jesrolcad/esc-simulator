@@ -1,8 +1,6 @@
-import sys
-from pathlib import Path
+from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from contextlib import contextmanager
 from app.core.config import settings
 
 
@@ -13,13 +11,13 @@ SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
 
 @contextmanager
 def get_db():
-    db = SessionLocal()
+    db_session = SessionLocal()
     try:
-        yield db
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        raise Exception(e)
+        yield db_session
+        db_session.commit()
+    except Exception as exception:
+        db_session.rollback()
+        raise Exception(exception) from exception
     finally:
-        db.close()
+        db_session.close()
 

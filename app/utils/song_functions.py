@@ -22,6 +22,5 @@ def calculate_potential_scores(position: int)-> tuple:
     
     elif position in range (21, 28):
         return (randint(2, 5), randint(2, 5))
-    
-    else:
-        return (randint(1, 4), randint(1, 4))
+
+    return (randint(1, 4), randint(1, 4))

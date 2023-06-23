@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic.main import BaseModel
 
 class Country(BaseModel):
     id: int
