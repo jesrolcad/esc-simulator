@@ -21,20 +21,45 @@ def selenium_scraping(url: str, chrome_driver: webdriver.Chrome)-> str:
     return html_source_code
 
 
-def populate_db(years: list[int]):
+def scrape_data(years: list[int]):
     for year in years:
-        general_html = selenium_scraping(SCRAPING_BASE_URL + year,driver)
+        general_html = selenium_scraping(url=SCRAPING_BASE_URL + year,chrome_driver=driver)
         soup = BeautifulSoup(general_html, "html.parser")
         data_list = soup.find("div", id="voting_table").find_all("tr", id=True)
         for data in data_list:
+            scrape_country_info(country_data=data)
             country_link_info = "https://eurovisionworld.com" + data.a['href']
-            song_link_info = country_link_info.split("/")[-1]
-            country_name = data.a['title'].split(" in")[0].strip()
+            
 
 
-            if not country_service.exists_country(name=country_name):
-                country_code = constants.COUNTRY_NAME_TO_CODE.get(country_name,
-                    constants.UNREGISTERED_COUNTRY_CODE)
-                country = Country(name=country_name, code=country_code)
-                country_service.create_country(country)
-                
+def scrape_country_info(country_data: str)-> int:
+    country_name = country_data.a['title'].split(" in")[0].strip()
+    existing_country = country_service.get_country(name=country_name)
+    if not existing_country:
+        country_code = constants.COUNTRY_NAME_TO_CODE.get(country_name, constants.UNREGISTERED_COUNTRY_CODE)
+        country = Country(name=country_name, code=country_code)
+        country_id = country_service.create_country(country)    
+
+    else:
+        country_id = existing_country.id
+    
+    return country_id
+
+
+def scrape_song_info(song_data: str, associated_event_id: int, associated_country_id: int):
+    song_position = int(song_data.td.text)
+    html_class = "r500n"
+    header = song_data.find("td", class_= html_class).find_previous_sibling().a['title'].split(":")
+    song_and_artist = header[1].split("-")
+    song_artist = song_and_artist[0].strip()
+    song_title = song_and_artist[1].strip().replace('"', "")
+
+    #TODO: Scrape last year's winner to fill in belongs_to_host_country field
+
+
+
+    
+
+
+
+

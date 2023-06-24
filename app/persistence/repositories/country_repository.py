@@ -2,10 +2,10 @@ from sqlalchemy import insert, select
 from app.db.database import get_db
 from app.persistence.entities import CountryEntity
 
-def get_country_by_name_or_code(name: str, code: str)->CountryEntity:
+def get_country(id: int, name: str, code: str)->CountryEntity:
     with get_db() as db_session:
-        return db_session.scalars(select([CountryEntity])
-            .where(CountryEntity.name == name or CountryEntity.code == code)).first()
+        return db_session.scalars(select(CountryEntity)
+            .where(CountryEntity.id == id or CountryEntity.name == name or CountryEntity.code == code)).first()
 
 def create_country(country: CountryEntity)->int:
     with get_db() as db_session:
