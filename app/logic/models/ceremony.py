@@ -4,17 +4,16 @@ from pydantic import BaseModel
 from app.logic.models import event, song, voting
 
 class CeremonyType(BaseModel):
-    id: int
+    id: int = 0
     name: str
     code: str
-    ceremonies: List['Ceremony']
 
 
 class Ceremony(BaseModel):
-    id: int
+    id: int = 0
     date: datetime
     ceremony_type: CeremonyType
     event: event.Event
-    songs: List[song.Song]
-    votings: List[voting.Voting]
+    songs: List[song.Song] = []
+    votings: List[voting.Voting] = []
 
