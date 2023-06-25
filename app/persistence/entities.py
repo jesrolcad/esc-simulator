@@ -3,7 +3,7 @@ from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
-SongCeremony = Table('song_ceremony', Base.metadata, Column("song_ceremony_id", Integer), Column("song_id", Integer, ForeignKey('song.id')), 
+SongCeremony = Table('song_ceremony', Base.metadata, Column("id", Integer, primary_key=True), Column("song_id", Integer, ForeignKey('song.id')), 
 Column("ceremony_id", Integer, ForeignKey('ceremony.id')))
 
 class CountryEntity(Base):
@@ -57,7 +57,7 @@ class CeremonyTypeEntity(Base):
     ceremonies = relationship("CeremonyEntity", back_populates="ceremony_type")
 
 class VotingEntity(Base):
-    __tablename__ = 'score'
+    __tablename__ = 'voting'
     id = Column(Integer, primary_key=True)
     country_id = Column(Integer, ForeignKey("country.id"))
     song_id = Column(Integer, ForeignKey("song.id"))
