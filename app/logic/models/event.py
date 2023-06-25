@@ -3,9 +3,9 @@ from pydantic import BaseModel
 from app.logic.models import ceremony
 
 class Event(BaseModel):
-    id: int
+    id: int = 0
     year: int
     slogan: str
     host_city: str
     arena: str
-    ceremonies: List[ceremony.Ceremony]
+    ceremonies: List[ceremony.Ceremony] = []

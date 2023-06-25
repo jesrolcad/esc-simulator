@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from app.logic.models import country, ceremony, voting, event
 
 class Song(BaseModel):
-    id: int
+    id: int = 0
     title: str
     artist: str
     belongs_to_host_country: bool
@@ -11,5 +11,7 @@ class Song(BaseModel):
     televote_potential_score: Literal[1,2,3,4,5,6,7,8,9,10]
     event: event.Event
     country: country.Country
-    ceremonies: List[ceremony.Ceremony]
-    votings: List[voting.Voting]
+    ceremonies: List[ceremony.Ceremony] = []
+    votings: List[voting.Voting] = []
+
+

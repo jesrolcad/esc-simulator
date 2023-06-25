@@ -2,7 +2,7 @@ import pandas as pd
 from app.db.database import get_db
 from app.persistence.entities import EventEntity, CountryEntity, SongEntity, CeremonyEntity, CeremonyTypeEntity, VotingTypeEntity
 from app.utils.constants import COUNTRY_NAME_TO_CODE
-from app.utils.song_functions import calculate_potential_scores
+from app.logic.services.song_service import calculate_potential_scores
 
 #CeremonyEntity dates must be populated manually in the database
 
