@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from app.core.config import Settings
 from app.utils import constants
-from app.logic.services import event_service, country_service
+from app.logic.services import event_service, country_service, song_service
 from app.logic.models.country import Country
 from app.logic.models.ceremony import Ceremony
 from app.logic.models.event import Event
@@ -26,18 +26,21 @@ def selenium_scraping(url: str, chrome_driver: webdriver.Chrome)-> str:
 
 
 def scrape_data(years: list[int]):
-    #TODO: if event with the given year exists, then do not scrape data for that year
     for year in years:
         event = event_service.get_event(year=year)
         if not event:
             general_html = selenium_scraping(url=SCRAPING_BASE_URL + year,chrome_driver=driver)
             soup = BeautifulSoup(general_html, "html.parser")
             event_data = soup.find("div", class_="voting_info mm")
-            scrape_event_info(event_data=event_data)
+            last_year_winner = event_data.find("p", text=lambda t: 'last year\'s winner' in t).find("a").text
+            last_year_winner_country = country_service.get_country(name=last_year_winner)
+            event_id = scrape_event_info(event_data=event_data)
             data_list = soup.find("div", id="voting_table").find_all("tr", id=True)
             for data in data_list:
-                scrape_country_info(country_data=data)
+                country_id = scrape_country_info(country_data=data)
                 country_link_info = "https://eurovisionworld.com" + data.a['href']
+
+
             
 
 def scrape_event_info(event_data: str)-> int:
@@ -48,16 +51,10 @@ def scrape_event_info(event_data: str)-> int:
     arena = event_data.p.find_all("a")[1].text
     slogan = event_data.p.find_all()[-1].text
 
-    #TODO: create event
     event = Event(year=grand_final_date.year, slogan=slogan, host_city=host_city, arena=arena)
-    event_id = event_service.create_event(event)
+    event_id = event_service.create_event_and_associated_ceremonies(event, grand_final_date)
 
-    first_semifinal_date = datetime.datetime(grand_final_date.year, grand_final_date.month, grand_final_date.day - 4)
-    second_semifinal_date = datetime.datetime(grand_final_date.year, grand_final_date.month, grand_final_date.day - 2)
-
-    first_semifinal_ceremony = Ceremony(event_id)
-    second_semifinal_ceremony = Ceremony()
-    grand_final_ceremony = Ceremony()
+    return event_id
 
 
 
@@ -71,19 +68,19 @@ def scrape_country_info(country_data: str)-> int:
     return country_id
 
 
-def scrape_song_info(song_data: str, associated_event_id: int, associated_country_id: int):
+def scrape_song_info(song_data: str, associated_event_id: int, associated_country_id: int, last_year_winner_country: Country):
     song_position = int(song_data.td.text)
     html_class = "r500n"
     header = song_data.find("td", class_= html_class).find_previous_sibling().a['title'].split(":")
     song_and_artist = header[1].split("-")
     song_artist = song_and_artist[0].strip()
     song_title = song_and_artist[1].strip().replace('"', "")
-
-    #TODO: Scrape last year's winner to fill in belongs_to_host_country field
-
-
-
+    jury_potential_score, televote_potential_score = song_service.calculate_potential_scores(position=song_position)
+    belongs_to_host_country = last_year_winner_country.id == associated_country_id
+    #TODO: Create song and associate it with the event and country
     
+
+
 
 
 
