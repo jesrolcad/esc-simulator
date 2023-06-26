@@ -1,4 +1,13 @@
 from random import randint
+from app.logic.models import Song
+from app.persistence.repositories import song_repository
+from app.logic.model_mappers import song_model_mapper
+
+
+def create_song(song: Song)-> Song:
+    song_entity = song_model_mapper.map_to_song_entity(song)
+    return song_model_mapper.map_to_song_model(song_repository.create_song(song_entity))
+
 
 def calculate_potential_scores(position: int)-> tuple:
     """

@@ -1,6 +1,6 @@
 from app.persistence.repositories import ceremony_repository
 from app.logic.model_mappers import ceremony_model_mapper
-from app.logic.models.ceremony import Ceremony
+from app.logic.models import Ceremony
 
 def create_ceremony(ceremony: Ceremony)->int:
     ceremony_entity = ceremony_model_mapper.map_to_ceremony_entity(ceremony)

@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from app.persistence.repositories import event_repository, ceremony_repository
 from app.logic.model_mappers import event_model_mapper, ceremony_model_mapper
-from app.logic.models.event import Event
-from app.logic.models.ceremony import Ceremony
+from app.logic.models import Event
+from app.logic.models import Ceremony
 
 def get_event(id: int = None, year: int = None)->Event:
     event_entity = event_repository.get_event(id, year)

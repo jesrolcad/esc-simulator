@@ -1,4 +1,4 @@
-from app.logic.models.ceremony import Ceremony
+from app.logic.models import Ceremony
 from app.persistence.entities import CeremonyEntity
 
 def map_to_ceremony_entity(ceremony: Ceremony)->CeremonyEntity:

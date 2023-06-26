@@ -1,5 +1,5 @@
 from app.persistence.repositories import country_repository
-from app.logic.models.country import Country
+from app.logic.models import Country
 from app.logic.model_mappers import country_model_mapper
 
 def get_country(id: int = None, name: str = None, code: str = None)->Country:
