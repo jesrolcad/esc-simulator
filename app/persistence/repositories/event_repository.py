@@ -8,7 +8,7 @@ def get_event(id: int, year: int)->EventEntity:
             .where(EventEntity.id == id or EventEntity.year == year)).first()
     
 
-def create_event(event: EventEntity)->int:
+def create_event(event: EventEntity)->EventEntity:
     with get_db() as db_session:
         insert_stmt = (insert(EventEntity).values(year=event.year, slogan=event.slogan, 
                         host_city=event.host_city, arena=event.arena).returning(EventEntity.id))
@@ -16,5 +16,6 @@ def create_event(event: EventEntity)->int:
         result = db_session.execute(insert_stmt.returning(EventEntity.id))
         event_id = result.fetchone()[0]
 
-        return event_id
+        event.id = event_id
+        return event
 

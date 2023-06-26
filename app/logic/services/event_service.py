@@ -9,12 +9,12 @@ def get_event(id: int = None, year: int = None)->Event:
     return event_model_mapper.map_to_event_model(event_entity)
 
 
-def create_event_and_associated_ceremonies(event: Event, grand_final_date: datetime)->int:
+def create_event_and_associated_ceremonies(event: Event, grand_final_date: datetime)->Event:
     event_entity = event_model_mapper.map_to_event_entity(event)
-    event_id = event_repository.create_event(event_entity)
+    created_event_entity = event_repository.create_event(event_entity)
     associate_ceremonies_to_event(event, grand_final_date)
 
-    return event_id
+    return event_model_mapper.map_to_event_model(created_event_entity)
 
 
 def associate_ceremonies_to_event(event: Event, grand_final_date: datetime):

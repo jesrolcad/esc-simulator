@@ -13,4 +13,5 @@ def create_country(country: CountryEntity)->CountryEntity:
         result = db_session.execute(insert_stmt.returning(CountryEntity.id))
         country_id = result.fetchone()[0]
 
-        return CountryEntity(id=country_id, name=country.name, code=country.code)
+        country.id = country_id
+        return country
