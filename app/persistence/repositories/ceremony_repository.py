@@ -12,7 +12,7 @@ def create_ceremony(ceremony: CeremonyEntity)->int:
 
         return ceremony_id
 
-def get_ceremony_type(code: str)->list[CeremonyTypeEntity]:
+def get_ceremony_type(code: str)->CeremonyTypeEntity:
     with get_db() as db_session:
         return db_session.scalars(select(CeremonyTypeEntity).where(CeremonyTypeEntity.code == code)).first()
 

@@ -3,11 +3,11 @@ from app.persistence.entities import EventEntity
 from app.db.database import get_db
 
 def get_event(id: int, year: int)->EventEntity:
+    if id is None and year is None:
+        raise ValueError("Id or year must be provided")
     with get_db() as db_session:
         query = select(EventEntity)
-        if id is not None and year is not None:
-            query = query.where(or_(EventEntity.id == id, EventEntity.year == year))
-        elif id is not None:
+        if id is not None:
             query = query.where(EventEntity.id == id)
         elif year is not None:
             query = query.where(EventEntity.year == year)

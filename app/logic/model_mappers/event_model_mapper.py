@@ -8,4 +8,5 @@ def map_to_event_entity(event: Event)->EventEntity:
 def map_to_event_model(event_entity: EventEntity)->Event:
     if event_entity is None:
         return None
+    print(f"Event entity id: {event_entity.id}")
     return Event(id=event_entity.id, year=event_entity.year, slogan=event_entity.slogan, host_city=event_entity.host_city, arena=event_entity.arena)

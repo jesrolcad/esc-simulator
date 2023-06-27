@@ -32,9 +32,8 @@ def scrape_data(years: list[int]):
             general_html = selenium_scraping(url=SCRAPING_BASE_URL + str(year),chrome_driver=driver)
             soup = BeautifulSoup(general_html, "html.parser")
             event_data = soup.find("div", class_="voting_info mm")
-            #TODO: get last year winner country scraping last year event
-            last_year_winner = event_data.find("p", text='last year\'s winner').find("a").text
-            last_year_winner_country = country_service.get_country(name=last_year_winner)
+            last_year_winner_country_name = scrape_winner_country_from_last_year(last_year=year-1)
+            last_year_winner_country = country_service.get_country(name=last_year_winner_country_name)
             event = scrape_event_info(event_data=event_data)
             data_list = soup.find("div", id="voting_table").find_all("tr", id=True)
             for data in data_list:
@@ -43,7 +42,7 @@ def scrape_data(years: list[int]):
                                         last_year_winner_country=last_year_winner_country)
 
 def scrape_event_info(event_data: str)-> Event:
-    date_str = event_data.p.a.text
+    date_str = event_data.p.span.text
     date_format = "%d %B %Y"
     grand_final_date = datetime.strptime(date_str, date_format)
     host_city = event_data.p.find_all("a")[0].text
@@ -79,6 +78,15 @@ def scrape_song_info(song_data: str, associated_event: Event, associated_country
                 country=associated_country, event=associated_event)
 
     return song_service.create_song(song=song)
+
+
+def scrape_winner_country_from_last_year(last_year: int)->str:
+    general_html = selenium_scraping(url=SCRAPING_BASE_URL + str(last_year),chrome_driver=driver)
+    soup = BeautifulSoup(general_html, "html.parser")
+    winner_data = soup.find("div", id="voting_table").find_all("tr", id=True)[0]
+    country_name = winner_data.a['title'].split(" in")[0].strip()
+    return country_name
+
 
 if __name__ == '__main__':
     scrape_data(years=[2023])

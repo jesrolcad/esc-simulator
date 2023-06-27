@@ -11,7 +11,7 @@ SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
 
 @contextmanager
 def get_db():
-    db_session = SessionLocal()
+    db_session = SessionLocal(expire_on_commit=False)
     try:
         yield db_session
         db_session.commit()

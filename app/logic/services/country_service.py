@@ -12,7 +12,9 @@ def create_country(country: Country)->Country:
     try:
         if existing_country:
             raise Exception("Country already exists")
+
         country_entity = country_model_mapper.map_to_country_entity(country)
         return country_model_mapper.map_to_country_model(country_repository.create_country(country_entity))
+    
     except Exception:
         return existing_country

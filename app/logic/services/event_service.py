@@ -12,18 +12,26 @@ def get_event(id: int = None, year: int = None)->Event:
 def create_event_and_associated_ceremonies(event: Event, grand_final_date: datetime)->Event:
     event_entity = event_model_mapper.map_to_event_entity(event)
     created_event_entity = event_repository.create_event(event_entity)
-    associate_ceremonies_to_event(event, grand_final_date)
+    created_event_model = event_model_mapper.map_to_event_model(created_event_entity)
+    associate_ceremonies_to_event(created_event_model, grand_final_date)
 
-    return event_model_mapper.map_to_event_model(created_event_entity)
+    return created_event_model
 
 
 def associate_ceremonies_to_event(event: Event, grand_final_date: datetime):
     semifinal1_date = grand_final_date - timedelta(days=4)
     semifinal2_date = grand_final_date - timedelta(days=2)
 
-    first_semifinal_ceremony_type = ceremony_repository.get_ceremony_type(code='SF1')
-    second_semifinal_ceremony_type = ceremony_repository.get_ceremony_type(code='SF2')
-    grand_final_ceremony_type = ceremony_repository.get_ceremony_type(code='GF')
+    first_semifinal_ceremony_type = (ceremony_model_mapper
+                                    .map_to_ceremony_type_model(ceremony_repository.get_ceremony_type(code='SF1')))
+    
+    second_semifinal_ceremony_type = (ceremony_model_mapper
+                                    .map_to_ceremony_type_model(ceremony_repository.get_ceremony_type(code='SF2')))
+
+    grand_final_ceremony_type = (ceremony_model_mapper
+                                    .map_to_ceremony_type_model(ceremony_repository.get_ceremony_type(code='GF')))
+
+    print(event)
 
     first_semifinal_ceremony = Ceremony(date=semifinal1_date, ceremony_type=first_semifinal_ceremony_type, event=event)
     second_semifinal_ceremony = Ceremony(date=semifinal2_date, ceremony_type=second_semifinal_ceremony_type, event=event)
