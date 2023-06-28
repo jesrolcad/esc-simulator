@@ -1,7 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Date, Table
 from sqlalchemy.orm import declarative_base, relationship
-
-Base = declarative_base()
+from app.core.database import Base
 
 SongCeremony = Table('song_ceremony', Base.metadata, Column("id", Integer, primary_key=True), Column("song_id", Integer, ForeignKey('song.id')), 
 Column("ceremony_id", Integer, ForeignKey('ceremony.id')))

@@ -1,8 +1,10 @@
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 from app.core.config import settings
-from app.persistence.entities import Base
+
+Base = declarative_base()
 
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -20,7 +22,4 @@ def get_db():
         raise Exception(exception) from exception
     finally:
         db_session.close()
-
-#drop all
-Base.metadata.create_all(bind=engine)
 
