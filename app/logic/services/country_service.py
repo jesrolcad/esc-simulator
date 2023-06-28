@@ -1,4 +1,3 @@
-from app.persistence.repositories import country_repository
 from app.logic.models import Country
 from app.logic.model_mappers import country_model_mapper
 from app.logic.services.base_service import BaseService

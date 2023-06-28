@@ -18,7 +18,8 @@ options.add_argument("--incognito")
 options.add_argument("--headless")
 driver = webdriver.Chrome(service=service, options=options)
 
-class ScrapingService(BaseService):
+class DataService(BaseService):
+
     def selenium_scraping(self, url: str, chrome_driver: webdriver.Chrome)-> str:
         chrome_driver.get(url)
         chrome_driver.maximize_window()
