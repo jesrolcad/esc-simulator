@@ -9,6 +9,7 @@ load_dotenv(dotenv_path=env_path)
 class Settings:
     PROJECT_NAME:str = "ESC Simulator"
     PROJECT_VERSION: str = "1.0.0"
+    PROJECT_DESCRIPTION: str = "API to simulate ESC results"
 
     POSTGRES_USER : str = os.getenv("POSTGRES_USER")
     POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")

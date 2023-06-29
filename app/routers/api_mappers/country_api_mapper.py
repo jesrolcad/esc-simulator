@@ -1,4 +1,4 @@
-from app.routers.schemas.country import CountryCreateRequest
+from app.routers.schemas.country_schemas import CountryCreateRequest
 from app.persistence.entities import CountryEntity
 
 def map_to_country_model(country: CountryCreateRequest)->CountryEntity:
