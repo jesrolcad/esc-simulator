@@ -4,6 +4,14 @@ class BadRequestError(Exception):
 
     def __str__(self):
         return self.message
+    
+
+class InternalError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
 
 class EntityAlreadyExistsError(BadRequestError):
     def __init__(self, entity_name, entity_id):
