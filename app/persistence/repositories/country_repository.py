@@ -1,5 +1,4 @@
 from sqlalchemy import insert, select
-from app.db.database import get_db
 from app.persistence.entities import CountryEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -20,9 +19,9 @@ class CountryRepository(BaseRepository):
 
 
     def create_country(self, country: CountryEntity)->CountryEntity:
-            insert_stmt = (insert(CountryEntity).values(name=country.name,code=country.code).returning(CountryEntity.id))
-            result = self.session.execute(insert_stmt.returning(CountryEntity.id))
-            country_id = result.fetchone()[0]
+        insert_stmt = (insert(CountryEntity).values(name=country.name,code=country.code).returning(CountryEntity.id))
+        result = self.session.execute(insert_stmt.returning(CountryEntity.id))
+        country_id = result.fetchone()[0]
 
-            country.id = country_id
-            return country
+        country.id = country_id
+        return country

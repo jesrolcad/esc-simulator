@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, or_
+from sqlalchemy import select, insert
 from app.persistence.entities import EventEntity
 from app.persistence.repositories.base_repository import BaseRepository
 

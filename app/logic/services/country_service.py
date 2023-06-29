@@ -2,6 +2,7 @@ from app.logic.models import Country
 from app.logic.model_mappers import country_model_mapper
 from app.logic.services.base_service import BaseService
 from app.persistence.repositories.country_repository import CountryRepository
+from app.utils.exceptions import EntityAlreadyExistsError
 
 
 class CountryService(BaseService):
@@ -14,10 +15,10 @@ class CountryService(BaseService):
         existing_country = self.get_country(id=country.id, name=country.name, code=country.code)
         try:
             if existing_country:
-                raise Exception("Country already exists")
+                raise EntityAlreadyExistsError("Country", country.id)
 
             country_entity = country_model_mapper.map_to_country_entity(country)
             return country_model_mapper.map_to_country_model(CountryRepository(self.session).create_country(country_entity))
         
-        except Exception:
+        except EntityAlreadyExistsError:
             return existing_country
