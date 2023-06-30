@@ -4,7 +4,7 @@ from app.persistence.repositories.base_repository import BaseRepository
 
 class CountryRepository(BaseRepository):
 
-    def get_country(self, id: int, name: str, code: str)->CountryEntity:
+    def get_country(self, id: int = None, name: str = None, code: str = None)->CountryEntity:
         if id is None and name is None and code is None:
             raise ValueError("Id, name or code must be provided")
         query = select(CountryEntity)

@@ -1,10 +1,12 @@
 from sqlalchemy import select, insert
+from datetime import datetime
 from app.persistence.entities import EventEntity
+from app.persistence.entities import CeremonyEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
 class EventRepository(BaseRepository):
 
-    def get_event(self, id: int, year: int)->EventEntity:
+    def get_event(self, id: int = None, year: int = None)->EventEntity:
         if id is None and year is None:
             raise ValueError("Id or year must be provided")
 
@@ -24,5 +26,10 @@ class EventRepository(BaseRepository):
         event_id = result.fetchone()[0]
 
         event.id = event_id
+
         return event
+    
+
+    
+
 

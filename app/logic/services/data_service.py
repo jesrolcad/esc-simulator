@@ -1,14 +1,17 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from app.core.config import Settings
 from app.utils import constants
 from app.logic.services.base_service import BaseService
-from app.logic.services.event_service import EventService
-from app.logic.services.country_service import CountryService
 from app.logic.services.song_service import SongService
-from app.logic.models import Country, Event, Song
+from app.persistence.repositories.event_repository import EventRepository
+from app.persistence.repositories.country_repository import CountryRepository
+from app.persistence.repositories.song_repository import SongRepository
+from app.persistence.repositories.ceremony_repository import CeremonyRepository
+from app.logic.models import Country, Event, Song, Ceremony, CeremonyType
+from app.logic.model_mappers import ceremony_model_mapper, event_model_mapper, country_model_mapper, song_model_mapper
 
 SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
 
@@ -27,22 +30,24 @@ class DataService(BaseService):
         return html_source_code
 
     def scrape_data(self, years: list[int]):
-        for year in years:
-            event = EventService(self.session).get_event(year=year)
-            if not event:
-                print(f"Scraping data for year {year}")
-                
-                general_html = self.selenium_scraping(url=SCRAPING_BASE_URL + str(year),chrome_driver=driver)
-                soup = BeautifulSoup(general_html, "html.parser")
-                event_data = soup.find("div", class_="voting_info mm")
-                last_year_winner_country_name = self.scrape_winner_country_from_last_year(last_year=year-1)
-                last_year_winner_country = CountryService(self.session).get_country(name=last_year_winner_country_name)
-                event = self.scrape_event_info(event_data=event_data)
-                data_list = soup.find("div", id="voting_table").find_all("tr", id=True)
-                for data in data_list:
-                    country = self.scrape_country_info(country_data=data)
-                    self.scrape_song_info(song_data=data, associated_event=event, associated_country=country, 
-                                            last_year_winner_country=last_year_winner_country)
+        with self.session as session:
+            for year in years:
+                event = EventRepository(session).get_event(year=year)
+                if not event:
+                    print(f"Scraping data for year {year}")
+                    
+                    general_html = self.selenium_scraping(url=SCRAPING_BASE_URL + str(year),chrome_driver=driver)
+                    soup = BeautifulSoup(general_html, "html.parser")
+                    event_data = soup.find("div", class_="voting_info mm")
+                    last_year_winner_country_name = self.scrape_winner_country_from_last_year(last_year=year-1)
+                    last_year_winner_country = CountryRepository(session).get_country(name=last_year_winner_country_name)
+                    print(last_year_winner_country)
+                    event = self.scrape_event_info(event_data=event_data)
+                    data_list = soup.find("div", id="voting_table").find_all("tr", id=True)
+                    for data in data_list:
+                        country = self.scrape_country_info(country_data=data)
+                        self.scrape_song_info(song_data=data, associated_event=event, associated_country=country, 
+                                                last_year_winner_country=last_year_winner_country)
 
     def scrape_event_info(self, event_data: str)-> Event:
         date_str = event_data.p.span.text
@@ -53,7 +58,20 @@ class DataService(BaseService):
         slogan = event_data.p.find_all()[-1].text
 
         event = Event(year=grand_final_date.year, slogan=slogan, host_city=host_city, arena=arena)
-        created_event = EventService(self.session).create_event_and_associated_ceremonies(event, grand_final_date)
+        created_event = event_model_mapper.map_to_event_model(EventRepository(self.session).create_event(event=event))
+
+        first_semifinal_ceremony = ceremony_model_mapper.map_to_ceremony_entity((Ceremony(date=grand_final_date - timedelta(days=4), 
+                                            event=created_event, ceremony_type=CeremonyType(name="Semifinal 1", code="SF1"))))
+        
+        second_semifinal_ceremony = ceremony_model_mapper.map_to_ceremony_entity((Ceremony(date=grand_final_date - timedelta(days=2), 
+                                            event=created_event, ceremony_type=CeremonyType(name="Semifinal 2", code="SF2"))))
+        
+        grand_final_ceremony = ceremony_model_mapper.map_to_ceremony_entity((Ceremony(date=grand_final_date, event=created_event, 
+                                                                            ceremony_type=CeremonyType(name="Grand Final", code="GF"))))
+        
+
+        for ceremony_entity in [first_semifinal_ceremony, second_semifinal_ceremony, grand_final_ceremony]:
+            CeremonyRepository(self.session).create_ceremony(ceremony=ceremony_entity)
 
         return created_event
 
@@ -62,7 +80,12 @@ class DataService(BaseService):
         country_name = country_data.a['title'].split(" in")[0].strip()
         country_code = constants.COUNTRY_NAME_TO_CODE.get(country_name, constants.UNREGISTERED_COUNTRY_CODE)
         country = Country(name=country_name, code=country_code)
-        created_country = CountryService(self.session).create_country(country)    
+        existing_country = CountryRepository(self.session).get_country(name=country_name)
+
+        if existing_country:
+            return existing_country
+
+        created_country = country_model_mapper.map_to_country_model(CountryRepository(self.session).create_country(country=country))
         
         return created_country
 
@@ -80,7 +103,7 @@ class DataService(BaseService):
                     televote_potential_score=televote_potential_score, belongs_to_host_country=belongs_to_host_country,
                     country=associated_country, event=associated_event)
 
-        return SongService(self.session).create_song(song=song)
+        return song_model_mapper.map_to_song_model(SongRepository(self.session).create_song(song=song))
 
 
     def scrape_winner_country_from_last_year(self, last_year: int)->str:
