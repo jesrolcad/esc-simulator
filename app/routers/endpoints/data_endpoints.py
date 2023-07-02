@@ -9,6 +9,5 @@ router = APIRouter(prefix="/data", tags=["data"])
 
 @router.post(path="/populate", summary=post_populate["summary"], description=post_populate["description"], responses=post_populate["responses"])
 async def populate_data(year_request: YearRequest, db: get_db = Depends()):
-    print(db)
     DataService(db).scrape_data(year_request.years)
-    return ResultResponse(result=True, message="Data populated successfully")
+    return ResultResponse(message="Data populated successfully")

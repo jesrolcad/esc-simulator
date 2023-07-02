@@ -35,6 +35,7 @@ COUNTRY_NAME_TO_CODE = {
     "Australia": "AUS",
     "North Macedonia": "MKD",
     "Czech Republic": "CZE",
+    "Czechia": "CZE",
     "Ireland": "IRL",
     "Georgia": "GEO",
     "Latvia": "LAT",

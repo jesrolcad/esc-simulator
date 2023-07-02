@@ -14,13 +14,11 @@ class InternalError(Exception):
         return self.message
 
 class EntityAlreadyExistsError(BadRequestError):
-    def __init__(self, entity_name, entity_id):
-        super().__init__(f"{entity_name} with id {entity_id} already exists")
+    def __init__(self, entity_name, entity_id, message=None):
+        if message is None:
+            message = f"{entity_name} with id {entity_id} already exists"
+        super().__init__(message)
         self.entity_name = entity_name
         self.entity_id = entity_id
-
-
-if __name__ == "__main__":
-    raise EntityAlreadyExistsError("Country", 1)
 
 

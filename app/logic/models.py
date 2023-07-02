@@ -15,7 +15,7 @@ class Song(BaseModel):
     votings: List['Voting'] = []
 
 class Event(BaseModel):
-    id: int = 0
+    id: int = None
     year: int
     slogan: str
     host_city: str
@@ -24,7 +24,7 @@ class Event(BaseModel):
 
 
 class Country(BaseModel):
-    id: int = 0
+    id: int = None
     name: str = None
     code: str = None
     songs: List[Song] =  []
@@ -32,13 +32,13 @@ class Country(BaseModel):
 
 
 class CeremonyType(BaseModel):
-    id: int = 0
+    id: int = None
     name: str
     code: str
 
 
 class Ceremony(BaseModel):
-    id: int = 0
+    id: int = None
     date: datetime
     ceremony_type: CeremonyType
     event: Event
@@ -47,12 +47,12 @@ class Ceremony(BaseModel):
 
 
 class VotingType(BaseModel):
-    id: int
+    id: int = None
     name: str
     code: str
 
 class Voting(BaseModel):
-    id: int
+    id: int = None
     score: Literal[1, 2, 3, 4, 5, 6, 7, 8, 10, 12]
     voting_type: VotingType
     ceremony: Ceremony
