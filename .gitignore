@@ -2,3 +2,7 @@
 /esc-simulator-virtual-env/
 __pycache__/
 .env
+/app/db/data
+/esc_simulator.egg-info
+.vscode
+.pylintrc

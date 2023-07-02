@@ -35,6 +35,7 @@ COUNTRY_NAME_TO_CODE = {
     "Australia": "AUS",
     "North Macedonia": "MKD",
     "Czech Republic": "CZE",
+    "Czechia": "CZE",
     "Ireland": "IRL",
     "Georgia": "GEO",
     "Latvia": "LAT",
@@ -45,5 +46,12 @@ COUNTRY_NAME_TO_CODE = {
     "Bosnia & Herzegovina": "BIH",
 }
 
+UNREGISTERED_COUNTRY_CODE = "UNR"
+
 
 BIG_FIVE = ["Spain", "Germany", "Italy", "France", "United Kingdom"]
+
+FIRST_SEMIFINAL_CEREMONY_TYPE_ID = 1
+SECOND_SEMIFINAL_CEREMONY_TYPE_ID = 2
+GRAND_FINAL_CEREMONY_TYPE_ID = 3
+
