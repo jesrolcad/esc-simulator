@@ -6,6 +6,14 @@ class BadRequestError(Exception):
         return self.message
     
 
+class NotFoundError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 class InternalError(Exception):
     def __init__(self, message):
         self.message = message
