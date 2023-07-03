@@ -14,6 +14,9 @@ def map_to_song_entity(song: Song)->SongEntity:
 
 
 def map_to_song_model(song_entity: SongEntity)->Song:
+    if song_entity is None:
+        return None
+    
     event = event_model_mapper.map_to_event_model(song_entity.event)
     country = country_model_mapper.map_to_country_model(song_entity.country)
     return Song(id=song_entity.id, title=song_entity.title, artist=song_entity.artist, 
