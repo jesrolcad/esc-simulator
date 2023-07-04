@@ -5,7 +5,7 @@ from app.persistence.repositories.base_repository import BaseRepository
 class SongRepository(BaseRepository):
 
     def get_song(self, song_id: int)-> SongEntity:
-        return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id))
+        return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
 
 
     def create_song(self, song: SongEntity)-> SongEntity:
