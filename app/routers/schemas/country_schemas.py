@@ -1,9 +1,12 @@
 from pydantic import BaseModel
+from app.routers.schemas.base_schemas import SchemaId
 
-
-class CountryBase(BaseModel):
+class  BaseCountry(BaseModel):
     name: str
     code: str
 
-class CountryCreateRequest(CountryBase):
+class CountryWithoutSongsVotingsDataResponse(BaseCountry, SchemaId):
+    id: int
+
+class CountryCreateRequest(BaseCountry):
     pass
