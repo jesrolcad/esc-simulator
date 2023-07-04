@@ -44,6 +44,7 @@ COUNTRY_NAME_TO_CODE = {
     "Armenia": "ARM",
     "Montenegro": "MNE",
     "Bosnia & Herzegovina": "BIH",
+    "Rest of the World": "ROW",
 }
 
 UNREGISTERED_COUNTRY_CODE = "UNR"
