@@ -3,8 +3,7 @@ from app.logic.services.song_service import SongService
 from app.routers.api_mappers import song_api_mapper as SongApiMapper
 from app.routers.schemas.song_schemas import SongDataResponse
 from app.routers.schemas.country_schemas import CountryWithoutSongsVotingsDataResponse
-from app.logic.models import Song, Country, Event
-from app.routers.endpoints import song_endpoints as SongRouter
+from app.logic.models import Song, Country, EventDELE
 from app.utils.exceptions import NotFoundError
 from app.main import app
 from fastapi.testclient import TestClient
@@ -50,6 +49,7 @@ async def test_get_song_by_id(mocker, client, song_schema, song_model):
 
 @pytest.mark.asyncio
 async def test_get_song_by_id_exception(mocker, client):
+
     mocker.patch.object(SongService, 'get_song', side_effect=NotFoundError)
 
     song_id = 1
