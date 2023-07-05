@@ -5,7 +5,6 @@ from app.logic.models import Song, Country, Event
 from app.persistence.entities import SongEntity
 from app.utils.exceptions import NotFoundError
 
-
 @pytest.fixture
 def mock_session(mocker):
     return mocker.Mock()

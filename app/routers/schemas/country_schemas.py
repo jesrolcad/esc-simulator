@@ -6,7 +6,7 @@ class  BaseCountry(BaseModel):
     code: str
 
 class CountryWithoutSongsVotingsDataResponse(BaseCountry, SchemaId):
-    id: int
+    pass
 
 class CountryCreateRequest(BaseCountry):
     pass

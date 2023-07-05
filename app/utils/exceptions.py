@@ -7,7 +7,9 @@ class BadRequestError(Exception):
     
 
 class NotFoundError(Exception):
-    def __init__(self, message):
+    def __init__(self, message=None):
+        if message is None:
+            message = "Resource not found"
         self.message = message
 
     def __str__(self):
