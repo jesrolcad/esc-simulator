@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -16,7 +17,14 @@ from app.utils.exceptions import EntityAlreadyExistsError
 
 SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
 
-service = Service(Settings.CHROME_DRIVER_PATH)
+GITHUB_ACTIONS_CHROME_DRIVER_PATH = "/usr/bin/chromedriver"
+
+if os.getenv('GITHUB_ACTIONS') == 'true':
+    service = Service(GITHUB_ACTIONS_CHROME_DRIVER_PATH)
+
+else:
+    service = Service(Settings.CHROME_DRIVER_PATH)
+
 options = webdriver.ChromeOptions()
 options.add_argument("--incognito")
 options.add_argument("--headless")
