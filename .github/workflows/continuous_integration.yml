@@ -35,6 +35,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Set up Chrome WebDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-chromedriver
+        sudo ln -sf /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+
     - name: Run tests
       run: |
         if pytest --collect-only | grep "collected 0 items"; then

@@ -1,12 +1,12 @@
 import pytest
+from fastapi.testclient import TestClient
 from app.logic.services.song_service import SongService
 from app.routers.api_mappers import song_api_mapper as SongApiMapper
 from app.routers.schemas.song_schemas import SongDataResponse
 from app.routers.schemas.country_schemas import CountryWithoutSongsVotingsDataResponse
-from app.logic.models import Song, Country
+from app.logic.models import Song, Country, Event
 from app.utils.exceptions import NotFoundError
 from app.main import app
-from fastapi.testclient import TestClient
 
 @pytest.fixture
 def client():
