@@ -3,8 +3,16 @@ from app.logic.models import Song
 from app.persistence.repositories.song_repository import SongRepository
 from app.logic.services.base_service import BaseService
 from app.logic.model_mappers import song_model_mapper
+from app.utils.exceptions import NotFoundError
 
 class SongService(BaseService):
+
+    def get_song(self, song_id: int)-> Song:
+        song = SongRepository(self.session).get_song(song_id)
+        if song is None:
+            raise NotFoundError(f"Song with id {song_id} not found")
+        
+        return song_model_mapper.map_to_song_model(song)
 
     def create_song(self, song: Song)-> Song:
         song_entity = song_model_mapper.map_to_song_entity(song)

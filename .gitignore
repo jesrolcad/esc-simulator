@@ -6,3 +6,5 @@ __pycache__/
 /esc_simulator.egg-info
 .vscode
 .pylintrc
+.coverage
+htmlcov/
