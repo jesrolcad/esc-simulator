@@ -17,16 +17,18 @@ from app.utils.exceptions import EntityAlreadyExistsError
 
 SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
 
+GITHUB_ACTIONS_CHROME_DRIVER_PATH = "/usr/bin/chromedriver"
+
 if os.getenv('GITHUB_ACTIONS') == 'true':
-    driver = webdriver.Chrome()
+    service = Service(GITHUB_ACTIONS_CHROME_DRIVER_PATH)
 
 else:
-
     service = Service(Settings.CHROME_DRIVER_PATH)
-    options = webdriver.ChromeOptions()
-    options.add_argument("--incognito")
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(service=service, options=options)
+
+options = webdriver.ChromeOptions()
+options.add_argument("--incognito")
+options.add_argument("--headless")
+driver = webdriver.Chrome(service=service, options=options)
 
 class DataService(BaseService):
 
