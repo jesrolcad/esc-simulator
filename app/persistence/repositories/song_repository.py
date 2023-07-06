@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, and_, or_, func
+from sqlalchemy import select, insert, and_, or_
 from app.persistence.entities import SongEntity, CountryEntity, EventEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
