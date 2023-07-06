@@ -18,8 +18,8 @@ class SongService(BaseService):
         song_entity = song_model_mapper.map_to_song_entity(song)
         return song_model_mapper.map_to_song_model(SongRepository(self.session).create_song(song_entity))
 
-    def get_songs(self)-> list:
-        return [song_model_mapper.map_to_song_model(song) for song in SongRepository(self.session).get_songs()]
+    def get_songs(self, title: str, country_code: str, event_year: int)-> list:
+        return [song_model_mapper.map_to_song_model(song) for song in SongRepository(self.session).get_songs(title=title, country_code=country_code, event_year=event_year)]
 
     def calculate_potential_scores(self, position: int)-> tuple:
         """
