@@ -14,3 +14,12 @@ get_song = {
             "model": ErrorResponse, 
             "description": "Song not found"}}
 }
+
+get_songs = {
+    "summary": "Get all songs",
+    "description": """Get all songs. You can filter the results by song name, country or event. If no songs are found, an empty list will be returned.""",
+    "responses": {
+        status.HTTP_200_OK: {
+            "model": list[SongDataResponse],
+            "description": "Songs retrieved successfully"}}
+}
