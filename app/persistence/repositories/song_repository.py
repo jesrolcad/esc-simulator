@@ -8,6 +8,11 @@ class SongRepository(BaseRepository):
         return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
 
 
+    def get_songs(self)-> SongEntity:
+        return self.session.scalars(select(SongEntity)).all()
+    
+
+
     def create_song(self, song: SongEntity)-> SongEntity:
         insert_stmt = (insert(SongEntity).values(title=song.title, artist=song.artist, 
                         jury_potential_score=song.jury_potential_score, 
