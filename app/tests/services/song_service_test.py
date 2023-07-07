@@ -2,6 +2,7 @@ import pytest
 from app.logic.services.song_service import SongService
 from app.persistence.repositories.song_repository import SongRepository
 from app.logic.models import Song, Country, Event
+from app.logic.model_mappers.song_model_mapper import SongModelMapper
 from app.persistence.entities import SongEntity
 from app.utils.exceptions import NotFoundError
 
@@ -29,7 +30,7 @@ def song_model():
 def test_get_song(mocker, mock_session, song_entity, song_model):
 
     mocker.patch.object(SongRepository, 'get_song', return_value=song_entity)
-    mocker.patch('app.logic.model_mappers.song_model_mapper.map_to_song_model', return_value=song_model)
+    mocker.patch.object(SongModelMapper, 'map_to_song_model', return_value=song_model)
 
     song_id = 1
     result = SongService(mock_session).get_song(song_id)
@@ -46,7 +47,20 @@ def test_get_song_exception(mocker, mock_session):
 
     song_id = 1
 
-    with pytest.raises(NotFoundError) as e:
+    with pytest.raises(NotFoundError):
         SongService(mock_session).get_song(song_id)
+
+
+def test_get_songs(mocker, mock_session, song_entity, song_model):
+    
+    mocker.patch.object(SongRepository, 'get_songs', return_value=[song_entity])
+    mocker.patch.object(SongModelMapper,'map_to_song_model', return_value=song_model)
+
+    result = SongService(mock_session).get_songs(title="test", country_code="COD", event_year=1)
+    
+    assert isinstance(result, list)
+    assert isinstance(result[0], Song)
+    assert result[0] == song_model
+    SongRepository(mock_session).get_songs.assert_called_once()
 
 

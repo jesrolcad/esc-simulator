@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.logic.services.song_service import SongService
-from app.routers.api_mappers import song_api_mapper as SongApiMapper
+from app.routers.api_mappers.song_api_mapper import SongApiMapper
 from app.routers.schemas.song_schemas import SongDataResponse
 from app.routers.schemas.country_schemas import CountryWithoutSongsVotingsDataResponse
 from app.logic.models import Song, Country, Event
@@ -57,3 +57,14 @@ async def test_get_song_by_id_exception(mocker, client):
 
     assert response.status_code == 404
 
+
+@pytest.mark.asyncio
+async def test_get_songs(mocker, client, song_schema, song_model):
+    
+    mocker.patch.object(SongService, 'get_songs', return_value=[song_model])
+    mocker.patch.object(SongApiMapper, 'map_to_song_data_response', return_value=song_schema)
+
+    response = client.get("/songs")
+
+    assert response.status_code == 200
+    assert response.json() == [song_schema.__dict__]

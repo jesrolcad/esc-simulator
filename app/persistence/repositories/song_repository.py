@@ -1,11 +1,20 @@
-from sqlalchemy import select, insert
-from app.persistence.entities import SongEntity
+from sqlalchemy import select, insert, and_, or_
+from app.persistence.entities import SongEntity, CountryEntity, EventEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
 class SongRepository(BaseRepository):
 
     def get_song(self, song_id: int)-> SongEntity:
         return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
+
+
+    def get_songs(self, title: str, country_code: str, event_year: int)-> SongEntity:
+        
+        return self.session.scalars(select(SongEntity).join(CountryEntity).join(EventEntity).filter(and_(
+            or_(SongEntity.title.ilike(f"%{title}%"), title is None),
+            or_(CountryEntity.code == country_code, country_code is None),
+            or_(EventEntity.year == event_year, event_year is None)
+        ))).all()
 
 
     def create_song(self, song: SongEntity)-> SongEntity:
