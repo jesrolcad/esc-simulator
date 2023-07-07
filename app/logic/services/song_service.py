@@ -2,7 +2,7 @@ from random import randint
 from app.logic.models import Song
 from app.persistence.repositories.song_repository import SongRepository
 from app.logic.services.base_service import BaseService
-from app.logic.model_mappers import song_model_mapper
+from app.logic.model_mappers.song_model_mapper import SongModelMapper
 from app.utils.exceptions import NotFoundError
 
 class SongService(BaseService):
@@ -12,14 +12,14 @@ class SongService(BaseService):
         if song is None:
             raise NotFoundError(f"Song with id {song_id} not found")
         
-        return song_model_mapper.map_to_song_model(song)
+        return SongModelMapper.map_to_song_model(song)
 
     def create_song(self, song: Song)-> Song:
-        song_entity = song_model_mapper.map_to_song_entity(song)
-        return song_model_mapper.map_to_song_model(SongRepository(self.session).create_song(song_entity))
+        song_entity = SongModelMapper.map_to_song_entity(song)
+        return SongModelMapper.map_to_song_model(SongRepository(self.session).create_song(song_entity))
 
     def get_songs(self, title: str, country_code: str, event_year: int)-> list:
-        return [song_model_mapper.map_to_song_model(song) for song in SongRepository(self.session)
+        return [SongModelMapper.map_to_song_model(song) for song in SongRepository(self.session)
                 .get_songs(title=title, country_code=country_code, event_year=event_year)]
 
     def calculate_potential_scores(self, position: int)-> tuple:
