@@ -1,6 +1,6 @@
 from fastapi import status
 from app.routers.schemas.base_schemas import ErrorResponse
-from app.routers.schemas.song_schemas import SongDataResponse
+from app.routers.schemas.song_schemas import SongDataResponse, SongDataResponseList
 
 get_song_by_id = {
     "summary": "Get song by id",
@@ -20,6 +20,6 @@ get_song_list = {
     "description": """Get all songs. You can filter the results by song name, country or event. If no songs are found, an empty list will be returned.""",
     "responses": {
         status.HTTP_200_OK: {
-            "model": list[SongDataResponse],
+            "model": SongDataResponseList,
             "description": "Songs retrieved successfully"}}
 }
