@@ -1,9 +1,11 @@
 from random import randint
 from app.logic.models import Song
 from app.persistence.repositories.song_repository import SongRepository
+from app.persistence.repositories.country_repository import CountryRepository
+from app.persistence.repositories.event_repository import EventRepository
 from app.logic.services.base_service import BaseService
 from app.logic.model_mappers.song_model_mapper import SongModelMapper
-from app.utils.exceptions import NotFoundError
+from app.utils.exceptions import NotFoundError, AlreadyExistsError, BusinessLogicValidationError
 
 class SongService(BaseService):
 
@@ -12,20 +14,44 @@ class SongService(BaseService):
         if song is None:
             raise NotFoundError(f"Song with id {song_id} not found")
         
-        return SongModelMapper.map_to_song_model(song)
+        return SongModelMapper().map_to_song_model(song_entity=song)
+    
+    def get_songs(self, title: str, country_code: str, event_year: int)-> list:
+        return [SongModelMapper().map_to_song_model(song_entity=song) for song in SongRepository(self.session)
+                .get_songs(title=title, country_code=country_code, event_year=event_year)]
 
     def create_song(self, song: Song)-> Song:
-        song_entity = SongModelMapper.map_to_song_entity(song)
-        return SongModelMapper.map_to_song_model(SongRepository(self.session).create_song(song_entity))
+        song_entity = SongModelMapper().map_to_song_entity(song=song)
+        self.check_associated_country_and_event_exist(country_id=song_entity.country_id, event_id=song_entity.event_id)
+        existing_song_by_country_and_event = SongRepository(self.session).get_song_by_country_and_event_id(country_id=song_entity.country_id, event_id=song_entity.event_id)
 
-    def get_songs(self, title: str, country_code: str, event_year: int)-> list:
-        return [SongModelMapper.map_to_song_model(song) for song in SongRepository(self.session)
-                .get_songs(title=title, country_code=country_code, event_year=event_year)]
+        if existing_song_by_country_and_event:
+            raise AlreadyExistsError(message=f"Song for country {song_entity.country_id} and event {song_entity.event_id} already exists")
+        return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
+    
+    def check_associated_country_and_event_exist(self, country_id: int, event_id: int):
+        country = CountryRepository(self.session).get_country(id=country_id)
+        event = EventRepository(self.session).get_event(id=event_id)
+        if country is None and event is None:
+            raise BusinessLogicValidationError(f"Country with id {country_id} and event with id {event_id} not found")
+        if country is None:
+            raise BusinessLogicValidationError(f"Country with id {country_id} not found")
+        if event is None:
+            raise BusinessLogicValidationError(f"Event with id {event_id} not found")
+        
+    
+    def check_if_another_song_marked_as_belongs_to_host_country(self, event_id: int):
+        song_id = SongRepository(self.session).check_existing_song_marked_as_belongs_to_host_country(event_id=event_id)
+        if song_id:
+            raise BusinessLogicValidationError(f"""Song with id {song_id} is already marked as belongs to host country. 
+                                            Only one song can be marked as belongs to host country per event""")
+
+
 
     def calculate_potential_scores(self, position: int)-> tuple:
         """
         Calculate the potential scores for a song based on its position in the final ranking
-        returns a tuple: (jury_potential_score, televote_potential_score)
+        returns a tuple: (jury_potential_score, televote_potential_score) 
         """
 
         jury_potential_score, televote_potential_score = 0, 0

@@ -16,7 +16,7 @@ from app.logic.model_mappers.ceremony_model_mapper import CeremonyModelMapper
 from app.logic.model_mappers.event_model_mapper import EventModelMapper 
 from app.logic.model_mappers.country_model_mapper import CountryModelMapper
 from app.logic.model_mappers.song_model_mapper import SongModelMapper
-from app.utils.exceptions import EntityAlreadyExistsError
+from app.utils.exceptions import AlreadyExistsError
 
 SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
 
@@ -45,13 +45,13 @@ class DataService(BaseService):
         for year in years:
             event = EventRepository(self.session).get_event(year=year)
             if event:
-                raise EntityAlreadyExistsError("Event", event.id, message=f"Event for year {year} already exists")
+                raise AlreadyExistsError("Event", event.id, message=f"Event for year {year} already exists")
             else:
                 general_html = self.selenium_scraping(url=SCRAPING_BASE_URL + str(year),chrome_driver=driver)
                 soup = BeautifulSoup(general_html, "html.parser")
                 event_data = soup.find("div", class_="voting_info mm")
                 last_year_winner_country_name = self.scrape_winner_country_from_last_year(last_year=year-1)
-                last_year_winner_country = (CountryModelMapper.map_to_country_model(CountryRepository(self.session)
+                last_year_winner_country = (CountryModelMapper().map_to_country_model(CountryRepository(self.session)
                                                                     .get_country(name=last_year_winner_country_name)))
                 event = self.scrape_event_info(event_data=event_data)
                 data_list = soup.find("div", id="voting_table").find_all("tr", id=True)
@@ -75,15 +75,15 @@ class DataService(BaseService):
         slogan = event_data.p.find_all()[-1].text
 
         event = Event(year=grand_final_date.year, slogan=slogan, host_city=host_city, arena=arena)
-        created_event = EventModelMapper.map_to_event_model(EventRepository(self.session).create_event(event=event))
+        created_event = EventModelMapper().map_to_event_model(EventRepository(self.session).create_event(event=event))
 
-        first_semifinal_ceremony = CeremonyModelMapper.map_to_ceremony_entity((Ceremony(date=grand_final_date - timedelta(days=4), 
+        first_semifinal_ceremony = CeremonyModelMapper().map_to_ceremony_entity((Ceremony(date=grand_final_date - timedelta(days=4), 
                                             event=created_event, ceremony_type=CeremonyType(id=1, name="Semifinal 1", code="SF1"))))
         
-        second_semifinal_ceremony = CeremonyModelMapper.map_to_ceremony_entity((Ceremony(date=grand_final_date - timedelta(days=2), 
+        second_semifinal_ceremony = CeremonyModelMapper().map_to_ceremony_entity((Ceremony(date=grand_final_date - timedelta(days=2), 
                                             event=created_event, ceremony_type=CeremonyType(id=2, name="Semifinal 2", code="SF2"))))
         
-        grand_final_ceremony = CeremonyModelMapper.map_to_ceremony_entity((Ceremony(date=grand_final_date, event=created_event, 
+        grand_final_ceremony = CeremonyModelMapper().map_to_ceremony_entity((Ceremony(date=grand_final_date, event=created_event, 
                                                                             ceremony_type=CeremonyType(id=3, name="Grand Final", code="GF"))))
         
 
@@ -100,9 +100,9 @@ class DataService(BaseService):
         existing_country = CountryRepository(self.session).get_country(name=country_name)
 
         if existing_country:
-            return CountryModelMapper.map_to_country_model(existing_country)
+            return CountryModelMapper().map_to_country_model(existing_country)
 
-        created_country = CountryModelMapper.map_to_country_model(CountryRepository(self.session).create_country(country=country))
+        created_country = CountryModelMapper().map_to_country_model(CountryRepository(self.session).create_country(country=country))
         
         return created_country
 
@@ -126,9 +126,9 @@ class DataService(BaseService):
                     televote_potential_score=televote_potential_score, belongs_to_host_country=belongs_to_host_country,
                     country=associated_country, event=associated_event)
 
-        song_entity = SongModelMapper.map_to_song_entity(song)
+        song_entity = SongModelMapper().map_to_song_entity(song)
 
-        return SongModelMapper.map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
+        return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
 
 
     def scrape_winner_country_from_last_year(self, last_year: int)->str:

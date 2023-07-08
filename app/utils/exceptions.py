@@ -1,4 +1,4 @@
-class BadRequestError(Exception):
+class BusinessLogicValidationError(Exception):
     def __init__(self, message):
         self.message = message
 
@@ -23,8 +23,8 @@ class InternalError(Exception):
     def __str__(self):
         return self.message
 
-class EntityAlreadyExistsError(BadRequestError):
-    def __init__(self, entity_name, entity_id, message=None):
+class AlreadyExistsError(BusinessLogicValidationError):
+    def __init__(self, entity_name=None, entity_id=None, message=None):
         if message is None:
             message = f"{entity_name} with id {entity_id} already exists"
         super().__init__(message)

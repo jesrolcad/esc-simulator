@@ -21,3 +21,8 @@ class SongDataResponse(BaseSong, SchemaId):
 
 class SongDataResponseList(BaseModel):
     songs: List[SongDataResponse]
+
+
+class CreateSongRequest(BaseSong):
+    country_id: int = Field(..., description="Country id", example=1)
+    event_id: int = Field(..., description="Event id", example=1)
