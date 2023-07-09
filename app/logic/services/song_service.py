@@ -38,11 +38,11 @@ class SongService(BaseService):
         country = CountryRepository(self.session).get_country(id=country_id)
         event = EventRepository(self.session).get_event(id=event_id)
         if country is None and event is None:
-            raise BusinessLogicValidationError(f"Country with id {country_id} and event with id {event_id} not found")
+            raise BusinessLogicValidationError(field="country_id, event_id",message=f"Country with id {country_id} and event with id {event_id} not found")
         if country is None:
-            raise BusinessLogicValidationError(f"Country with id {country_id} not found")
+            raise BusinessLogicValidationError(field="country_id",message=f"Country with id {country_id} not found")
         if event is None:
-            raise BusinessLogicValidationError(f"Event with id {event_id} not found")
+            raise BusinessLogicValidationError(field="event_id",message=f"Event with id {event_id} not found")
         
     
     def check_if_another_song_marked_as_belongs_to_host_country(self, event_id: int):

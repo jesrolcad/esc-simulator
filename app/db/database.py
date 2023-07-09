@@ -19,7 +19,7 @@ def get_db():
         db_session.commit()
     except BusinessLogicValidationError as exception:
         db_session.rollback()
-        raise BusinessLogicValidationError(str(exception))
+        raise BusinessLogicValidationError(field=exception.field,message=str(exception))
     except InternalError as exception:
         db_session.rollback()
         raise InternalError(str(exception)) 
