@@ -21,7 +21,7 @@ class SongRepository(BaseRepository):
     
 
     def check_existing_song_marked_as_belongs_to_host_country(self, event_id)->int:
-        return self.session.scalars(select(SongEntity.id).where(and_(SongEntity.belongs_to_host_country is True, SongEntity.event_id == event_id))).first()
+        return self.session.scalars(select(SongEntity.id).where(and_(bool(SongEntity.belongs_to_host_country), SongEntity.event_id == event_id))).first()
 
 
     def create_song(self, song: SongEntity)-> SongEntity:

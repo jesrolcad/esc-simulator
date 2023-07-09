@@ -23,10 +23,15 @@ class SongService(BaseService):
     def create_song(self, song: Song)-> Song:
         song_entity = SongModelMapper().map_to_song_entity(song=song)
         self.check_associated_country_and_event_exist(country_id=song_entity.country_id, event_id=song_entity.event_id)
-        existing_song_by_country_and_event = SongRepository(self.session).get_song_by_country_and_event_id(country_id=song_entity.country_id, event_id=song_entity.event_id)
+        existing_song_by_country_and_event = SongRepository(self.session).get_song_by_country_and_event_id(country_id=song_entity.country_id,
+                                                                                                            event_id=song_entity.event_id)
+
+        if song_entity.belongs_to_host_country:
+            self.check_if_another_song_marked_as_belongs_to_host_country(event_id=song_entity.event_id)
 
         if existing_song_by_country_and_event:
-            raise AlreadyExistsError(message=f"Song for country {song_entity.country_id} and event {song_entity.event_id} already exists")
+            raise AlreadyExistsError(message=f"Song for country_id {song_entity.country_id} and event_id {song_entity.event_id} already exists")
+        
         return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
     
     def check_associated_country_and_event_exist(self, country_id: int, event_id: int):
@@ -42,11 +47,9 @@ class SongService(BaseService):
     
     def check_if_another_song_marked_as_belongs_to_host_country(self, event_id: int):
         song_id = SongRepository(self.session).check_existing_song_marked_as_belongs_to_host_country(event_id=event_id)
+        print(song_id)
         if song_id:
-            raise BusinessLogicValidationError(f"""Song with id {song_id} is already marked as belongs to host country. 
-                                            Only one song can be marked as belongs to host country per event""")
-
-
+            raise BusinessLogicValidationError(f"Song with id {song_id} is already marked as belongs to host country.")
 
     def calculate_potential_scores(self, position: int)-> tuple:
         """
