@@ -4,10 +4,6 @@ from app.persistence.repositories.base_repository import BaseRepository
 
 class SongRepository(BaseRepository):
 
-    def get_song(self, song_id: int)-> SongEntity:
-        return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
-
-
     def get_songs(self, title: str, country_code: str, event_year: int)-> SongEntity:
         
         return self.session.scalars(select(SongEntity).join(CountryEntity).join(EventEntity).filter(and_(
@@ -15,6 +11,17 @@ class SongRepository(BaseRepository):
             or_(CountryEntity.code == country_code, country_code is None),
             or_(EventEntity.year == event_year, event_year is None)
         ))).all()
+
+    def get_song(self, song_id: int)-> SongEntity:
+        return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
+
+
+    def get_song_by_country_and_event_id(self, country_id: int, event_id: int)-> SongEntity:
+        return self.session.scalars(select(SongEntity).where(and_(SongEntity.country_id == country_id, SongEntity.event_id == event_id))).first()
+    
+
+    def check_existing_song_marked_as_belongs_to_host_country(self, event_id)->int:
+        return self.session.scalars(select(SongEntity.id).where(and_(bool(SongEntity.belongs_to_host_country), SongEntity.event_id == event_id))).first()
 
 
     def create_song(self, song: SongEntity)-> SongEntity:

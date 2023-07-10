@@ -3,7 +3,7 @@ from typing import List, Literal
 from pydantic import BaseModel
 
 class Song(BaseModel):
-    id: int = 0
+    id: int = None
     title: str
     artist: str
     belongs_to_host_country: bool
@@ -16,10 +16,10 @@ class Song(BaseModel):
 
 class Event(BaseModel):
     id: int = None
-    year: int
-    slogan: str
-    host_city: str
-    arena: str
+    year: int = None
+    slogan: str = None
+    host_city: str = None
+    arena: str = None
     ceremonies: List['Ceremony'] = []
 
 
