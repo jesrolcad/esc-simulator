@@ -1,5 +1,7 @@
 class BusinessLogicValidationError(Exception):
-    def __init__(self, field: str, message: str):
+    def __init__(self, field: str = None, message: str = None):
+        if not message:
+            message = "Business logic validation error"
         self.field = field
         self.message = message
 
