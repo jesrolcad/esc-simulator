@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, and_, or_
+from sqlalchemy import select, insert, and_, or_, update
 from app.persistence.entities import SongEntity, CountryEntity, EventEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -35,5 +35,18 @@ class SongRepository(BaseRepository):
         country_id = result.fetchone()[0]
 
         song.id = country_id
+        return song
+
+
+    def update_song(self, song: SongEntity)-> SongEntity:
+        update_stmt = (SongEntity.update().where(SongEntity.id == song.id)
+                    .values(title=song.title, artist=song.artist,belongs_to_host_country=song.belongs_to_host_country,
+                            jury_potential_score=song.jury_potential_score,televote_potential_score=song.televote_potential_score,
+                            country_id=song.country_id, event_id=song.event_id))
+        
+        result = self.session.execute(update_stmt.returning(SongEntity.id))
+        song_id = result.fetchone()[0]
+
+        song.id = song_id
         return song
 
