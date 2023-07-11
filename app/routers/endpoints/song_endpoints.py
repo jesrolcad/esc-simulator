@@ -3,7 +3,7 @@ from app.db.database import get_db
 from app.logic.services.song_service import SongService
 from app.routers.endpoints.definitions.song_definitions import get_song_endpoint, get_songs_endpoint, create_song_endpoint
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
-from app.routers.schemas.song_schemas import CreateSongRequest
+from app.routers.schemas.song_schemas import SongRequest
 from app.routers.schemas.base_schemas import ResultResponse, SchemaId
 
 router = APIRouter(prefix="/songs", tags=["songs"])
@@ -21,7 +21,7 @@ async def get_song(song_id: int, db: get_db = Depends()):
 
 @router.post(path="", summary=create_song_endpoint["summary"], description=create_song_endpoint["description"], 
             responses=create_song_endpoint["responses"], status_code=status.HTTP_201_CREATED)
-async def create_song(song: CreateSongRequest, db: get_db = Depends()):
+async def create_song(song: SongRequest, db: get_db = Depends()):
     song_model = SongApiMapper().map_to_song_model(song_schema=song)
     song_response = SongService(db).create_song(song_model)
     return ResultResponse(message="Song created successfully", data=SchemaId(id=song_response.id))

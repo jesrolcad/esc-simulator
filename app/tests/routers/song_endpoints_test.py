@@ -3,7 +3,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from app.logic.services.song_service import SongService
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
-from app.routers.schemas.song_schemas import SongDataResponse, CreateSongRequest
+from app.routers.schemas.song_schemas import SongDataResponse, SongRequest
 from app.routers.schemas.country_schemas import CountryWithoutSongsVotingsDataResponse
 from app.logic.models import Song, Country, Event
 from app.utils.exceptions import NotFoundError, BusinessLogicValidationError
@@ -37,7 +37,7 @@ def song_model():
 
 @pytest.fixture
 def create_song_request_schema():
-    return CreateSongRequest(title="test", artist="test", belongs_to_host_country=True, 
+    return SongRequest(title="test", artist="test", belongs_to_host_country=True, 
                             jury_potential_score=1, televote_potential_score=1, country_id=1, event_id=1)
 
 
