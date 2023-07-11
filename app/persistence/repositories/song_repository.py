@@ -16,12 +16,14 @@ class SongRepository(BaseRepository):
         return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
 
 
-    def get_song_by_country_and_event_id(self, country_id: int, event_id: int)-> SongEntity:
-        return self.session.scalars(select(SongEntity).where(and_(SongEntity.country_id == country_id, SongEntity.event_id == event_id))).first()
+    def get_song_by_country_and_event_id(self, song_id: int, country_id: int, event_id: int)-> SongEntity:
+        return self.session.scalars(select(SongEntity).where(and_(SongEntity.id != song_id,SongEntity.country_id == country_id, 
+                                                                SongEntity.event_id == event_id))).first()
     
 
-    def check_existing_song_marked_as_belongs_to_host_country(self, event_id)->int:
-        return self.session.scalars(select(SongEntity.id).where(and_(bool(SongEntity.belongs_to_host_country), SongEntity.event_id == event_id))).first()
+    def check_existing_song_marked_as_belongs_to_host_country(self, song_id: int, event_id: int)->int:
+        return self.session.scalars(select(SongEntity.id).where(and_(bool(SongEntity.belongs_to_host_country), 
+                                                                SongEntity.id != song_id, SongEntity.event_id == event_id))).first()
 
 
     def create_song(self, song: SongEntity)-> SongEntity:

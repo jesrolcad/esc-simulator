@@ -13,7 +13,7 @@ class SongService(BaseService):
     def get_song(self, song_id: int)-> Song:
         song = SongRepository(self.session).get_song(song_id)
         if song is None:
-            raise NotFoundError(f"Song with id {song_id} not found")
+            raise NotFoundError(field=song_id,message=f"Song with id {song_id} not found")
         
         return SongModelMapper().map_to_song_model(song_entity=song)
     
@@ -34,20 +34,19 @@ class SongService(BaseService):
         updated_song_entity.id = song_id
         self.validate_song(song_entity=updated_song_entity)
 
-        return SongModelMapper().map_to_song_model(SongRepository(self.session).update_song(updated_song=updated_song_entity))
-    
+        return SongModelMapper().map_to_song_model(SongRepository(self.session).update_song(song=updated_song_entity))
 
     def validate_song(self, song_entity: SongEntity):
         self.check_associated_country_and_event_exist(country_id=song_entity.country_id, event_id=song_entity.event_id)
-        existing_song_by_country_and_event = SongRepository(self.session).get_song_by_country_and_event_id(country_id=song_entity.country_id,
+        existing_song_by_country_and_event = SongRepository(self.session).get_song_by_country_and_event_id(song_id=song_entity.id,country_id=song_entity.country_id,
                                                                                                             event_id=song_entity.event_id)
         if existing_song_by_country_and_event:
-            raise AlreadyExistsError(message=f"Song for country_id {song_entity.country_id} and event_id {song_entity.event_id} already exists")
-        
-        if song_entity.belongs_to_host_country:
-            self.check_if_another_song_marked_as_belongs_to_host_country(event_id=song_entity.event_id)
+            raise AlreadyExistsError(field="country_id, event_id",message=f"Song for country_id {song_entity.country_id} and event_id {song_entity.event_id} already exists")
 
-    
+        if song_entity.belongs_to_host_country:
+            self.check_if_another_song_marked_as_belongs_to_host_country(song_id=song_entity.id,event_id=song_entity.event_id)
+
+
     def check_associated_country_and_event_exist(self, country_id: int, event_id: int):
         country = CountryRepository(self.session).get_country(id=country_id)
         event = EventRepository(self.session).get_event(id=event_id)
@@ -59,12 +58,12 @@ class SongService(BaseService):
             raise BusinessLogicValidationError(field="event_id",message=f"Event with id {event_id} not found")
         
     
-    def check_if_another_song_marked_as_belongs_to_host_country(self, event_id: int):
-        song_id = SongRepository(self.session).check_existing_song_marked_as_belongs_to_host_country(event_id=event_id)
-        if song_id:
-            raise BusinessLogicValidationError(f"Song with id {song_id} is already marked as belongs to host country.")
+    def check_if_another_song_marked_as_belongs_to_host_country(self, song_id: int, event_id: int):
+        retrieved_song_id = SongRepository(self.session).check_existing_song_marked_as_belongs_to_host_country(song_id=song_id, event_id=event_id)
+        if retrieved_song_id:
+            raise BusinessLogicValidationError(field="country_id,event_id",message=f"Song with id {retrieved_song_id} is already marked as belongs to host country.")
 
-    def calculate_potential_scores(self, position: int)-> tuple:
+    def calculate_potential_scores(self, position: int)-> tuple: 
         """
         Calculate the potential scores for a song based on its position in the final ranking
         returns a tuple: (jury_potential_score, televote_potential_score) 
