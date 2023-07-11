@@ -3,6 +3,7 @@ from app.logic.models import Song
 from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.event_repository import EventRepository
+from app.persistence.entities import SongEntity
 from app.logic.services.base_service import BaseService
 from app.logic.model_mappers.song_model_mapper import SongModelMapper
 from app.utils.exceptions import NotFoundError, AlreadyExistsError, BusinessLogicValidationError
@@ -23,17 +24,29 @@ class SongService(BaseService):
     def create_song(self, song: Song)-> Song:
         song_entity = SongModelMapper().map_to_song_entity(song=song)
         self.check_associated_country_and_event_exist(country_id=song_entity.country_id, event_id=song_entity.event_id)
+        self.validate_song(song_entity=song_entity)
+
+        return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
+
+    def update_song(self, song_id: int, updated_song: Song)-> Song:
+        self.get_song(song_id=song_id)
+        updated_song_entity = SongModelMapper().map_to_song_entity(song=updated_song)
+        updated_song_entity.id = song_id
+        self.validate_song(song_entity=updated_song_entity)
+
+        return SongModelMapper().map_to_song_model(SongRepository(self.session).update_song(updated_song=updated_song_entity))
+    
+
+    def validate_song(self, song_entity: SongEntity):
+        self.check_associated_country_and_event_exist(country_id=song_entity.country_id, event_id=song_entity.event_id)
         existing_song_by_country_and_event = SongRepository(self.session).get_song_by_country_and_event_id(country_id=song_entity.country_id,
                                                                                                             event_id=song_entity.event_id)
         if existing_song_by_country_and_event:
             raise AlreadyExistsError(message=f"Song for country_id {song_entity.country_id} and event_id {song_entity.event_id} already exists")
-
+        
         if song_entity.belongs_to_host_country:
             self.check_if_another_song_marked_as_belongs_to_host_country(event_id=song_entity.event_id)
 
-        
-        
-        return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
     
     def check_associated_country_and_event_exist(self, country_id: int, event_id: int):
         country = CountryRepository(self.session).get_country(id=country_id)
