@@ -132,3 +132,25 @@ async def test_update_song_not_found(mocker, client, song_request_schema):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+
+@pytest.mark.asyncio
+async def test_delete_song(mocker, client):
+    
+    mocker.patch.object(SongService, 'delete_song', return_value=None)
+
+    song_id = 1
+    response = client.delete(f"/songs/{song_id}")
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_delete_song_not_found(mocker, client):
+        
+    mocker.patch.object(SongService, 'delete_song', side_effect=NotFoundError)
+
+    song_id = 1
+    response = client.delete(f"/songs/{song_id}")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+

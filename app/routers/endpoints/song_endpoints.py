@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Response, status
 from app.db.database import get_db 
 from app.logic.services.song_service import SongService
-from app.routers.endpoints.definitions.song_definitions import get_song_endpoint, get_songs_endpoint, create_song_endpoint, update_song_endpoint
+from app.routers.endpoints.definitions.song_definitions import get_song_endpoint, get_songs_endpoint, create_song_endpoint, update_song_endpoint, delete_song_endpoint
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
 from app.routers.schemas.song_schemas import SongRequest
 from app.routers.schemas.base_schemas import ResultResponse, SchemaId
@@ -37,3 +37,12 @@ async def update_song(song_id: int, song: SongRequest, db: get_db = Depends()):
     song_model = SongApiMapper().map_to_song_model(song_schema=song)
     SongService(db).update_song(song_id=song_id,updated_song=song_model)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete(path="/{song_id}", summary=delete_song_endpoint["summary"], description=delete_song_endpoint["description"],
+            responses=delete_song_endpoint["responses"], status_code=status.HTTP_204_NO_CONTENT)
+async def delete_song(song_id: int, db: get_db = Depends()):
+        
+    SongService(db).delete_song(song_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+

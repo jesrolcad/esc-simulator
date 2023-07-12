@@ -3,6 +3,7 @@
 __pycache__/
 .env
 /app/db/data
+/app/db/populate_database.py
 /esc_simulator.egg-info
 .vscode
 .pylintrc

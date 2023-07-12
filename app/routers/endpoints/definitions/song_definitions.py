@@ -56,3 +56,16 @@ update_song_endpoint = {
             "description": "Song not found"},
     }
 }
+
+delete_song_endpoint = {
+    "summary": "Delete song",
+    "description": """Delete an existing song. No content will be returned when the song is deleted successfully.""",
+    "responses": {
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Song deleted successfully"},
+
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Song not found"},
+    },
+}

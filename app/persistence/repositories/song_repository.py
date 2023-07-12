@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, and_, or_, update
+from sqlalchemy import select, insert, and_, or_, update, delete
 from app.persistence.entities import SongEntity, CountryEntity, EventEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -51,4 +51,9 @@ class SongRepository(BaseRepository):
 
         song.id = song_id
         return song
+    
+
+    def delete_song(self, song_id: int):
+        delete_stmt = (delete(SongEntity).where(SongEntity.id == song_id))
+        self.session.execute(delete_stmt)
 
