@@ -202,3 +202,26 @@ def test_update_song_another_song_marked_as_belongs_to_host_country(mocker, mock
         SongService(mock_session).update_song(song_id=song_id,updated_song=song_model)
         assert exception.field == 'belongs_to_host_country'
 
+
+def test_delete_song(mocker, mock_session, song_model, song_entity):
+    
+    mocker.patch.object(SongRepository, 'get_song', return_value=song_entity)
+    mocker.patch.object(SongModelMapper, 'map_to_song_model', return_value=song_model)
+    mocker.patch.object(SongRepository, 'delete_song', return_value=None)
+
+    song_id = 1
+
+    try:
+        SongService(mock_session).delete_song(song_id=song_id)
+    except Exception as exc:
+        pytest.fail(str(exc))
+
+def test_delete_song_not_found(mocker, mock_session):
+
+    mocker.patch.object(SongRepository, 'get_song', side_effect=NotFoundError)
+
+    song_id = 1
+
+    with pytest.raises(NotFoundError) as exception:
+        SongService(mock_session).delete_song(song_id=song_id)
+        assert exception.field == "song_id"
