@@ -34,6 +34,11 @@ class SongService(BaseService):
         self.validate_song(song_entity=updated_song_entity)
 
         return SongModelMapper().map_to_song_model(SongRepository(self.session).update_song(song=updated_song_entity))
+    
+    def delete_song(self, song_id: int):
+        self.get_song(song_id=song_id)
+        SongRepository(self.session).delete_song(song_id=song_id)
+
 
     def validate_song(self, song_entity: SongEntity):
         self.check_associated_country_and_event_exist(country_id=song_entity.country_id, event_id=song_entity.event_id)
