@@ -18,11 +18,9 @@ class SongDataResponse(BaseSong, SchemaId):
     ceremonies: List[CeremonyWithoutSongsVotingsDataResponse] = []
     votings: List[VotingWithoutCeremonySongCountryDataResponse] = [] 
 
-
 class SongDataResponseList(BaseModel):
     songs: List[SongDataResponse]
 
-
-class CreateSongRequest(BaseSong):
+class SongRequest(BaseSong):
     country_id: int = Field(..., description="Country id", example=1)
     event_id: int = Field(..., description="Event id", example=1)
