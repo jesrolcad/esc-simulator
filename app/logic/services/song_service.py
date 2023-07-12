@@ -13,7 +13,7 @@ class SongService(BaseService):
     def get_song(self, song_id: int)-> Song:
         song = SongRepository(self.session).get_song(song_id)
         if song is None:
-            raise NotFoundError(field=song_id,message=f"Song with id {song_id} not found")
+            raise NotFoundError(field="song_id",message=f"Song with id {song_id} not found")
         
         return SongModelMapper().map_to_song_model(song_entity=song)
     
@@ -23,7 +23,6 @@ class SongService(BaseService):
 
     def create_song(self, song: Song)-> Song:
         song_entity = SongModelMapper().map_to_song_entity(song=song)
-        self.check_associated_country_and_event_exist(country_id=song_entity.country_id, event_id=song_entity.event_id)
         self.validate_song(song_entity=song_entity)
 
         return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
@@ -61,7 +60,7 @@ class SongService(BaseService):
     def check_if_another_song_marked_as_belongs_to_host_country(self, song_id: int, event_id: int):
         retrieved_song_id = SongRepository(self.session).check_existing_song_marked_as_belongs_to_host_country(song_id=song_id, event_id=event_id)
         if retrieved_song_id:
-            raise BusinessLogicValidationError(field="country_id,event_id",message=f"Song with id {retrieved_song_id} is already marked as belongs to host country.")
+            raise BusinessLogicValidationError(field="belongs_to_host_country",message=f"Song with id {retrieved_song_id} is already marked as belongs to host country.")
 
     def calculate_potential_scores(self, position: int)-> tuple: 
         """
