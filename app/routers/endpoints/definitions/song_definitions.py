@@ -43,7 +43,13 @@ update_song_endpoint = {
     "description": """Update an existing song. No content will be returned when the song is updated successfully.""",
     "responses": {
         status.HTTP_204_NO_CONTENT: {
-            "description": "Song updated successfully"},
+            "description": "Song updated successfully"
+            
+            },
+        
+        status.HTTP_400_BAD_REQUEST: {
+            "model": ErrorResponse,
+            "description": "Invalid request body"},
 
         status.HTTP_404_NOT_FOUND: {
             "model": ErrorResponse,
