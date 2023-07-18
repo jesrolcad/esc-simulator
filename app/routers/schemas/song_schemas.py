@@ -24,3 +24,7 @@ class SongDataResponseList(BaseModel):
 class SongRequest(BaseSong):
     country_id: int = Field(..., description="Country id", example=1)
     event_id: int = Field(..., description="Event id", example=1)
+
+
+class SongWithoutCountryCeremoniesVotings(BaseSong, SchemaId):
+    pass
