@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from app.utils.exceptions import InternalError, BadRequestError
+from app.utils.exceptions import InternalError, BusinessLogicValidationError
 from app.core.config import settings 
 
 Base = declarative_base()
@@ -17,9 +17,9 @@ def get_db():
     try:
         yield db_session
         db_session.commit()
-    except BadRequestError as exception:
+    except BusinessLogicValidationError as exception:
         db_session.rollback()
-        raise BadRequestError(str(exception))
+        raise BusinessLogicValidationError(field=exception.field,message=str(exception))
     except InternalError as exception:
         db_session.rollback()
         raise InternalError(str(exception)) 
