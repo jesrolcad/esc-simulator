@@ -10,7 +10,7 @@ class CountryService(BaseService):
         country_entity = CountryRepository(self.session).get_country(id, name, code)
         if country_entity is None:
             raise NotFoundError(field="country_id",message=f"Country with id {id} not found")
-        return CountryModelMapper.map_to_country_model(country_entity)
+        return CountryModelMapper().map_to_country_model(country_entity=country_entity)
 
 
     def create_country(self, country: Country)->Country:
@@ -19,8 +19,8 @@ class CountryService(BaseService):
             if existing_country:
                 raise AlreadyExistsError("Country", country.id)
 
-            country_entity = CountryModelMapper.map_to_country_entity(country)
-            return CountryModelMapper.map_to_country_model(CountryRepository(self.session).create_country(country_entity))
+            country_entity = CountryModelMapper().map_to_country_entity(country)
+            return CountryModelMapper().map_to_country_model(CountryRepository(self.session).create_country(country_entity))
         
         except AlreadyExistsError:
             return existing_country

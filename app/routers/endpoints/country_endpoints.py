@@ -8,7 +8,7 @@ router = APIRouter(prefix="/countries", tags=["countries"])
 
 
 @router.get("/{country_id}", summary=get_country_endpoint["summary"], description=get_country_endpoint["description"], 
-            response_model=get_country_endpoint["responses"], responses=get_country_endpoint["responses"])
+            responses=get_country_endpoint["responses"])
 async def get_country(country_id: int, db=Depends(get_db)):
     
     response = CountryService(db).get_country(id=country_id)

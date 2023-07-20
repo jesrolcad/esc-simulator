@@ -6,6 +6,7 @@ from app.logic.model_mappers.country_model_mapper import CountryModelMapper
 class SongModelMapper:
 
     def map_to_song_entity(self, song: Song)->SongEntity:
+        
         country_entity = CountryModelMapper().map_to_country_entity(song.country)
         event_entity = EventModelMapper().map_to_event_entity(song.event)
         return SongEntity(id=song.id, title=song.title, artist=song.artist, 
