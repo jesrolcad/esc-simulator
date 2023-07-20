@@ -1,6 +1,6 @@
 from fastapi import status
 from app.routers.schemas.country_schemas import CountryDataResponse
-from app.routers.schemas.base_schemas import ErrorResponse
+from app.routers.schemas.api_schemas import ErrorResponse
 
 get_country_endpoint = {
     "summary": "Get country by id",

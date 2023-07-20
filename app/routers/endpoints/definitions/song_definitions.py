@@ -1,5 +1,5 @@
 from fastapi import status
-from app.routers.schemas.base_schemas import ErrorResponse, ResultResponse
+from app.routers.schemas.api_schemas import ErrorResponse, ResultResponse
 from app.routers.schemas.song_schemas import SongDataResponse, SongDataResponseList
 
 get_song_endpoint = {

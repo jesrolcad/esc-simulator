@@ -4,7 +4,7 @@ from app.logic.services.song_service import SongService
 from app.routers.endpoints.definitions.song_definitions import get_song_endpoint, get_songs_endpoint, create_song_endpoint, update_song_endpoint, delete_song_endpoint
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
 from app.routers.schemas.song_schemas import SongRequest
-from app.routers.schemas.base_schemas import ResultResponse, SchemaId
+from app.routers.schemas.api_schemas import ResultResponse, SchemaId
 
 router = APIRouter(prefix="/songs", tags=["songs"])
 

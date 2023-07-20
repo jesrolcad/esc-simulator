@@ -2,7 +2,7 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from app.utils.exceptions import BusinessLogicValidationError, InternalError, NotFoundError
-from app.routers.schemas.base_schemas import ErrorDetailResponse, ErrorResponse
+from app.routers.schemas.api_schemas import ErrorDetailResponse, ErrorResponse
 
 async def handle_bad_request_error(request: Request, exc: BusinessLogicValidationError):
     error_detail_response = ErrorDetailResponse(field=exc.field, message=exc.message)
