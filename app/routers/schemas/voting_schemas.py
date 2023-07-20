@@ -1,7 +1,7 @@
 from typing import Literal
 from pydantic import BaseModel
 from pydantic.fields import Field
-from app.routers.schemas.base_schemas import SchemaId
+from app.routers.schemas.api_schemas import SchemaId
 
 class BaseVotingType(BaseModel):
     name: str = Field(..., description="Voting type name", example="Jury")

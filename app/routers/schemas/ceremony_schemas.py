@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 from pydantic.fields import Field
-from app.routers.schemas.base_schemas import SchemaId
+from app.routers.schemas.api_schemas import SchemaId
 from app.routers.schemas.event_schemas import EventWithoutCeremoniesDataResponse
 
 class BaseCeremonyType(BaseModel):

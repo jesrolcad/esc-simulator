@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from pydantic.fields import Field
-from app.routers.schemas.base_schemas import SchemaId
+from app.routers.schemas.api_schemas import SchemaId
 
 class BaseEvent(BaseModel):
     year: int = Field(..., description="Event year", example=2018)

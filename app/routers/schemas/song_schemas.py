@@ -1,7 +1,7 @@
 from typing import Literal, List
 from pydantic.fields import Field
 from pydantic import BaseModel
-from app.routers.schemas.base_schemas import SchemaId
+from app.routers.schemas.api_schemas import SchemaId
 from app.routers.schemas.country_schemas import CountryWithoutSongsVotingsDataResponse
 from app.routers.schemas.ceremony_schemas import CeremonyWithoutSongsVotingsDataResponse
 from app.routers.schemas.voting_schemas import VotingWithoutCeremonySongCountryDataResponse
