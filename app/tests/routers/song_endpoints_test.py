@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from app.logic.services.song_service import SongService
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
 from app.routers.schemas.song_schemas import SongDataResponse, SongRequest
-from app.routers.schemas.country_schemas import CountryWithoutSongsVotingsDataResponse
+from app.routers.schemas.common_schemas import CountryWithoutSongsVotingsDataResponse
 from app.logic.models import Song, Country, Event
 from app.utils.exceptions import NotFoundError, BusinessLogicValidationError
 from app.main import app
@@ -12,10 +12,6 @@ from app.main import app
 @pytest.fixture
 def client():
     return TestClient(app)
-
-@pytest.fixture
-def mock_session(mocker):
-    return mocker.Mock()
 
 @pytest.fixture
 def song_schema():

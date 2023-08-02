@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.routers.schemas.base_schemas import ResultResponse
+from app.routers.schemas.api_schemas import ResultResponse
 from app.routers.schemas.data_schemas import YearRequest
 from app.logic.services.data_service import DataService
 from app.routers.endpoints.definitions.data_definitions import post_populate

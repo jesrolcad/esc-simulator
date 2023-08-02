@@ -4,7 +4,7 @@ from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.event_repository import EventRepository
 from app.logic.models import Song, Country, Event
-from app.logic.model_mappers.song_model_mapper import SongModelMapper
+from app.logic.model_mappers import SongModelMapper
 from app.persistence.entities import SongEntity, CountryEntity, EventEntity
 from app.utils.exceptions import NotFoundError, BusinessLogicValidationError
 

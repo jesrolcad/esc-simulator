@@ -1,19 +1,11 @@
-from typing import Literal
-from pydantic import BaseModel
-from pydantic.fields import Field
-from app.routers.schemas.base_schemas import SchemaId
+from app.routers.schemas.base_schemas import BaseId, BaseVotingType, BaseVoting
 
-class BaseVotingType(BaseModel):
-    name: str = Field(..., description="Voting type name", example="Jury")
 
-class VotingTypeDataResponse(BaseVotingType, SchemaId):
+class VotingTypeDataResponse(BaseVotingType, BaseId):
     pass
 
 
-class BaseVoting(BaseModel):
-    score: Literal[1, 2, 3, 4, 5, 6, 7, 8, 10, 12] = Field(..., description="Voting score", example=12)
+class VotingDataResponse(BaseVoting, BaseId):
     voting_type: VotingTypeDataResponse
 
 
-class VotingWithoutCeremonySongCountryDataResponse(BaseVoting, SchemaId):
-    pass

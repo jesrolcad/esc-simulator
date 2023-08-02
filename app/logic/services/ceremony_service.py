@@ -1,5 +1,5 @@
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
-from app.logic.model_mappers.ceremony_model_mapper import CeremonyModelMapper
+from app.logic.model_mappers import CeremonyModelMapper
 from app.logic.models import Ceremony
 from app.logic.services.base_service import BaseService
 

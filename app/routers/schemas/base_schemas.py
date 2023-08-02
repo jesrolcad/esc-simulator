@@ -1,17 +1,42 @@
-from typing import Any
-from pydantic import BaseModel
-from pydantic.fields import Field
+from typing import Literal
+from datetime import datetime
+from pydantic import BaseModel, Field
 
-class SchemaId(BaseModel):
+
+class BaseId(BaseModel):
     id: int = Field(..., description="Id", example=1)
 
-class ResultResponse(BaseModel):
-    message: str = Field(..., description="Message", example="Success")
-    data: Any = None
 
-class ErrorDetailResponse(BaseModel):
-    field: str = Field(None, description="Field in which the error occurred", example="title")
-    message: str = Field(..., description="Error message", example="Field required")
+class BaseSong(BaseModel):
+    title: str = Field(..., description="Song title", example="La, la, la")
+    artist: str = Field(..., description="Artist name", example="Massiel")
+    belongs_to_host_country: bool = Field(..., description="Whether the song belongs to the host country or not", example=False)
+    jury_potential_score: Literal[1,2,3,4,5,6,7,8,9,10] = Field(..., description="Factor to calculate the jury score", example=10)
+    televote_potential_score: Literal[1,2,3,4,5,6,7,8,9,10] =  Field(..., description="Factor to calculate the televote score", example=10)
 
-class ErrorResponse(BaseModel):
-    errors: list[ErrorDetailResponse] = Field([], description="List of errors", example=[{"field": "title", "message": "Field required"}])
+class  BaseCountry(BaseModel):
+    name: str = Field(..., description="Country name", example="Spain")
+    code: str = Field(..., description="Country code", example="ESP")
+
+
+class BaseEvent(BaseModel):
+    year: int = Field(..., description="Event year", example=2018)
+    slogan: str = Field(..., description="Event slogan", example="All Aboard!")
+    host_city: str = Field(..., description="Event host city", example="Lisbon")
+    arena: str = Field(..., description="Event arena", example="Altice Arena")
+
+class BaseCeremonyType(BaseModel):
+    name: str = Field(..., description="Ceremony type name", example="Semifinal 1")
+    code: str = Field(..., description="Ceremony type code", example="SF1")
+
+class BaseCeremony(BaseModel):
+    date: datetime = Field(..., description="Ceremony date", example="2023-05-13")
+
+
+class BaseVotingType(BaseModel):
+    name: str = Field(..., description="Voting type name", example="Jury")
+
+class BaseVoting(BaseModel):
+    score: Literal[1, 2, 3, 4, 5, 6, 7, 8, 10, 12] = Field(..., description="Voting score", example=12)
+
+
