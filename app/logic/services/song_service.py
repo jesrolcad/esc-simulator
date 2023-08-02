@@ -5,7 +5,7 @@ from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.event_repository import EventRepository
 from app.persistence.entities import SongEntity
 from app.logic.services.base_service import BaseService
-from app.logic.model_mappers.song_model_mapper import SongModelMapper
+from app.logic.model_mappers import SongModelMapper
 from app.utils.exceptions import NotFoundError, AlreadyExistsError, BusinessLogicValidationError
 
 class SongService(BaseService):

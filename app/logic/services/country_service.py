@@ -1,5 +1,5 @@
 from app.logic.models import Country
-from app.logic.model_mappers.country_model_mapper import CountryModelMapper
+from app.logic.model_mappers import CountryModelMapper
 from app.logic.services.base_service import BaseService
 from app.persistence.repositories.country_repository import CountryRepository
 from app.utils.exceptions import AlreadyExistsError, NotFoundError

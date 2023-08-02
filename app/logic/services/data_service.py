@@ -12,10 +12,7 @@ from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
 from app.logic.models import Country, Event, Song, Ceremony, CeremonyType
-from app.logic.model_mappers.ceremony_model_mapper import CeremonyModelMapper 
-from app.logic.model_mappers.event_model_mapper import EventModelMapper 
-from app.logic.model_mappers.country_model_mapper import CountryModelMapper
-from app.logic.model_mappers.song_model_mapper import SongModelMapper
+from app.logic.model_mappers import CeremonyModelMapper, EventModelMapper, CountryModelMapper, SongModelMapper
 from app.utils.exceptions import AlreadyExistsError
 
 SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
