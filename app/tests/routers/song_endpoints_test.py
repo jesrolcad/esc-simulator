@@ -14,10 +14,6 @@ def client():
     return TestClient(app)
 
 @pytest.fixture
-def mock_session(mocker):
-    return mocker.Mock()
-
-@pytest.fixture
 def song_schema():
 
     country = CountryWithoutSongsVotingsDataResponse(id=1, name="test", code="COD")
