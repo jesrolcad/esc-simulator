@@ -4,7 +4,7 @@ from app.persistence.repositories.country_repository import CountryRepository
 from app.logic.model_mappers import CountryModelMapper
 from app.logic.models import Country
 from app.persistence.entities import CountryEntity
-from app.utils.exceptions import NotFoundError
+from app.utils.exceptions import NotFoundError, AlreadyExistsError
 
 
 @pytest.fixture
@@ -53,3 +53,23 @@ def test_get_countries(mocker, mock_session, country_entity, country_model):
     assert isinstance(result[0], Country)
     assert result[0] == country_model
     CountryRepository.get_countries.assert_called_once()
+
+def test_create_country(mocker, mock_session, country_entity, country_model):
+
+    mocker.patch.object(CountryRepository, "get_country_by_name_or_code", return_value=None)
+    mocker.patch.object(CountryModelMapper, "map_to_country_entity", return_value=country_entity)
+    mocker.patch.object(CountryRepository, "create_country", return_value=country_entity)
+    mocker.patch.object(CountryModelMapper, "map_to_country_model", return_value=country_model)
+
+    result = CountryService(mock_session).create_country(country_model)
+
+    assert isinstance(result, Country)
+    assert result == country_model
+
+def test_create_already_existing_country(mocker, mock_session, country_entity, country_model):
+
+    mocker.patch.object(CountryRepository, "get_country_by_name_or_code", return_value=country_entity)
+
+    with pytest.raises(AlreadyExistsError) as exception:
+        CountryService(mock_session).create_country(country_model)
+        assert exception.field == "name,code"
