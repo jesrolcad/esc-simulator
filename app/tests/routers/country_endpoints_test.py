@@ -6,7 +6,9 @@ from app.logic.services.country_service import CountryService
 from app.routers.api_mappers.country_api_mapper import CountryApiMapper
 from app.routers.schemas.country_schemas import CountryDataResponse
 from app.logic.models import Country
-from app.utils.exceptions import NotFoundError
+from app.utils.exceptions import NotFoundError, AlreadyExistsError
+from app.routers.schemas.api_schemas import ResultResponse
+from app.routers.schemas.base_schemas import BaseId
 
 
 @pytest.fixture
@@ -60,3 +62,28 @@ async def test_get_countries(mocker, client, country_model, country_schema):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [country_schema.__dict__]
+
+
+@pytest.mark.asyncio
+async def test_create_country(mocker, client, country_model):
+
+    mocker.patch.object(CountryApiMapper, "map_to_country_model", return_value=country_model)
+    mocker.patch.object(CountryService, "create_country", return_value=country_model)
+
+    expected_result = ResultResponse(message="Country created successfully", data=BaseId(id=country_model.id))
+
+    response = client.post("/countries", json=country_model.__dict__)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json() == expected_result.__dict__
+
+
+@pytest.mark.asyncio
+async def test_create_already_existing_country(mocker, client, country_model):
+
+    mocker.patch.object(CountryApiMapper, "map_to_country_model", return_value=country_model)
+    mocker.patch.object(CountryService, "create_country", side_effect=AlreadyExistsError)
+
+    response = client.post("/countries", json=country_model.__dict__)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST

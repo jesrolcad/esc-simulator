@@ -17,13 +17,12 @@ class CountryService(BaseService):
                 for country_entity in CountryRepository(self.session).get_countries()]
 
     def create_country(self, country: Country)->Country:
-        existing_country = self.get_country(id=country.id, name=country.name, code=country.code)
-        try:
-            if existing_country:
-                raise AlreadyExistsError("Country", country.id)
+        existing_country = CountryRepository(self.session).get_country_by_name_or_code(country.name, country.code)
 
-            country_entity = CountryModelMapper().map_to_country_entity(country)
-            return CountryModelMapper().map_to_country_model(CountryRepository(self.session).create_country(country_entity))
-        
-        except AlreadyExistsError:
-            return existing_country
+        if existing_country:
+            raise AlreadyExistsError(field="name,code",
+                message=(f"Another country with id {existing_country.id}, name {existing_country.name} " +
+                        f"and code {existing_country.code} already exists. Please revise name and code"))
+
+        country_entity = CountryModelMapper().map_to_country_entity(country)
+        return CountryModelMapper().map_to_country_model(CountryRepository(self.session).create_country(country_entity))
