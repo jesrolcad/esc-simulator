@@ -1,6 +1,6 @@
 from fastapi import status
 from app.routers.schemas.country_schemas import CountryDataResponse
-from app.routers.schemas.api_schemas import ErrorResponse
+from app.routers.schemas.api_schemas import ErrorResponse, ResultResponse
 
 get_country_endpoint = {
     "summary": "Get country by id",
@@ -25,6 +25,21 @@ get_countries_endpoint = {
         status.HTTP_200_OK: {
             "model": list[CountryDataResponse],
             "description": "Countries retrieved successfully"
+        }
+    }
+}
+
+create_country_endpoint = {
+    "summary": "Create country",
+    "description": "Create a new country. If the country is created successfully, the country id will be returned",
+    "responses": {
+        status.HTTP_201_CREATED: {
+            "model": ResultResponse,
+            "description": "Country created successfully"
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "model": ErrorResponse,
+            "description": "Invalid request body"
         }
     }
 }

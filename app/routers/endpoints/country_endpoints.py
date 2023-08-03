@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from app.db.database import get_db 
-from app.routers.endpoints.definitions.country_definitions import get_country_endpoint, get_countries_endpoint
+from app.routers.schemas.api_schemas import ResultResponse
+from app.routers.schemas.base_schemas import BaseId
+from app.routers.schemas.country_schemas import CountryCreateRequest
+from app.routers.endpoints.definitions.country_definitions import get_country_endpoint, get_countries_endpoint, create_country_endpoint
 from app.logic.services.country_service import CountryService
 from app.routers.api_mappers.country_api_mapper import CountryApiMapper
 
@@ -21,3 +24,12 @@ async def get_countries(db=Depends(get_db)):
         
     response = CountryService(db).get_countries()
     return [CountryApiMapper().map_to_country_data_response(country) for country in response]
+
+
+@router.post("", summary=create_country_endpoint["summary"], description=create_country_endpoint["description"],
+            responses=create_country_endpoint["responses"], status_code=status.HTTP_201_CREATED)
+async def create_country(country: CountryCreateRequest, db=Depends(get_db)):
+        
+    country_model = CountryApiMapper().map_to_country_model(country)
+    country_response = CountryService(db).create_country(country_model)
+    return ResultResponse(message="Country created successfully", data=BaseId(id=country_response.id))
