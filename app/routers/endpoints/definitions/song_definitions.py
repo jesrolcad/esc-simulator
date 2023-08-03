@@ -26,7 +26,7 @@ get_songs_endpoint = {
 
 create_song_endpoint = {
     "summary": "Create song",
-    "description": """Create a new song. If the song is created successfully, the song details will be returned.""",
+    "description": """Create a new song. If the song is created successfully, the song id will be returned.""",
     "responses": {
         status.HTTP_201_CREATED: {
             "model": ResultResponse,
