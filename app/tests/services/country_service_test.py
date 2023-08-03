@@ -41,3 +41,15 @@ def test_get_country_not_found(mocker, mock_session):
     with pytest.raises(NotFoundError) as exception:
         CountryService(mock_session).get_country(id=country_id)
         assert exception.field == "country_id"
+
+def test_get_countries(mocker, mock_session, country_entity, country_model):
+
+    mocker.patch.object(CountryRepository, "get_countries", return_value=[country_entity])
+    mocker.patch.object(CountryModelMapper, "map_to_country_model", return_value=country_model)
+
+    result = CountryService(mock_session).get_countries()
+
+    assert isinstance(result, list)
+    assert isinstance(result[0], Country)
+    assert result[0] == country_model
+    CountryRepository.get_countries.assert_called_once()

@@ -48,3 +48,15 @@ async def test_get_country_not_found(mocker, client):
     response = client.get(f"/countries/{country_id}")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_get_countries(mocker, client, country_model, country_schema):
+
+    mocker.patch.object(CountryService, "get_countries", return_value=[country_model])
+    mocker.patch.object(CountryApiMapper, "map_to_country_data_response", return_value=country_schema)
+
+    response = client.get("/countries")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [country_schema.__dict__]
