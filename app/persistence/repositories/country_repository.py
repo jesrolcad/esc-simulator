@@ -1,4 +1,4 @@
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, or_
 from app.persistence.entities import CountryEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -20,6 +20,10 @@ class CountryRepository(BaseRepository):
             query = query.where(CountryEntity.code == code)
 
         return self.session.scalars(query).first()
+
+
+    def get_country_by_name_or_code(self, name: str, code: str)->CountryEntity:
+        return self.session.scalars(select(CountryEntity).where(or_(CountryEntity.name.ilike(name), CountryEntity.code.ilike(code)))).first()
 
 
     def create_country(self, country: CountryEntity)->CountryEntity:
