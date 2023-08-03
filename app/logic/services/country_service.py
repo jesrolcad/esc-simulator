@@ -11,6 +11,11 @@ class CountryService(BaseService):
         if country_entity is None:
             raise NotFoundError(field="country_id",message=f"Country with id {id} not found")
         return CountryModelMapper().map_to_country_model(country_entity=country_entity)
+    
+    def get_countries(self)->list[Country]:
+        return [CountryModelMapper().map_to_country_model(country_entity=country_entity) 
+                for country_entity in CountryRepository(self.session).get_countries()]
+
 
 
     def create_country(self, country: Country)->Country:
