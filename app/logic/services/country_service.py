@@ -16,8 +16,6 @@ class CountryService(BaseService):
         return [CountryModelMapper().map_to_country_model(country_entity=country_entity) 
                 for country_entity in CountryRepository(self.session).get_countries()]
 
-
-
     def create_country(self, country: Country)->Country:
         existing_country = self.get_country(id=country.id, name=country.name, code=country.code)
         try:

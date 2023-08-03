@@ -16,3 +16,15 @@ get_country_endpoint = {
         }
     }
 }
+
+
+get_countries_endpoint = {
+    "summary": "Get all countries",
+    "description": "Get all countries. If no countries are found, an empty list will be returned",
+    "responses": {
+        status.HTTP_200_OK: {
+            "model": list[CountryDataResponse],
+            "description": "Countries retrieved successfully"
+        }
+    }
+}
