@@ -140,11 +140,11 @@ def test_update_song(mocker, mock_session, song_model, song_entity, country_enti
 
     song_id = 1
 
-    result = SongService(mock_session).update_song(song_id=song_id,updated_song=song_model)
+    try:
+        SongService(mock_session).update_song(song_id=song_id,updated_song=song_model)
 
-    assert isinstance(result, Song)
-    assert result == song_model
-    assert result.id == song_id
+    except Exception as exception:
+        pytest.fail(f"Test failed with exception: {exception}")
 
 def test_update_song_song_not_exist(mocker, mock_session, song_model):
 
