@@ -17,12 +17,28 @@ class CountryService(BaseService):
                 for country_entity in CountryRepository(self.session).get_countries()]
 
     def create_country(self, country: Country)->Country:
-        existing_country = CountryRepository(self.session).get_country_by_name_or_code(country.name, country.code)
+        self.check_country_by_name_or_code_exists(country_id=None,country=country)
+
+        country_entity = CountryModelMapper().map_to_country_entity(country=country)
+        return CountryModelMapper().map_to_country_model(CountryRepository(self.session).create_country(country=country_entity))
+
+
+    def update_country(self, country_id: int, country: Country)->Country:
+        existing_country = CountryRepository(self.session).get_country(id=country_id)
+
+        if existing_country is None:
+            raise NotFoundError(field="country_id",message=f"Country with id {country_id} not found")
+
+        self.check_country_by_name_or_code_exists(country_id=country_id,country=country)
+
+        country_entity = CountryModelMapper().map_to_country_entity(country=country)
+        CountryRepository(self.session).update_country(country_id=country_id, country=country_entity)
+
+
+    def check_country_by_name_or_code_exists(self, country_id: int, country: Country)->bool:
+        existing_country = CountryRepository(self.session).get_country_by_name_or_code(country_id=country_id, name=country.name, code=country.code)
 
         if existing_country:
             raise AlreadyExistsError(field="name,code",
                 message=(f"Another country with id {existing_country.id}, name {existing_country.name} " +
                         f"and code {existing_country.code} already exists. Please revise name and code"))
-
-        country_entity = CountryModelMapper().map_to_country_entity(country)
-        return CountryModelMapper().map_to_country_model(CountryRepository(self.session).create_country(country_entity))

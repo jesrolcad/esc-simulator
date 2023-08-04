@@ -27,13 +27,13 @@ class SongService(BaseService):
 
         return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
 
-    def update_song(self, song_id: int, updated_song: Song)-> Song:
+    def update_song(self, song_id: int, updated_song: Song):
         self.get_song(song_id=song_id)
         updated_song_entity = SongModelMapper().map_to_song_entity(song=updated_song)
         updated_song_entity.id = song_id
         self.validate_song(song_entity=updated_song_entity)
 
-        return SongModelMapper().map_to_song_model(SongRepository(self.session).update_song(song=updated_song_entity))
+        SongRepository(self.session).update_song(song=updated_song_entity)
     
     def delete_song(self, song_id: int):
         self.get_song(song_id=song_id)

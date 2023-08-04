@@ -15,8 +15,8 @@ class BaseSong(BaseModel):
     televote_potential_score: Literal[1,2,3,4,5,6,7,8,9,10] =  Field(..., description="Factor to calculate the televote score", example=10)
 
 class  BaseCountry(BaseModel):
-    name: str = Field(..., description="Country name", example="Spain")
-    code: str = Field(..., description="Country code", example="ESP")
+    name: str = Field(..., description="Country name", example="Spain", max_length=50)
+    code: str = Field(..., description="Country code", example="ESP", min_length=3, max_length=5)
 
 
 class BaseEvent(BaseModel):
