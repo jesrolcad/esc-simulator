@@ -34,6 +34,6 @@ class CountryRepository(BaseRepository):
         country.id = country_id
         return country
     
-    def update_country(self, country: CountryEntity)->CountryEntity:
-        update_stmt = update(CountryEntity).where(CountryEntity.id == country.id).values(name=country.name,code=country.code)
+    def update_country(self, country_id: int, country: CountryEntity)->CountryEntity:
+        update_stmt = update(CountryEntity).where(CountryEntity.id == country_id).values(name=country.name,code=country.code)
         self.session.execute(update_stmt)

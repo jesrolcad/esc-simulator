@@ -43,3 +43,21 @@ create_country_endpoint = {
         }
     }
 }
+
+update_country_endpoint = {
+    "summary": "Update country",
+    "description": "Update an existing country. No content will be returned if the country is updated successfully",
+    "responses": {
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Country updated successfully"
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "model": ErrorResponse,
+            "description": "Invalid request body"
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Country not found"
+        }
+    }
+}
