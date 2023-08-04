@@ -87,3 +87,39 @@ async def test_create_already_existing_country(mocker, client, country_model):
     response = client.post("/countries", json=country_model.__dict__)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+async def test_update_country(mocker, client, country_model):
+
+    mocker.patch.object(CountryApiMapper, "map_to_country_model", return_value=country_model)
+    mocker.patch.object(CountryService, "update_country", return_value=None)
+
+    country_id = 1
+    response = client.put(f"/countries/{country_id}", json=country_model.__dict__)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_update_not_found_country(mocker, client, country_model):
+
+    mocker.patch.object(CountryApiMapper, "map_to_country_model", return_value=country_model)
+    mocker.patch.object(CountryService, "update_country", side_effect=NotFoundError)
+
+    country_id = 1
+    response = client.put(f"/countries/{country_id}", json=country_model.__dict__)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_update_already_existing_country_by_name_or_code(mocker, client, country_model):
+    
+        mocker.patch.object(CountryApiMapper, "map_to_country_model", return_value=country_model)
+        mocker.patch.object(CountryService, "update_country", side_effect=AlreadyExistsError)
+    
+        country_id = 1
+        response = client.put(f"/countries/{country_id}", json=country_model.__dict__)
+    
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
