@@ -1,4 +1,4 @@
-from sqlalchemy import insert, select, or_
+from sqlalchemy import insert, select, update, or_
 from app.persistence.entities import CountryEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -33,3 +33,7 @@ class CountryRepository(BaseRepository):
 
         country.id = country_id
         return country
+    
+    def update_country(self, country: CountryEntity)->CountryEntity:
+        update_stmt = update(CountryEntity).where(CountryEntity.id == country.id).values(name=country.name,code=country.code)
+        self.session.execute(update_stmt)
