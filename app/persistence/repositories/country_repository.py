@@ -1,4 +1,4 @@
-from sqlalchemy import insert, select, update, or_
+from sqlalchemy import insert, select, update, or_, and_
 from app.persistence.entities import CountryEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -22,8 +22,8 @@ class CountryRepository(BaseRepository):
         return self.session.scalars(query).first()
 
 
-    def get_country_by_name_or_code(self, name: str, code: str)->CountryEntity:
-        return self.session.scalars(select(CountryEntity).where(or_(CountryEntity.name.ilike(name), CountryEntity.code.ilike(code)))).first()
+    def get_country_by_name_or_code(self, country_id: int, name: str, code: str)->CountryEntity:
+        return self.session.scalars(select(CountryEntity).where(and_(CountryEntity.id != country_id, or_(CountryEntity.name.ilike(name), CountryEntity.code.ilike(code))))).first()
 
 
     def create_country(self, country: CountryEntity)->CountryEntity:
