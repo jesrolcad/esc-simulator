@@ -18,9 +18,15 @@ async def handle_internal_error(request: Request, exc: InternalError):
 
 async def handle_request_validation_error(request: Request, exc: RequestValidationError):
     error_response = ErrorResponse()
+    print(exc.errors())
     for error in exc.errors():
-        field = error["loc"][1]
-        message = error["msg"]
+        error_loc_length = len(error["loc"])
+        if error_loc_length == 1:
+            field = error["loc"][0]
+            message = "body required"
+        else:
+            field = error["loc"][1]
+            message = error["msg"]
         error_detail_response = ErrorDetailResponse(field=field, message=message)
         error_response.errors.append(error_detail_response)
 
