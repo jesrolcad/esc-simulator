@@ -40,7 +40,7 @@ class SongRepository(BaseRepository):
         return song
 
 
-    def update_song(self, song: SongEntity)-> SongEntity:
+    def update_song(self, song: SongEntity):
         update_stmt = (update(SongEntity).where(SongEntity.id == song.id)
                     .values(title=song.title, artist=song.artist,belongs_to_host_country=song.belongs_to_host_country,
                             jury_potential_score=song.jury_potential_score,televote_potential_score=song.televote_potential_score,
