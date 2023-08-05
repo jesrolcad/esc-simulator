@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from app.core.config import Settings
+from app.core.config import BaseSettings as Settings
 from app.utils import constants
 from app.logic.services.base_service import BaseService
 from app.logic.services.song_service import SongService

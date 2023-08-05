@@ -1,10 +1,20 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from app.utils.exceptions import InternalError, BusinessLogicValidationError
-from app.core.config import settings 
+from app.core.config import dev_settings, test_settings 
+
+environment = os.getenv("ENVIRONMENT")
 
 Base = declarative_base()
+
+if environment == "DEV":
+    print("ENTRA EN LA PARTE DE DEV")
+    settings = dev_settings
+elif environment == "TEST":
+    print("ENTRA EN LA PARTE DE TEST")
+    settings = test_settings
 
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
