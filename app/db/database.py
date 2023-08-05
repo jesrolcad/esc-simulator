@@ -10,10 +10,8 @@ environment = os.getenv("ENVIRONMENT")
 Base = declarative_base()
 
 if environment == "DEV":
-    print("ENTRA EN LA PARTE DE DEV")
     settings = dev_settings
 elif environment == "TEST":
-    print("ENTRA EN LA PARTE DE TEST")
     settings = test_settings
 
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL

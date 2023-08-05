@@ -18,7 +18,6 @@ async def handle_internal_error(request: Request, exc: InternalError):
 
 async def handle_request_validation_error(request: Request, exc: RequestValidationError):
     error_response = ErrorResponse()
-    print(exc.errors())
     for error in exc.errors():
         error_loc_length = len(error["loc"])
         if error_loc_length == 1:
