@@ -61,3 +61,17 @@ update_country_endpoint = {
         }
     }
 }
+
+delete_country_endpoint = {
+    "summary": "Delete country",
+    "description": "Delete an existing country. No content will be returned if the country is deleted successfully",
+    "responses": {
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Country deleted successfully"
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Country not found"
+        }
+    }
+}
