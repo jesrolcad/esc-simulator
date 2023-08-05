@@ -112,3 +112,24 @@ def test_update_already_existing_country_by_name_or_code(mocker, mock_session, c
         CountryService(mock_session).update_country(country_id=country_id, country=country_model)
         assert exception.field == "name,code"
 
+def test_delete_country(mocker, mock_session, country_entity):
+
+    mocker.patch.object(CountryRepository, "get_country", return_value=country_entity)
+    mocker.patch.object(CountryRepository, "delete_country", return_value=None)
+
+    country_id = 1
+
+    try:
+        CountryService(mock_session).delete_country(country_id=country_id)
+    except Exception as exception:
+        pytest.fail(f"Test failed with exception: {exception}")
+
+def test_delete_not_found_country(mocker, mock_session):
+
+    mocker.patch.object(CountryRepository, "get_country", return_value=None)
+
+    country_id = 1
+
+    with pytest.raises(NotFoundError) as exception:
+        CountryService(mock_session).delete_country(country_id=country_id)
+        assert exception.field == "country_id"
