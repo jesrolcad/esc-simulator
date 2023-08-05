@@ -23,7 +23,7 @@ class CountryService(BaseService):
         return CountryModelMapper().map_to_country_model(CountryRepository(self.session).create_country(country=country_entity))
 
 
-    def update_country(self, country_id: int, country: Country)->Country:
+    def update_country(self, country_id: int, country: Country):
         existing_country = CountryRepository(self.session).get_country(id=country_id)
 
         if existing_country is None:
@@ -42,3 +42,12 @@ class CountryService(BaseService):
             raise AlreadyExistsError(field="name,code",
                 message=(f"Another country with id {existing_country.id}, name {existing_country.name} " +
                         f"and code {existing_country.code} already exists. Please revise name and code"))
+        
+
+    def delete_country(self, country_id: int):
+        existing_country = CountryRepository(self.session).get_country(id=country_id)
+
+        if existing_country is None:
+            raise NotFoundError(field="country_id",message=f"Country with id {country_id} not found")
+
+        CountryRepository(self.session).delete_country(country_id=country_id)
