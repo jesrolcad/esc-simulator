@@ -22,8 +22,7 @@ def before_all():
 @pytest.fixture(scope="session", autouse=True)
 def after_all():
     yield
-    print("ENGINE URL DATABASE: ", engine.url.database)
-    if(engine.url.database == os.getenv('TEST_POSTGRES_DB')):
+    if engine.url.database == os.getenv('TEST_POSTGRES_DB'):
         drop_database(engine.url)
 
 @pytest.fixture(scope="function", autouse=True)
