@@ -41,13 +41,15 @@ class SongModelMapper:
                     belongs_to_host_country=song_entity.belongs_to_host_country)
 
     def map_to_song_model(self, song_entity: SongEntity)->Song:
-        event = EventModelMapper().map_to_event_model(event_entity=song_entity.event)
-        country = CountryModelMapper().map_to_country_model(country_entity=song_entity.country)
+        event = EventModelMapper().map_to_event_model_without_submodels(event_entity=song_entity.event)
+        country = CountryModelMapper().map_to_country_model_without_submodels(country_entity=song_entity.country)
         Song.update_forward_refs()
         song = self.map_to_song_model_without_submodels(song_entity=song_entity)
         if song is not None:
             song.country = country
             song.event = event
+
+        return song
 
 class CountryModelMapper:
 
@@ -76,10 +78,11 @@ class EventModelMapper:
         return EventEntity(id=event.id, year=event.year, slogan=event.slogan, host_city=event.host_city, arena=event.arena) 
 
 
-    def map_to_event_model(self, event_entity: EventEntity)->Event:
+    def map_to_event_model_without_submodels(self, event_entity: EventEntity)->Event:
         if event_entity is None:
             return None
-        return Event(id=event_entity.id, year=event_entity.year, slogan=event_entity.slogan, host_city=event_entity.host_city, arena=event_entity.arena)
+        return Event(id=event_entity.id, year=event_entity.year, slogan=event_entity.slogan, 
+                    host_city=event_entity.host_city, arena=event_entity.arena)
 
 
 
