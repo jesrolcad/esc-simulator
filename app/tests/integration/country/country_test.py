@@ -136,9 +136,9 @@ def test_delete_country_positive(client):
 
 def test_delete_country_not_found(client):
     
-        country_id = 1
-    
-        response = client.delete(f"/countries/{country_id}")
-    
-        assert response.status_code == status.HTTP_404_NOT_FOUND
+    country_id = 1
+
+    response = client.delete(f"/countries/{country_id}")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
