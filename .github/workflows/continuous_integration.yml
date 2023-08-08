@@ -52,4 +52,4 @@ jobs:
           pytest
         fi
       env: 
-        DATABASE_URL: postgresql://${{ secrets.TEST_DB_USER }}:${{ secrets.TEST_DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}
+        DATABASE_URL: postgresql://${{ secrets.TEST_DB_USER }}:${{ secrets.TEST_DB_PASSWORD }}@localhost:2345/${{ secrets.TEST_DB_NAME }}
