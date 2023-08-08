@@ -18,7 +18,7 @@ class BaseSong(BaseModel):
     @field_validator("title", "artist")
     @classmethod
     def validate_str_not_blank(cls, field: str)->str:
-        validation_utils.validate_str_not_blank(field)
+        return validation_utils.validate_str_not_blank(field)
 
 
 class  BaseCountry(BaseModel):
@@ -28,7 +28,7 @@ class  BaseCountry(BaseModel):
     @field_validator("name", "code")
     @classmethod
     def validate_str_not_blank(cls, field: str)->str:
-        validation_utils.validate_str_not_blank(field)
+        return validation_utils.validate_str_not_blank(field)
 
 
 class BaseEvent(BaseModel):
@@ -40,7 +40,7 @@ class BaseEvent(BaseModel):
     @field_validator("slogan", "host_city", "arena")
     @classmethod
     def validate_str_not_blank(cls, field: str)->str:
-        validation_utils.validate_str_not_blank(field)
+        return validation_utils.validate_str_not_blank(field)
 
 class BaseCeremonyType(BaseModel):
     name: str = Field(..., description="Ceremony type name", example="Semifinal 1", min_length=1, max_length=50)
@@ -49,7 +49,7 @@ class BaseCeremonyType(BaseModel):
     @field_validator("name", "code")
     @classmethod
     def validate_str_not_blank(cls, field: str)->str:
-        validation_utils.validate_str_not_blank(field)
+        return validation_utils.validate_str_not_blank(field)
 
 class BaseCeremony(BaseModel):
     date: datetime = Field(..., description="Ceremony date", example="2023-05-13")
@@ -61,7 +61,7 @@ class BaseVotingType(BaseModel):
     @field_validator("name")
     @classmethod
     def validate_str_not_blank(cls, field: str)->str:
-        validation_utils.validate_str_not_blank(field)
+        return validation_utils.validate_str_not_blank(field)
 
 class BaseVoting(BaseModel):
     score: Literal[1, 2, 3, 4, 5, 6, 7, 8, 10, 12] = Field(..., description="Voting score", example=12)
