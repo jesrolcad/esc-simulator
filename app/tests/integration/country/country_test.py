@@ -25,7 +25,7 @@ def test_get_country(client):
 
     response = client.get(f"/countries/{country_id}")
 
-    country_response = Country.parse_obj(response.json())
+    country_response = Country.model_validate(response.json())
 
     assert response.status_code == status.HTTP_200_OK
     assert country_response.id == expected_country.id

@@ -47,7 +47,7 @@ async def test_get_song_by_id(mocker, client, song_schema, song_model):
     response = client.get(f"/songs/{song_id}")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == song_schema.__dict__
+    assert response.json() == song_schema.model_dump()
 
 
 @pytest.mark.asyncio
@@ -70,7 +70,7 @@ async def test_get_songs(mocker, client, song_schema, song_model):
     response = client.get("/songs")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == [song_schema.__dict__]
+    assert response.json() == [song_schema.model_dump()]
 
 
 @pytest.mark.asyncio

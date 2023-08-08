@@ -9,6 +9,7 @@ class CountryApiMapper:
         return CountryEntity(name=country.name, code=country.code)
     
     def map_to_country_data_response(self, country_model: Country)->CountryDataResponse:
-        return CountryDataResponse(id=country_model.id, name=country_model.name, code=country_model.code, songs=country_model.songs)
+        return CountryDataResponse(id=country_model.id, name=country_model.name, code=country_model.code, 
+                                songs=[song.__dict__ for song in country_model.songs])
 
 
