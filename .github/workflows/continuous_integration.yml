@@ -13,12 +13,10 @@ jobs:
       postgres:
         image: postgres:14.2
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
           TEST_POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
           TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
           TEST_POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
+          TEST_POSTGRES_PORT: ${{ secrets.TEST_DB_PORT }}
           ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
         ports:
           - 5432:5432
@@ -51,5 +49,3 @@ jobs:
         else
           pytest
         fi
-      env: 
-        DATABASE_URL: postgresql://${{ secrets.TEST_DB_USER }}:${{ secrets.TEST_DB_PASSWORD }}@localhost:2345/${{ secrets.TEST_DB_NAME }}
