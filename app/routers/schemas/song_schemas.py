@@ -13,5 +13,5 @@ class SongDataResponseList(BaseModel):
     songs: List[SongDataResponse]
 
 class SongRequest(BaseSong):
-    country_id: int = Field(..., description="Country id", example=1)
-    event_id: int = Field(..., description="Event id", example=1)
+    country_id: int = Field(..., json_schema_extra={"description": "Country id", "example": 1})
+    event_id: int = Field(..., json_schema_extra={"description":"Event id", "example":1})
