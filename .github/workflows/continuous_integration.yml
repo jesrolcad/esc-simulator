@@ -51,3 +51,5 @@ jobs:
         else
           pytest
         fi
+      env: 
+        DATABASE_URL: postgresql://${{ secrets.TEST_DB_USER }}:${{ secrets.TEST_DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}
