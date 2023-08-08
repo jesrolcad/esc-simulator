@@ -16,6 +16,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.DB_USER }}
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_SERVER: ${{ secrets.DB_SERVER }}
         ports:
           - 5432:5432
 
@@ -46,6 +47,11 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y chromium-chromedriver
+
+    - name: Create test user in PostgreSQL
+      run: |
+        psql -h ${{ secrets.DB_SERVER }} -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "CREATE USER ${{ secrets.TEST_DB_USER }} WITH PASSWORD '${{ secrets.TEST_DB_PASSWORD }}';"
+        psql -h ${{ secrets.DB_SERVER }} -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "ALTER USER ${{ secrets.TEST_DB_USER }} WITH SUPERUSER;"
 
     - name: Run tests
       run: |
