@@ -24,6 +24,13 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    env:
+        TEST_POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
+        TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+        TEST_POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
+        TEST_POSTGRES_PORT: ${{ secrets.TEST_DB_PORT }}
+        TEST_POSTGRES_SERVER: ${{ secrets.TEST_DB_SERVER }}
+        ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
 
     steps:
     - uses: actions/checkout@v3
@@ -47,9 +54,3 @@ jobs:
         else
           pytest
         fi
-      env:
-        TEST_POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
-        TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-        TEST_POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
-        TEST_POSTGRES_PORT: ${{ secrets.TEST_DB_PORT }}
-        ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
