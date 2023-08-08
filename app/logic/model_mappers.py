@@ -43,7 +43,7 @@ class SongModelMapper:
     def map_to_song_model(self, song_entity: SongEntity)->Song:
         event = EventModelMapper().map_to_event_model_without_submodels(event_entity=song_entity.event)
         country = CountryModelMapper().map_to_country_model_without_submodels(country_entity=song_entity.country)
-        Song.update_forward_refs()
+        Song.model_rebuild()
         song = self.map_to_song_model_without_submodels(song_entity=song_entity)
         if song is not None:
             song.country = country

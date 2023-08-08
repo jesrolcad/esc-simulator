@@ -17,7 +17,7 @@ def country_entity():
 
 @pytest.fixture
 def country_model():
-    Country.update_forward_refs()
+    Country.model_rebuild()
     return Country(id=1, name="test", code="COD", songs=[], votings=[])
 
 def test_get_country(mocker, mock_session, country_entity, country_model):

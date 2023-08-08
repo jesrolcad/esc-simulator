@@ -34,7 +34,7 @@ def event_entity():
 
 @pytest.fixture
 def song_model():
-    Song.update_forward_refs()
+    Song.model_rebuild()
     return Song(id=1, country_id=1, event_id=1, title="test", artist="test",
                                 belongs_to_host_country=False, jury_potential_score=1, televote_potential_score=1,
                                 country=Country(id=1, name="test", code="COD"), event=Event(id=1, year=1, slogan="test", host_city="test", arena="test"),
