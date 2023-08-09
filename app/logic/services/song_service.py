@@ -25,7 +25,7 @@ class SongService(BaseService):
         song_entity = SongModelMapper().map_to_song_entity(song=song)
         self.validate_song(song_entity=song_entity)
 
-        return SongModelMapper().map_to_song_model(SongRepository(self.session).create_song(song=song_entity))
+        return SongModelMapper().map_to_song_model_without_submodels(SongRepository(self.session).create_song(song=song_entity))
 
     def update_song(self, song_id: int, updated_song: Song):
         self.get_song(song_id=song_id)

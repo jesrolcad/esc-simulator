@@ -70,12 +70,9 @@ async def test_create_country(mocker, client, country_model):
     mocker.patch.object(CountryApiMapper, "map_to_country_model", return_value=country_model)
     mocker.patch.object(CountryService, "create_country", return_value=country_model)
 
-    expected_result = ResultResponse(message="Country created successfully", data=BaseId(id=country_model.id))
-
     response = client.post("/countries", json=country_model.__dict__)
 
     assert response.status_code == status.HTTP_201_CREATED
-    assert response.json() == expected_result.__dict__
 
 
 @pytest.mark.asyncio

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from app.core.config import Settings
+from app.core.config import BaseSettings as Settings
 from app.utils import constants
 from app.logic.services.base_service import BaseService
 from app.logic.services.song_service import SongService
@@ -118,7 +118,7 @@ class DataService(BaseService):
         song_title = song_and_artist[1].strip().replace('"', "")
         jury_potential_score, televote_potential_score = SongService(self.session).calculate_potential_scores(position=song_position)
         belongs_to_host_country = last_year_winner_country.id == associated_country.id
-        Song.update_forward_refs()
+        Song.model_rebuild()
         song = Song(title=song_title, artist=song_artist, position=song_position, jury_potential_score=jury_potential_score, 
                     televote_potential_score=televote_potential_score, belongs_to_host_country=belongs_to_host_country,
                     country=associated_country, event=associated_event)

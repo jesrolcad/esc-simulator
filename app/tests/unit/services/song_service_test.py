@@ -34,7 +34,7 @@ def event_entity():
 
 @pytest.fixture
 def song_model():
-    Song.update_forward_refs()
+    Song.model_rebuild()
     return Song(id=1, country_id=1, event_id=1, title="test", artist="test",
                                 belongs_to_host_country=False, jury_potential_score=1, televote_potential_score=1,
                                 country=Country(id=1, name="test", code="COD"), event=Event(id=1, year=1, slogan="test", host_city="test", arena="test"),
@@ -86,7 +86,7 @@ def test_create_song(mocker, mock_session, song_model, song_entity, country_enti
     mocker.patch.object(EventRepository, 'get_event', return_value=event_entity)
     mocker.patch.object(SongRepository, 'get_song_by_country_and_event_id', return_value=None)
     mocker.patch.object(SongRepository, 'create_song', return_value=song_entity)
-    mocker.patch.object(SongModelMapper, 'map_to_song_model', return_value=song_model)
+    mocker.patch.object(SongModelMapper, 'map_to_song_model_without_submodels', return_value=song_model)
 
     result = SongService(mock_session).create_song(song_model)
 
