@@ -1,5 +1,5 @@
 from fastapi import status
-from app.routers.schemas.base_schemas import ResultResponse, ErrorResponse
+from app.routers.schemas.api_schemas import ResultResponse, ErrorResponse
 
 post_populate = {
     "summary": "Populate ESC data",

@@ -9,8 +9,8 @@ class Song(BaseModel):
     belongs_to_host_country: bool
     jury_potential_score: Literal[1,2,3,4,5,6,7,8,9,10]
     televote_potential_score: Literal[1,2,3,4,5,6,7,8,9,10]
-    event: 'Event'
-    country: 'Country'
+    event: 'Event' = None
+    country: 'Country' = None
     ceremonies: List['Ceremony'] = []
     votings: List['Voting'] = []
 

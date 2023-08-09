@@ -40,18 +40,13 @@ class SongRepository(BaseRepository):
         return song
 
 
-    def update_song(self, song: SongEntity)-> SongEntity:
+    def update_song(self, song: SongEntity):
         update_stmt = (update(SongEntity).where(SongEntity.id == song.id)
                     .values(title=song.title, artist=song.artist,belongs_to_host_country=song.belongs_to_host_country,
                             jury_potential_score=song.jury_potential_score,televote_potential_score=song.televote_potential_score,
                             country_id=song.country_id, event_id=song.event_id))
         
-        result = self.session.execute(update_stmt.returning(SongEntity.id))
-        song_id = result.fetchone()[0]
-
-        song.id = song_id
-        return song
-    
+        self.session.execute(update_stmt)
 
     def delete_song(self, song_id: int):
         delete_stmt = (delete(SongEntity).where(SongEntity.id == song_id))

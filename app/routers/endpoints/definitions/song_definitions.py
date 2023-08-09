@@ -1,10 +1,10 @@
 from fastapi import status
-from app.routers.schemas.base_schemas import ErrorResponse, ResultResponse
+from app.routers.schemas.api_schemas import ErrorResponse, ResultResponse
 from app.routers.schemas.song_schemas import SongDataResponse, SongDataResponseList
 
 get_song_endpoint = {
     "summary": "Get song by id",
-    "description": """Get song details by id. If the song is not found, a 404 error will be returned.""",
+    "description": """Get song details by id. If the song is not found, a 404 response will be returned.""",
     "responses": {
         status.HTTP_200_OK: {
             "model": SongDataResponse, 
@@ -26,7 +26,7 @@ get_songs_endpoint = {
 
 create_song_endpoint = {
     "summary": "Create song",
-    "description": """Create a new song. If the song is created successfully, the song details will be returned.""",
+    "description": """Create a new song. If the song is created successfully, the song id will be returned.""",
     "responses": {
         status.HTTP_201_CREATED: {
             "model": ResultResponse,

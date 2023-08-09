@@ -1,13 +1,10 @@
-from pydantic import BaseModel
-from pydantic.fields import Field
-from app.routers.schemas.base_schemas import SchemaId
+from typing import List
+from pydantic import Field
+from app.routers.schemas.base_schemas import BaseCountry, BaseId
+from app.routers.schemas.common_schemas import SongWithoutCountryCeremoniesVotings
 
-class  BaseCountry(BaseModel):
-    name: str = Field(..., description="Country name", example="Spain")
-    code: str = Field(..., description="Country code", example="ESP")
-
-class CountryWithoutSongsVotingsDataResponse(BaseCountry, SchemaId):
+class CountryRequest(BaseCountry):
     pass
 
-class CountryCreateRequest(BaseCountry):
-    pass
+class CountryDataResponse(BaseCountry, BaseId):
+    songs: List[SongWithoutCountryCeremoniesVotings] = Field([], json_schema_extra={"description":"Country songs"})

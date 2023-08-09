@@ -8,11 +8,11 @@ class SongApiMapper:
                                 belongs_to_host_country=song_model.belongs_to_host_country,
                                 jury_potential_score=song_model.jury_potential_score,
                                 televote_potential_score=song_model.televote_potential_score,
-                                event=song_model.event, country=song_model.country,
-                                ceremonies=song_model.ceremonies, votings=song_model.votings)
+                                event=song_model.event.__dict__, country=song_model.country.__dict__,
+                                ceremonies=song_model.ceremonies, votings=song_model.votings) 
     
     def map_to_song_model(self, song_schema: SongRequest)->Song:
-        Song.update_forward_refs()
+        Song.model_rebuild()
         return Song(title=song_schema.title, artist=song_schema.artist,
                     belongs_to_host_country=song_schema.belongs_to_host_country,
                     jury_potential_score=song_schema.jury_potential_score,

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from app.core.config import Settings
+from app.core.config import BaseSettings as Settings
 from app.utils import constants
 from app.logic.services.base_service import BaseService
 from app.logic.services.song_service import SongService
@@ -12,10 +12,7 @@ from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
 from app.logic.models import Country, Event, Song, Ceremony, CeremonyType
-from app.logic.model_mappers.ceremony_model_mapper import CeremonyModelMapper 
-from app.logic.model_mappers.event_model_mapper import EventModelMapper 
-from app.logic.model_mappers.country_model_mapper import CountryModelMapper
-from app.logic.model_mappers.song_model_mapper import SongModelMapper
+from app.logic.model_mappers import CeremonyModelMapper, EventModelMapper, CountryModelMapper, SongModelMapper
 from app.utils.exceptions import AlreadyExistsError
 
 SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
@@ -121,7 +118,7 @@ class DataService(BaseService):
         song_title = song_and_artist[1].strip().replace('"', "")
         jury_potential_score, televote_potential_score = SongService(self.session).calculate_potential_scores(position=song_position)
         belongs_to_host_country = last_year_winner_country.id == associated_country.id
-        Song.update_forward_refs()
+        Song.model_rebuild()
         song = Song(title=song_title, artist=song_artist, position=song_position, jury_potential_score=jury_potential_score, 
                     televote_potential_score=televote_potential_score, belongs_to_host_country=belongs_to_host_country,
                     country=associated_country, event=associated_event)
