@@ -50,6 +50,9 @@ jobs:
       run: |
         psql -h localhost -U postgres -c "CREATE ROLE $TEST_POSTGRES_USER SUPERUSER CREATEDB LOGIN PASSWORD '$TEST_POSTGRES_PASSWORD';"
 
+      env:
+        POSTGRES_PASSWORD: postgres
+
     - name: Run tests
       run: |
         if pytest --collect-only | grep "collected 0 items"; then
