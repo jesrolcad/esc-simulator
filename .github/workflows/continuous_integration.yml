@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
       TEST_POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
       TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
       TEST_POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
@@ -21,7 +22,7 @@ jobs:
       postgres:
         image: postgres:14.2
         env:
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
         ports:
           - 5432:5432
 
@@ -47,8 +48,6 @@ jobs:
         sudo apt-get install -y chromium-chromedriver
 
     - name: Create role to run tests
-      env:
-        POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
         PGPASSWORD=$POSTGRES_PASSWORD psql -h localhost -U postgres -c "CREATE ROLE $TEST_POSTGRES_USER SUPERUSER CREATEDB LOGIN PASSWORD '$TEST_POSTGRES_PASSWORD';"
 
