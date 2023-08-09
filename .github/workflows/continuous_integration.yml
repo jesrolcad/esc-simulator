@@ -9,14 +9,19 @@ jobs:
   python-tests:
     runs-on: ubuntu-latest
 
+    env:
+      TEST_POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
+      TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+      TEST_POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
+      TEST_POSTGRES_PORT: ${{ secrets.TEST_DB_PORT }}
+      TEST_POSTGRES_SERVER: ${{ secrets.TEST_DB_SERVER }}
+      ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
+
     services:
       postgres:
         image: postgres:14.2
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_SERVER: ${{ secrets.DB_SERVER }}
         ports:
           - 5432:5432
 
@@ -25,13 +30,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    env:
-        TEST_POSTGRES_USER: ${{ secrets.TEST_DB_USER }}
-        TEST_POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-        TEST_POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
-        TEST_POSTGRES_PORT: ${{ secrets.TEST_DB_PORT }}
-        TEST_POSTGRES_SERVER: ${{ secrets.TEST_DB_SERVER }}
-        ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
 
     steps:
     - uses: actions/checkout@v3
@@ -48,10 +46,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y chromium-chromedriver
 
-    - name: Create test user in PostgreSQL
+    - name: Create test role in PostgreSQL
       run: |
-        psql -h ${{ secrets.DB_SERVER }} -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "CREATE USER ${{ secrets.TEST_DB_USER }} WITH PASSWORD '${{ secrets.TEST_DB_PASSWORD }}';"
-        psql -h ${{ secrets.DB_SERVER }} -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "ALTER USER ${{ secrets.TEST_DB_USER }} WITH SUPERUSER;"
+      psql -h $TEST_POSTGRES_SERVER -p $TEST_POSTGRES_PORT -U postgres -c "CREATE ROLE $TEST_POSTGRES_USER SUPERUSER CREATEDB LOGIN PASSWORD $TEST_POSTGRES_PASSWORD;"
 
     - name: Run tests
       run: |
