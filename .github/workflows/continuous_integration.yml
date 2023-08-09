@@ -46,9 +46,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y chromium-chromedriver
 
-    - name: Create test role in PostgreSQL
+    - name: Create role to run tests
+      env:
+        POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
-        sudo psql -h localhost -U postgres -c "CREATE ROLE $TEST_POSTGRES_USER SUPERUSER CREATEDB LOGIN PASSWORD '$TEST_POSTGRES_PASSWORD';"
+        psql -h localhost -U postgres -c "CREATE ROLE $TEST_POSTGRES_USER SUPERUSER CREATEDB LOGIN PASSWORD '$TEST_POSTGRES_PASSWORD';"
 
     - name: Run tests
       run: |
