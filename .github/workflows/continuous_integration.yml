@@ -48,7 +48,7 @@ jobs:
 
     - name: Create test role in PostgreSQL
       run: |
-        psql -h postgres -U postgres -c "CREATE ROLE $TEST_POSTGRES_USER SUPERUSER CREATEDB LOGIN PASSWORD '$TEST_POSTGRES_PASSWORD';"
+        psql -h localhost -U postgres -c "CREATE ROLE $TEST_POSTGRES_USER SUPERUSER CREATEDB LOGIN PASSWORD '$TEST_POSTGRES_PASSWORD';"
 
     - name: Run tests
       run: |
