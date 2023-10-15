@@ -8,16 +8,20 @@ from app.logic.models import Ceremony
 
 class EventService(BaseService):
 
+    def get_events(self)->list[Event]:
+        event_entities = EventRepository(self.session).get_events()
+        return [EventModelMapper.map_to_event_model(event_entities)]
+
     def get_event(self, id: int = None, year: int = None)->Event:
         event_entity = EventRepository(self.session).get_event(id, year)
-        return EventModelMapper.map_to_event_model(event_entity)
+        return EventModelMapper.map_to_event_model_without_submodels(event_entity)
 
 
     def create_event_and_associated_ceremonies(self, event: Event, grand_final_date: datetime)->Event:
         event_entity = EventModelMapper.map_to_event_entity(event)
         with self.session as session:
-            created_event_entity = EventRepository(self.session).create_event(event_entity)
-            created_event_model = EventModelMapper.map_to_event_model(created_event_entity)
+            created_event_entity = EventRepository(session).create_event(event_entity)
+            created_event_model = EventModelMapper.map_to_event_model_without_submodels(created_event_entity)
             self.associate_ceremonies_to_event(created_event_model, grand_final_date)
 
             return created_event_model

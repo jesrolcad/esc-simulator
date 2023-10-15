@@ -6,11 +6,13 @@ class CeremonyModelMapper:
     def map_to_ceremony_entity(self, ceremony: Ceremony)->CeremonyEntity:
         return CeremonyEntity(id=ceremony.id, ceremony_type_id=ceremony.ceremony_type.id, 
                             event_id=ceremony.event.id, date=ceremony.date)
-
-
-    def map_to_ceremony_model(self, ceremony_entity: CeremonyEntity)->Ceremony:
-        return Ceremony(id=ceremony_entity.id, ceremony_type_id=ceremony_entity.ceremony_type_id, 
-                        event_id=ceremony_entity.event_id, date=ceremony_entity.date)
+    
+    def map_to_ceremony_model_without_event(self, ceremony_entity: CeremonyEntity)->Ceremony:
+        if ceremony_entity is None:
+            return None
+        ceremony_type = CeremonyModelMapper().map_to_ceremony_type_model(ceremony_entity.ceremony_type)
+        return Ceremony(id=ceremony_entity.id, date=ceremony_entity.date, ceremony_type=ceremony_type, 
+                        songs=ceremony_entity.songs, votings=ceremony_entity.votings)
 
     def map_to_ceremony_type_model(self, ceremony_type_entity: CeremonyTypeEntity)->CeremonyType:
         return CeremonyType(id=ceremony_type_entity.id, name=ceremony_type_entity.name, code=ceremony_type_entity.code)
@@ -83,6 +85,15 @@ class EventModelMapper:
             return None
         return Event(id=event_entity.id, year=event_entity.year, slogan=event_entity.slogan, 
                     host_city=event_entity.host_city, arena=event_entity.arena)
+    
+    
+    def map_to_event_model(self, event_entity: EventEntity)->Event:
+        ceremonies = [CeremonyModelMapper().map_to_ceremony_model_without_event(ceremony) for ceremony in event_entity.ceremonies]
+        event = self.map_to_event_model_without_submodels(event_entity=event_entity)
+        if event is not None:
+            event.ceremonies = ceremonies
+
+        return event
 
 
 
