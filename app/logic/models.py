@@ -41,7 +41,7 @@ class Ceremony(BaseModel):
     id: int = None
     date: datetime
     ceremony_type: CeremonyType
-    event: Event
+    event: Event = None
     songs: List[Song] = []
     votings: List['Voting'] = []
 
