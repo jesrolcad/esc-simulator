@@ -1,5 +1,5 @@
-from app.logic.models import Ceremony, CeremonyType, Country, Event, Song
-from app.persistence.entities import CeremonyEntity, CeremonyTypeEntity, CountryEntity, EventEntity, SongEntity
+from app.logic.models import Ceremony, CeremonyType, Country, Event, Song, Voting, VotingType
+from app.persistence.entities import CeremonyEntity, CeremonyTypeEntity, CountryEntity, EventEntity, SongEntity, VotingEntity, VotingTypeEntity
 
 class CeremonyModelMapper:
 
@@ -11,12 +11,13 @@ class CeremonyModelMapper:
         if ceremony_entity is None:
             return None
         ceremony_type = CeremonyModelMapper().map_to_ceremony_type_model(ceremony_entity.ceremony_type)
+        ceremony_songs = [SongModelMapper().map_to_song_with_country_model(song) for song in ceremony_entity.songs]
+        ceremony_votings = [VotingModelMapper().map_to_voting_model_without_ceremony(voting) for voting in ceremony_entity.votings]
         return Ceremony(id=ceremony_entity.id, date=ceremony_entity.date, ceremony_type=ceremony_type, 
-                        songs=ceremony_entity.songs, votings=ceremony_entity.votings)
+                        songs=ceremony_songs, votings=ceremony_votings)
 
     def map_to_ceremony_type_model(self, ceremony_type_entity: CeremonyTypeEntity)->CeremonyType:
         return CeremonyType(id=ceremony_type_entity.id, name=ceremony_type_entity.name, code=ceremony_type_entity.code)
-    
 
 
 class SongModelMapper:
@@ -41,6 +42,14 @@ class SongModelMapper:
                     jury_potential_score=song_entity.jury_potential_score, 
                     televote_potential_score=song_entity.televote_potential_score,
                     belongs_to_host_country=song_entity.belongs_to_host_country)
+    
+    def map_to_song_with_country_model(self, song_entity: SongEntity)->Song:
+        country = CountryModelMapper().map_to_country_model_without_submodels(country_entity=song_entity.country)
+        song = self.map_to_song_model_without_submodels(song_entity=song_entity)
+        if song is not None:
+            song.country = country
+
+        return song
 
     def map_to_song_model(self, song_entity: SongEntity)->Song:
         event = EventModelMapper().map_to_event_model_without_submodels(event_entity=song_entity.event)
@@ -95,5 +104,15 @@ class EventModelMapper:
 
         return event
 
+class VotingModelMapper:
 
+    def map_to_voting_type_model(self, voting_type_entity: VotingTypeEntity)->VotingType:
+        return VotingType(id=voting_type_entity.id, name=voting_type_entity.name)
 
+    def map_to_voting_model_without_ceremony(self, voting_entity: VotingEntity)->Voting:
+        voting_type = self.map_to_voting_type_model(voting_entity.voting_type)
+        song = SongModelMapper().map_to_song_with_country_model(song_entity=voting_entity.song)
+        country = CountryModelMapper().map_to_country_model_without_submodels(country_entity=voting_entity.country)
+
+        return Voting(id=voting_entity.id, score=voting_entity.score, voting_type=voting_type, song=song, country=country)
+    

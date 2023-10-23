@@ -39,7 +39,7 @@ class CeremonyType(BaseModel):
 
 class Ceremony(BaseModel):
     id: int = None
-    date: datetime
+    date: datetime = None
     ceremony_type: CeremonyType
     event: Event = None
     songs: List[Song] = []
@@ -49,12 +49,11 @@ class Ceremony(BaseModel):
 class VotingType(BaseModel):
     id: int = None
     name: str
-    code: str
 
 class Voting(BaseModel):
     id: int = None
     score: Literal[1, 2, 3, 4, 5, 6, 7, 8, 10, 12]
     voting_type: VotingType
-    ceremony: Ceremony
+    ceremony: Ceremony = None
     song: Song
     country: Country
