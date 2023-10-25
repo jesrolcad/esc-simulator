@@ -5,8 +5,8 @@ from app.logic.services.base_service import BaseService
 
 class CeremonyService(BaseService):
 
-    def get_event_ceremonies(self, event_id: int)->list[Ceremony]:
-        ceremony_entities = CeremonyRepository(self.session).get_event_ceremonies(event_id=event_id)
+    def get_event_ceremonies(self, ceremony_id: int, event_id: int)->list[Ceremony]:
+        ceremony_entities = CeremonyRepository(self.session).get_event_ceremony(ceremony_id=ceremony_id, event_id=event_id)
 
         return [CeremonyModelMapper.map_to_ceremony_model_without_event(ceremony_entity=ceremony_entity) 
                 for ceremony_entity in ceremony_entities]
