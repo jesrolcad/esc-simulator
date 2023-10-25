@@ -34,7 +34,6 @@ def events():
         session.execute(insert(VotingEntity).values(id=1, country_id=1, song_id=2, ceremony_id=1, voting_type_id=1, score=10))
 
 
-
 @pytest.mark.parametrize("test_case", test_cases.get_events_test_cases)
 def test_get_events(request, client, test_case):
 
@@ -47,3 +46,19 @@ def test_get_events(request, client, test_case):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == test_case['expected_event_count']
     assert response.json() == test_case['expected_response']
+
+@pytest.mark.usefixtures("events")
+def test_get_event(client):
+
+    response = client.get("/events/1")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == test_cases.expected_get_events_response
+
+
+def test_get_event_not_found(client):
+
+    response = client.get("/events/1")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+

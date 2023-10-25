@@ -3,8 +3,8 @@ from app.logic.services.base_service import BaseService
 from app.persistence.repositories.event_repository import EventRepository
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
 from app.logic.model_mappers import EventModelMapper, CeremonyModelMapper
-from app.logic.models import Event
-from app.logic.models import Ceremony
+from app.logic.models import Event, Ceremony
+from app.utils.exceptions import NotFoundError
 
 class EventService(BaseService):
 
@@ -14,7 +14,11 @@ class EventService(BaseService):
 
     def get_event(self, id: int = None, year: int = None)->Event:
         event_entity = EventRepository(self.session).get_event(id, year)
-        return EventModelMapper().map_to_event_model_without_submodels(event_entity)
+
+        if event_entity is None:
+            raise NotFoundError(field="id",message=f"Event with id {id} not found")
+
+        return EventModelMapper().map_to_event_model(event_entity)
 
     def create_event_and_associated_ceremonies(self, event: Event, grand_final_date: datetime)->Event:
         event_entity = EventModelMapper().map_to_event_entity(event)

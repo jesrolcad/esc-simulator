@@ -29,3 +29,22 @@ def test_get_events(mocker, mock_session, event_entity, event_model):
     assert isinstance(result[0], Event)
     assert result[0] == event_model
     EventRepository(mock_session).get_events.assert_called_once()
+
+
+def test_get_event(mocker, mock_session, event_entity, event_model):
+    mocker.patch.object(EventRepository, 'get_event', return_value=event_entity)
+    mocker.patch.object(EventModelMapper,'map_to_event_model', return_value=event_model)
+
+    result = EventService(mock_session).get_event(id=1, year=None)
+    
+    assert isinstance(result, Event)
+    assert result == event_model
+    EventRepository(mock_session).get_event.assert_called_once_with(1,None)
+
+
+def test_get_event_not_found(mocker, mock_session):
+    mocker.patch.object(EventRepository, 'get_event', return_value=None)
+
+    with pytest.raises(Exception) as exception:
+        EventService(mock_session).get_event(id=1, year=None)
+        assert exception.field == "event_id"
