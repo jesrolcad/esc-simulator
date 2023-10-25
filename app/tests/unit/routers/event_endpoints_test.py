@@ -2,11 +2,15 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 from app.logic.services.event_service import EventService
-from app.logic.models import Event
+from app.logic.services.ceremony_service import CeremonyService
+from app.logic.models import Event, Ceremony, CeremonyType
 from app.main import app
 from app.routers.api_mappers.event_api_mapper import EventApiMapper
+from app.routers.api_mappers.ceremony_api_mapper import CeremonyApiMapper
 from app.routers.schemas.event_schemas import EventDataResponse
+from app.routers.schemas.common_schemas import CeremonyWithoutEventDataResponse, CeremonyTypeDataResponse
 from app.utils.exceptions import NotFoundError
+import datetime
 
 
 @pytest.fixture
@@ -20,6 +24,15 @@ def event_model():
 @pytest.fixture
 def event_schema():
     return EventDataResponse(id=1, year=2023, slogan="TEST", host_city="TEST", arena="TEST")
+
+@pytest.fixture
+def event_ceremony_model():
+    return Ceremony(ceremony_type=CeremonyType(name="Semifinal 1",code="Semifinal 1"), date=datetime.datetime.now(), event=Event(id=1, year=2023, slogan="TEST", host_city="TEST", arena="TEST"))
+
+@pytest.fixture
+def event_ceremony_schema():
+    return CeremonyWithoutEventDataResponse(id=1, ceremony_type=CeremonyTypeDataResponse(id=1,name="Semifinal 1", code="SF1"), date=datetime.datetime.now().date())
+
 
 
 @pytest.mark.asyncio
@@ -52,5 +65,25 @@ async def test_get_event_not_found(mocker, client):
     mocker.patch.object(EventService, "get_event", side_effect=NotFoundError)
 
     response = client.get("/events/1")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.asyncio
+async def test_get_event_ceremony(mocker, client, event_ceremony_model, event_ceremony_schema):
+    
+    mocker.patch.object(CeremonyService, "get_event_ceremony", return_value=event_ceremony_model)
+    mocker.patch.object(CeremonyApiMapper, "map_to_ceremony_without_event_data_response", return_value=event_ceremony_schema)
+
+    response = client.get("/events/1/ceremonies/1")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert CeremonyWithoutEventDataResponse(**response.json()) == event_ceremony_schema
+
+@pytest.mark.asyncio
+async def test_get_event_ceremony_not_found(mocker, client):
+
+    mocker.patch.object(CeremonyService, "get_event_ceremony", side_effect=NotFoundError)
+
+    response = client.get("/events/1/ceremonies/1")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
