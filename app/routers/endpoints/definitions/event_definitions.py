@@ -22,3 +22,14 @@ get_event_endpoint = {
         }
     }
 }
+
+get_event_ceremony_endpoint =  {
+    "summary": "Get event ceremony",
+    "description": "Get event ceremony by event id and ceremony id",
+    "responses": {
+        status.HTTP_200_OK: {
+            "model": EventDataResponseList,
+            "description": "Event ceremonies retrieved successfully"
+        }
+    }
+}

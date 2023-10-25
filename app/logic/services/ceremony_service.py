@@ -2,14 +2,17 @@ from app.persistence.repositories.ceremony_repository import CeremonyRepository
 from app.logic.model_mappers import CeremonyModelMapper
 from app.logic.models import Ceremony
 from app.logic.services.base_service import BaseService
+from app.utils.exceptions import NotFoundError
 
 class CeremonyService(BaseService):
 
-    def get_event_ceremonies(self, ceremony_id: int, event_id: int)->list[Ceremony]:
-        ceremony_entities = CeremonyRepository(self.session).get_event_ceremony(ceremony_id=ceremony_id, event_id=event_id)
+    def get_event_ceremony(self, ceremony_id: int, event_id: int)->Ceremony:
+        ceremony_entity = CeremonyRepository(self.session).get_event_ceremony(ceremony_id=ceremony_id, event_id=event_id)
 
-        return [CeremonyModelMapper.map_to_ceremony_model_without_event(ceremony_entity=ceremony_entity) 
-                for ceremony_entity in ceremony_entities]
+        if ceremony_entity is None:
+            raise NotFoundError(field="event_id,ceremony_id",message=f"Ceremony with id {ceremony_id} associated to event with id {event_id} not found")
+
+        return CeremonyModelMapper().map_to_ceremony_model_without_event(ceremony_entity=ceremony_entity)
 
 
     def create_ceremony(self, ceremony: Ceremony)->int:
