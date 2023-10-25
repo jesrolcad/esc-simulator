@@ -4,6 +4,9 @@ from app.persistence.repositories.base_repository import BaseRepository
 
 class CeremonyRepository(BaseRepository):
 
+    def get_event_ceremonies(self, event_id: int)->list[CeremonyEntity]:
+        return self.session.scalars(select(CeremonyEntity).where(CeremonyEntity.event_id == event_id)).all()
+
     def get_ceremony_type(self, code: str)->CeremonyTypeEntity:
         return self.session.scalars(select(CeremonyTypeEntity).where(CeremonyTypeEntity.code == code)).first()
 
