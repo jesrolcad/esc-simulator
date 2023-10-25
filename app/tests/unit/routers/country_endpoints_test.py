@@ -7,18 +7,11 @@ from app.routers.api_mappers.country_api_mapper import CountryApiMapper
 from app.routers.schemas.country_schemas import CountryDataResponse
 from app.logic.models import Country
 from app.utils.exceptions import NotFoundError, AlreadyExistsError
-from app.routers.schemas.api_schemas import ResultResponse
-from app.routers.schemas.base_schemas import BaseId
 
 
 @pytest.fixture
 def client():
     return TestClient(app)
-
-
-@pytest.fixture
-def mock_session(mocker):
-    return mocker.Mock()
 
 @pytest.fixture
 def country_schema():

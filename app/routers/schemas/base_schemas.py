@@ -1,5 +1,5 @@
 from typing import Literal
-from datetime import datetime
+from datetime import date as date_type
 from pydantic import BaseModel, Field, field_validator
 from . import validation_utils
 
@@ -52,7 +52,8 @@ class BaseCeremonyType(BaseModel):
         return validation_utils.validate_str_not_blank(field)
 
 class BaseCeremony(BaseModel):
-    date: datetime = Field(..., json_schema_extra={"description":"Ceremony date", "example":"2023-05-13"})
+
+    date: date_type = Field(..., json_schema_extra={"description":"Ceremony date", "example":"2023-05-13"})
 
 
 class BaseVotingType(BaseModel):

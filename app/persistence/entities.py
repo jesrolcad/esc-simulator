@@ -55,6 +55,7 @@ class CeremonyTypeEntity(Base):
     code = Column(String(5), nullable=False)
     ceremonies = relationship("CeremonyEntity", back_populates="ceremony_type")
 
+# Country votes a song in a ceremony of an event, with a specific voting type (jury or televote)
 class VotingEntity(Base):
     __tablename__ = 'voting'
     id = Column(Integer, primary_key=True)
