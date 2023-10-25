@@ -11,3 +11,14 @@ get_events_endpoint = {
         }
     }
 }
+
+get_event_endpoint = {
+    "summary": "Get event by id",
+    "description": "Get event by id",
+    "responses": {
+        status.HTTP_200_OK: {
+            "model": EventDataResponseList,
+            "description": "Event retrieved successfully"
+        }
+    }
+}
