@@ -62,3 +62,18 @@ def test_get_event_not_found(client):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+@pytest.mark.usefixtures("events")
+def test_get_event_ceremony(client):
+
+    response = client.get("/events/1/ceremonies/1")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == test_cases.expected_get_event_ceremony_response
+
+
+def test_get_event_ceremony_not_found(client):
+
+    response = client.get("/events/1/ceremonies/1000")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+

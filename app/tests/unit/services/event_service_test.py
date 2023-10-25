@@ -1,8 +1,12 @@
 import pytest
+import datetime
 from app.logic.services.event_service import EventService
 from app.persistence.repositories.event_repository import EventRepository
-from app.persistence.entities import EventEntity
-from app.logic.models import Event
+from app.logic.services.ceremony_service import CeremonyService
+from app.persistence.repositories.ceremony_repository import CeremonyRepository
+from app.persistence.entities import EventEntity, CeremonyEntity
+from app.logic.model_mappers import CeremonyModelMapper
+from app.logic.models import Event, Ceremony, CeremonyType
 from app.logic.model_mappers import EventModelMapper
 
 
@@ -12,11 +16,19 @@ def mock_session(mocker):
 
 @pytest.fixture
 def event_entity():
-    return Event(id=1, year=1, slogan="TEST", host_city="TEST", arena="TEST")
+    return EventEntity(id=1, year=1, slogan="TEST", host_city="TEST", arena="TEST")
 
 @pytest.fixture
 def event_model():
     return Event(id=1, year=1, slogan="TEST", host_city="TEST", arena="TEST")
+
+@pytest.fixture
+def ceremony_entity():
+    return CeremonyEntity(id=1, ceremony_type_id=1, event_id=1, date=datetime.datetime.now())
+
+@pytest.fixture
+def ceremony_model():
+    return Ceremony(ceremony_type=CeremonyType(id=1, name="Semifinal 1", code="SF1"))
 
 
 def test_get_events(mocker, mock_session, event_entity, event_model):
@@ -48,3 +60,22 @@ def test_get_event_not_found(mocker, mock_session):
     with pytest.raises(Exception) as exception:
         EventService(mock_session).get_event(id=1, year=None)
         assert exception.field == "event_id"
+
+
+def test_get_event_ceremony(mocker, mock_session, ceremony_entity, ceremony_model):
+    mocker.patch.object(CeremonyRepository, 'get_event_ceremony', return_value=ceremony_entity)
+    mocker.patch.object(CeremonyModelMapper,'map_to_ceremony_model_without_event', return_value=ceremony_model)
+
+    result = CeremonyService(mock_session).get_event_ceremony(ceremony_id=1, event_id=1)
+    
+    assert isinstance(result, Ceremony)
+    assert result == ceremony_model
+    CeremonyRepository(mock_session).get_event_ceremony.assert_called_once_with(ceremony_id=1, event_id=1)
+
+
+def test_get_event_ceremony_not_found(mocker, mock_session):
+    mocker.patch.object(CeremonyRepository, 'get_event_ceremony', return_value=None)
+
+    with pytest.raises(Exception) as exception:
+        CeremonyService(mock_session).get_event_ceremony(ceremony_id=1, event_id=1)
+        assert exception.field == "event_id,ceremony_id"
