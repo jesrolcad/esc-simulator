@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from app.db.database import get_db 
 from app.routers.endpoints.definitions.event_definitions import get_events_endpoint, get_event_endpoint, get_event_ceremony_endpoint, create_event_endpoint
 from app.logic.services.event_service import EventService
@@ -33,7 +33,7 @@ async def get_event_ceremony(event_id: int, ceremony_id: int, db: get_db = Depen
 
 
 @router.post(path="", summary=create_event_endpoint["summary"], description=create_event_endpoint["description"],
-            responses=create_event_endpoint["responses"])
+            responses=create_event_endpoint["responses"], status_code=status.HTTP_201_CREATED)
 async def create_event(event: EventRequest, db: get_db = Depends()):
 
     event_model = EventApiMapper().map_to_event_model(event_schema=event)
