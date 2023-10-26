@@ -22,12 +22,11 @@ class EventService(BaseService):
 
     def create_event_and_associated_ceremonies(self, event: Event, grand_final_date: datetime)->Event:
         event_entity = EventModelMapper().map_to_event_entity(event)
-        with self.session as session:
-            created_event_entity = EventRepository(session).create_event(event_entity)
-            created_event_model = EventModelMapper().map_to_event_model_without_submodels(created_event_entity)
-            self.associate_ceremonies_to_event(created_event_model, grand_final_date)
+        created_event_entity = EventRepository(self.session).create_event(event_entity)
+        created_event_model = EventModelMapper().map_to_event_model_without_submodels(created_event_entity)
+        self.associate_ceremonies_to_event(created_event_model, grand_final_date)
 
-            return created_event_model
+        return created_event_model
 
 
     def associate_ceremonies_to_event(self, event: Event, grand_final_date: datetime):
