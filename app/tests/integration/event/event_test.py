@@ -1,5 +1,6 @@
+from datetime import datetime
 import pytest
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from fastapi import status
 from fastapi.testclient import TestClient
 from app.main import app
@@ -33,6 +34,12 @@ def events():
         session.execute(insert(VotingTypeEntity).values(id=1, name="JURY"))
         session.execute(insert(VotingEntity).values(id=1, country_id=1, song_id=2, ceremony_id=1, voting_type_id=1, score=10))
 
+@pytest.fixture
+def ceremony_types():
+    with get_db_as_context_manager() as session:
+        session.execute(insert(CeremonyTypeEntity).values(id=1, name="SEMIFINAL 1", code="SF1"))
+        session.execute(insert(CeremonyTypeEntity).values(id=2, name="SEMIFINAL 2", code="SF2"))
+        session.execute(insert(CeremonyTypeEntity).values(id=3, name="GRAND FINAL", code="GF"))
 
 @pytest.mark.parametrize("test_case", test_cases.get_events_test_cases)
 def test_get_events(request, client, test_case):
@@ -76,4 +83,56 @@ def test_get_event_ceremony_not_found(client):
     response = client.get("/events/1/ceremonies/1000")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.parametrize("test_case", test_cases.create_update_event_positive_test_cases)
+@pytest.mark.usefixtures("ceremony_types")
+def test_create_event_positive(client, test_case):
+
+    response = client.post("/events", json=test_case)
+
+    response_id = response.json()['data']['id']
+
+    with get_db_as_context_manager() as session:
+        created_event = session.scalars(select(EventEntity).where(EventEntity.id == response_id)).first()
+        created_event_ceremonies = created_event.ceremonies
+
+    
+    sf1_ceremony = created_event_ceremonies[0]
+    sf2_ceremony = created_event_ceremonies[1]
+    gf_ceremony = created_event_ceremonies[2]
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert created_event.year == test_case['year']
+    assert created_event.slogan == test_case['slogan']
+    assert created_event.host_city == test_case['host_city']
+    assert created_event.arena == test_case['arena']
+    assert len(created_event_ceremonies) == 3
+
+    assert sf1_ceremony.ceremony_type_id == 1
+    assert sf1_ceremony.date == datetime.strptime("2021-05-06", "%Y-%m-%d").date()
+    assert sf2_ceremony.ceremony_type_id == 2
+    assert sf2_ceremony.date == datetime.strptime("2021-05-08", "%Y-%m-%d").date() 
+    assert gf_ceremony.ceremony_type_id == 3
+    assert gf_ceremony.date == datetime.strptime("2021-05-10", "%Y-%m-%d").date()  
+
+    for ceremony in created_event_ceremonies:
+        assert ceremony.event_id == created_event.id
+    
+@pytest.mark.parametrize("test_case", test_cases.create_update_event_negative_test_cases)
+def test_create_event_negative(client, test_case):
+
+    response = client.post("/events", json=test_case['body'])
+
+    response_errors = response.json()['errors']
+    response_invalid_fields = [response_error['field'] for response_error in response_errors]
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response_invalid_fields == test_case['invalid_fields']
+
+
+
+    
+
+
+
 

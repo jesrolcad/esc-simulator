@@ -32,7 +32,7 @@ class  BaseCountry(BaseModel):
 
 
 class BaseEvent(BaseModel):
-    year: int = Field(..., json_schema_extra={"description":"Event year", "example":2018})
+    year: int = Field(..., ge=0, json_schema_extra={"description":"Event year", "example":2018})
     slogan: str = Field(..., json_schema_extra={"description":"Event slogan", "example":"All Aboard!"}, min_length=1, max_length=50)
     host_city: str = Field(..., json_schema_extra={"description":"Event host city", "example":"Lisbon"}, min_length=1, max_length=50)
     arena: str = Field(..., json_schema_extra={"description":"Event arena", "example":"Altice Arena"}, min_length=1, max_length=50)

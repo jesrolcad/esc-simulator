@@ -4,7 +4,7 @@ from app.logic.services.event_service import EventService
 from app.persistence.repositories.event_repository import EventRepository
 from app.logic.services.ceremony_service import CeremonyService
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
-from app.persistence.entities import EventEntity, CeremonyEntity
+from app.persistence.entities import EventEntity, CeremonyEntity, CeremonyTypeEntity
 from app.logic.model_mappers import CeremonyModelMapper
 from app.logic.models import Event, Ceremony, CeremonyType
 from app.logic.model_mappers import EventModelMapper
@@ -29,6 +29,14 @@ def ceremony_entity():
 @pytest.fixture
 def ceremony_model():
     return Ceremony(ceremony_type=CeremonyType(id=1, name="Semifinal 1", code="SF1"))
+
+@pytest.fixture
+def ceremony_type_entity():
+    return CeremonyTypeEntity(id=1, name="Semifinal 1", code="SF1")
+
+@pytest.fixture
+def ceremony_type_model():
+    return CeremonyType(id=1, name="Semifinal 1", code="SF1")
 
 
 def test_get_events(mocker, mock_session, event_entity, event_model):
@@ -79,3 +87,20 @@ def test_get_event_ceremony_not_found(mocker, mock_session):
     with pytest.raises(Exception) as exception:
         CeremonyService(mock_session).get_event_ceremony(ceremony_id=1, event_id=1)
         assert exception.field == "event_id,ceremony_id"
+
+def test_create_event(mocker, mock_session, event_entity, event_model, ceremony_type_entity, ceremony_type_model, ceremony_entity):
+    mocker.patch.object(EventModelMapper, "map_to_event_entity", return_value=event_entity)
+    mocker.patch.object(EventRepository, "create_event", return_value=event_entity)
+    mocker.patch.object(EventModelMapper, "map_to_event_model_without_submodels", return_value=event_model)
+    mocker.patch.object(CeremonyModelMapper, "map_to_ceremony_type_model", return_value=ceremony_type_model)
+    mocker.patch.object(CeremonyRepository, "get_ceremony_type", return_value=ceremony_type_entity)
+    mocker.patch.object(CeremonyRepository, "create_ceremony", return_value=1)
+    mocker.patch.object(CeremonyModelMapper, "map_to_ceremony_entity", return_value=ceremony_entity)
+
+    result = EventService(mock_session).create_event_and_associated_ceremonies(event=Event(), grand_final_date=datetime.datetime.now().date())
+
+    assert isinstance(result, Event)
+    assert result == event_model
+
+
+
