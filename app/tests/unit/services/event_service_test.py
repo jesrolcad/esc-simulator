@@ -102,5 +102,24 @@ def test_create_event(mocker, mock_session, event_entity, event_model, ceremony_
     assert isinstance(result, Event)
     assert result == event_model
 
+def test_update_event(mocker, mock_session, event_model, event_entity):
+    mocker.patch.object(EventRepository, "update_event", return_value=event_entity)
+    mocker.patch.object(EventModelMapper, "map_to_event_model", return_value=event_model)
+    mocker.patch.object(EventModelMapper, "map_to_event_entity", return_value=event_entity)
+    mocker.patch.object(EventRepository, "update_event", return_value=None)
+
+    try:
+        EventService(mock_session).update_event(event_id=1, event=event_model)
+    except Exception as exception:
+        pytest.fail(f"Test failed with exception: {exception}")
+
+
+def test_update_event_not_found(mocker, mock_session, event_model):
+    mocker.patch.object(EventRepository, "update_event", return_value=None)
+
+    with pytest.raises(Exception) as exception:
+        EventService(mock_session).update_event(event_id=1, event=event_model)
+        assert exception.field == "event_id"
+
 
 

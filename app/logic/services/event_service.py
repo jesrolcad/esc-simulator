@@ -53,6 +53,7 @@ class EventService(BaseService):
 
     def update_event(self, event_id: int, event: Event):
         self.get_event(id=event_id)
-        event_entity = EventModelMapper().map_to_event_entity(event=event)
-        EventRepository(self.session).update_event(event=event_entity)
+        updated_event_entity = EventModelMapper().map_to_event_entity(event=event)
+        updated_event_entity.id = event_id
+        EventRepository(self.session).update_event(event=updated_event_entity)
 
