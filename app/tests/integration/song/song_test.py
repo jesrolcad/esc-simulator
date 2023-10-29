@@ -64,17 +64,17 @@ def setup_for_create_song_negative():
 @pytest.fixture
 def setup_for_update_song_negative():
     
-        with get_db_as_context_manager() as session:
-            session.execute(insert(CountryEntity).values(id=1, name="TEST", code="TEST"))
-            session.execute(insert(CountryEntity).values(id=2, name="ABC", code="ABC"))
-            session.execute(insert(EventEntity).values(id=1, year=1, slogan="TEST", host_city="TEST", arena="TEST"))
-            session.execute(insert(EventEntity).values(id=2, year=2, slogan="ABC", host_city="ABC", arena="ABC"))
-            session.execute(insert(SongEntity).values(id=1, title="TEST", artist="TEST", country_id=1, event_id=1,
-                                                    belongs_to_host_country=False, jury_potential_score=10,
-                                                    televote_potential_score=10))
-            session.execute(insert(SongEntity).values(id=2, title="ABC", artist="TEST2", country_id=2, event_id=2,
-                                                    belongs_to_host_country=True, jury_potential_score=10,
-                                                    televote_potential_score=10))
+    with get_db_as_context_manager() as session:
+        session.execute(insert(CountryEntity).values(id=1, name="TEST", code="TEST"))
+        session.execute(insert(CountryEntity).values(id=2, name="ABC", code="ABC"))
+        session.execute(insert(EventEntity).values(id=1, year=1, slogan="TEST", host_city="TEST", arena="TEST"))
+        session.execute(insert(EventEntity).values(id=2, year=2, slogan="ABC", host_city="ABC", arena="ABC"))
+        session.execute(insert(SongEntity).values(id=1, title="TEST", artist="TEST", country_id=1, event_id=1,
+                                                belongs_to_host_country=False, jury_potential_score=10,
+                                                televote_potential_score=10))
+        session.execute(insert(SongEntity).values(id=2, title="ABC", artist="TEST2", country_id=2, event_id=2,
+                                                belongs_to_host_country=True, jury_potential_score=10,
+                                                televote_potential_score=10))
         
 @pytest.mark.usefixtures("song")
 def test_get_song(client):

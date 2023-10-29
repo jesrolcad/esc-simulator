@@ -9,8 +9,10 @@ class SongDataResponse(BaseSong, BaseId):
     ceremonies: List[CeremonyWithoutSongsVotingsDataResponse] = []
     votings: List[VotingWithoutCeremonySongCountryDataResponse] = [] 
 
+
 class SongDataResponseList(BaseModel):
     songs: List[SongDataResponse]
+
 
 class SongRequest(BaseSong):
     country_id: int = Field(..., json_schema_extra={"description": "Country id", "example": 1})

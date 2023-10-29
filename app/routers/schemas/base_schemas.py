@@ -1,5 +1,5 @@
 from typing import Literal
-from datetime import datetime
+from datetime import date as date_type
 from pydantic import BaseModel, Field, field_validator
 from . import validation_utils
 
@@ -32,7 +32,7 @@ class  BaseCountry(BaseModel):
 
 
 class BaseEvent(BaseModel):
-    year: int = Field(..., json_schema_extra={"description":"Event year", "example":2018})
+    year: int = Field(..., ge=0, json_schema_extra={"description":"Event year", "example":2018})
     slogan: str = Field(..., json_schema_extra={"description":"Event slogan", "example":"All Aboard!"}, min_length=1, max_length=50)
     host_city: str = Field(..., json_schema_extra={"description":"Event host city", "example":"Lisbon"}, min_length=1, max_length=50)
     arena: str = Field(..., json_schema_extra={"description":"Event arena", "example":"Altice Arena"}, min_length=1, max_length=50)
@@ -52,7 +52,8 @@ class BaseCeremonyType(BaseModel):
         return validation_utils.validate_str_not_blank(field)
 
 class BaseCeremony(BaseModel):
-    date: datetime = Field(..., json_schema_extra={"description":"Ceremony date", "example":"2023-05-13"})
+
+    date: date_type = Field(..., json_schema_extra={"description":"Ceremony date", "example":"2023-05-13"})
 
 
 class BaseVotingType(BaseModel):
