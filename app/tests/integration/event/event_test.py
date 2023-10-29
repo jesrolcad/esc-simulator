@@ -35,6 +35,11 @@ def events():
         session.execute(insert(VotingEntity).values(id=1, country_id=1, song_id=2, ceremony_id=1, voting_type_id=1, score=10))
 
 @pytest.fixture
+def event():
+    with get_db_as_context_manager() as session:
+        session.execute(insert(EventEntity).values(id=1, year=2021, slogan="SLOGAN", host_city="HOST_CITY", arena="ARENA"))
+
+@pytest.fixture
 def ceremony_types():
     with get_db_as_context_manager() as session:
         session.execute(insert(CeremonyTypeEntity).values(id=1, name="SEMIFINAL 1", code="SF1"))
@@ -128,6 +133,43 @@ def test_create_event_negative(client, test_case):
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response_invalid_fields == test_case['invalid_fields']
+
+@pytest.mark.parametrize("test_case", test_cases.create_update_event_positive_test_cases)
+@pytest.mark.usefixtures("event")
+def test_update_event_positive(client, test_case):
+    
+    response = client.put("/events/1", json=test_case)
+
+    with get_db_as_context_manager() as session:
+        updated_event = session.scalars(select(EventEntity).where(EventEntity.id == 1)).first()
+
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert updated_event.year == test_case['year']
+    assert updated_event.slogan == test_case['slogan']
+    assert updated_event.host_city == test_case['host_city']
+    assert updated_event.arena == test_case['arena']
+
+
+@pytest.mark.parametrize("test_case", test_cases.create_update_event_negative_test_cases)
+def test_update_event_negative(client, test_case):
+
+    response = client.put("/events/1", json=test_case['body'])
+
+    response_errors = response.json()['errors']
+    response_invalid_fields = [response_error['field'] for response_error in response_errors]
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response_invalid_fields == test_case['invalid_fields']
+
+
+def test_update_event_not_found(client):
+
+    event_id = 300
+
+    response = client.put(f"/events/{event_id}", json=test_cases.create_update_event_positive_test_cases[0])
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 
