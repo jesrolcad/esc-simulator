@@ -50,3 +50,23 @@ create_event_endpoint = {
         }
     }
 }
+
+update_event_endpoint = {
+    "summary": "Update event",
+    "description": "Update event",
+    "responses": {
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Event updated successfully"
+        },
+
+        status.HTTP_400_BAD_REQUEST: {
+            "model": ErrorResponse,
+            "description": "Invalid request body"
+        },
+
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Event not found"
+        }
+    }
+}
