@@ -51,8 +51,8 @@ class EventService(BaseService):
         CeremonyRepository(self.session).create_ceremony(CeremonyModelMapper().map_to_ceremony_entity(grand_final_ceremmony))
 
 
-    def update_event(self, event: Event):
-        self.get_event(id=event.id)
+    def update_event(self, event_id: int, event: Event):
+        self.get_event(id=event_id)
         event_entity = EventModelMapper().map_to_event_entity(event=event)
         EventRepository(self.session).update_event(event=event_entity)
 
