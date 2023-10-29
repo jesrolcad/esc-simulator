@@ -106,3 +106,29 @@ async def test_create_event(mocker, client, event_model, event_request_schema):
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json()['data']['id'] == 1
+
+
+@pytest.mark.asyncio
+async def test_update_event(mocker, client, event_request_schema, event_model):
+    mocker.patch.object(EventApiMapper, "map_to_event_model", return_value=event_model)
+    mocker.patch.object(EventService, "update_event", return_value=None)
+
+    request = event_request_schema.model_dump(mode='json')
+    request['grand_final_date'] = "2023-05-13"
+
+    response = client.put("/events/1", json=request)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT   
+
+
+@pytest.mark.asyncio
+async def test_update_event_not_found(mocker, client, event_request_schema, event_model):
+    mocker.patch.object(EventApiMapper, "map_to_event_model", return_value=event_model)
+    mocker.patch.object(EventService, "update_event", side_effect=NotFoundError)
+
+    request = event_request_schema.model_dump(mode='json')
+    request['grand_final_date'] = "2023-05-13"
+
+    response = client.put("/events/1", json=request)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
