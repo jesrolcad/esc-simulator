@@ -7,7 +7,7 @@ from .definitions.simulator_definitions import get_event_ceremony_participants_e
 
 router = APIRouter(prefix="/simulator", tags=["simulator"])
 
-@router.get(path="/events/{event_id}/ceremonies/{ceremony_id}", summary=get_event_ceremony_participants_endpoint["summary"], description=get_event_ceremony_participants_endpoint["description"], 
+@router.get(path="/events/{event_id}/ceremonies/{ceremony_id}/participants", summary=get_event_ceremony_participants_endpoint["summary"], description=get_event_ceremony_participants_endpoint["description"], 
             responses=get_event_ceremony_participants_endpoint["responses"])
 async def get_event_ceremony_participants(event_id: int, ceremony_id: int, db: get_db = Depends()):
 

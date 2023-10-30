@@ -26,7 +26,7 @@ def test_get_event_ceremony_participants(mocker,client, participant_model, parti
     mocker.patch.object(SimulatorService, 'get_simulation_participants_by_event_ceremony', return_value=[participant_model])
     mocker.patch.object(SimulatorApiMapper, 'map_to_participant_data_response', return_value=participant_schema)
 
-    response = client.get("/simulator/events/1/ceremonies/1")
+    response = client.get("/simulator/events/1/ceremonies/1/participants")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [participant_schema.model_dump()]

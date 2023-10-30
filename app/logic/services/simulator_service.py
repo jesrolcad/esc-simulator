@@ -8,9 +8,12 @@ from app.logic.model_mappers import CeremonyModelMapper
 class SimulatorService(BaseService):
 
     def get_simulation_participants_by_event_ceremony(self, event_id: int, ceremony_id: int)->list[Participant]:
-
+        
         ceremony_entity = CeremonyRepository(self.session).get_event_ceremony(event_id=event_id, ceremony_id=ceremony_id)
         ceremony = CeremonyModelMapper().map_to_ceremony_model_without_event(ceremony_entity=ceremony_entity)
+
+        if ceremony is None:
+            return []
         
         return [self.build_participant_info(song) for song in ceremony.songs]
 
