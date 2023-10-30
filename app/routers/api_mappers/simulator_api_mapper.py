@@ -1,6 +1,5 @@
 from app.logic.models import Participant
 from app.routers.schemas.simulator_schemas import ParticipantDataResponse
-from app.tests.integration import country
 
 
 class SimulatorApiMapper:
