@@ -57,3 +57,8 @@ class Voting(BaseModel):
     ceremony: Ceremony = None
     song: Song
     country: Country
+
+class Participant(BaseModel):
+    country_id: int
+    song_id: int
+    participant_info: str

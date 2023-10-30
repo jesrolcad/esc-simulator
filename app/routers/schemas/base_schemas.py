@@ -68,3 +68,14 @@ class BaseVoting(BaseModel):
     score: Literal[1, 2, 3, 4, 5, 6, 7, 8, 10, 12] = Field(..., json_schema_extra={"description":"Voting score", "example":12})
 
 
+class BaseParticipant(BaseModel):
+    country_id: int = Field(..., json_schema_extra={"description":"Country id", "example":1})
+    song_id: int = Field(..., json_schema_extra={"description":"Song id", "example":1})
+    participant_info: str = Field(..., json_schema_extra={"description":"Participant info", "example":"Spain. Massiel - La, la, la. Jury potential score: 10 | Televote potential score: 10"}, min_length=1, max_length=200)
+
+    @field_validator("participant_info")
+    @classmethod
+    def validate_str_not_blank(cls, field: str)->str:
+        return validation_utils.validate_str_not_blank(field)
+
+
