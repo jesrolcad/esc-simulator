@@ -153,6 +153,16 @@ class SimulationModelMapper:
                 simulation_by_ceremony.results.append(participant_result)
 
         return list(simulation_results_by_ceremony.values())
+    
+    def map_to_simulation_ceremony_result_model(self, rows: Sequence)->SimulationCeremonyResult:
+        simulation = SimulationCeremonyResult(ceremony_id=rows[0].ceremony_id, ceremony_type=CeremonyType(id=rows[0].ceremony_type_id, name=rows[0].ceremony_type_name))
+
+        for row in rows:
+            participant_result = self.build_participant_result(row=row)
+            simulation.results.append(participant_result)
+
+        return simulation
+
 
 
     def build_participant_info_model_by_song(self, song: Song)->Participant:

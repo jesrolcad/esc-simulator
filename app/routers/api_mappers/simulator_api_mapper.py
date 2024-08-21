@@ -14,7 +14,7 @@ class SimulatorApiMapper:
                                         participant_info=participant_model.participant_info, position=position, total_score=participant_model.total_score,
                                         jury_score=participant_model.jury_score, televote_score=participant_model.televote_score)
     
-    def map_to_simulator_ceremony_data_response(self, simulation_result_model: list[SimulationCeremonyResult])->list[SimulationCeremonyResultDataResponse]:
+    def map_to_simulator_ceremony_data_response_list(self, simulation_result_model: list[SimulationCeremonyResult])->list[SimulationCeremonyResultDataResponse]:
 
         simulations = []
 
@@ -31,6 +31,18 @@ class SimulatorApiMapper:
                                                     results=participant_results_list))
             
         return simulations
+    
+    def map_to_simulator_ceremony_data_response(self, simulation_result_model: SimulationCeremonyResult)->SimulationCeremonyResultDataResponse:
+
+        participant_results_data_response = [self.map_to_participant_result_data_response(participant_result, position) 
+                                                for position, participant_result in enumerate(simulation_result_model.results, start=1)]
+        
+        participant_results_list = ParticipantResultDataResponseList(participants=participant_results_data_response)
+        
+        return SimulationCeremonyResultDataResponse(ceremony_id=simulation_result_model.ceremony_id, 
+                                                    ceremony_type_id=simulation_result_model.ceremony_type.id, 
+                                                    ceremony_type_name=simulation_result_model.ceremony_type.name, 
+                                                    results=participant_results_list)
 
 
         
