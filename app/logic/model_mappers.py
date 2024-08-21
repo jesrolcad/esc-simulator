@@ -1,4 +1,5 @@
-from app.logic.models import Ceremony, CeremonyType, Country, Event, Song, Voting, VotingType
+from sqlalchemy import Sequence
+from app.logic.models import Ceremony, CeremonyType, Country, Event, Participant, ParticipantResult, SimulationCeremonyResult, Song, Voting, VotingType
 from app.persistence.entities import CeremonyEntity, CeremonyTypeEntity, CountryEntity, EventEntity, SongEntity, VotingEntity, VotingTypeEntity
 
 class CeremonyModelMapper:
@@ -115,4 +116,63 @@ class VotingModelMapper:
         country = CountryModelMapper().map_to_country_model_without_submodels(country_entity=voting_entity.country)
 
         return Voting(id=voting_entity.id, score=voting_entity.score, voting_type=voting_type, song=song, country=country)
+    
+
+class SimulationModelMapper:
+
+    def map_to_participant_result_model(self, row: Sequence)->ParticipantResult:
+        voting = row[0]
+        voted_song = SongModelMapper().map_to_song_with_country_model(song_entity=voting.song)
+
+        participant_info = self.build_participant_info_model_by_song(song=voted_song)
+
+        return ParticipantResult(country_id=voted_song.country.id, 
+                                 song_id=voted_song.id, participant_info=participant_info, 
+                                 jury_score=row[1], televote_score=row[2], total_score=row [3])
+    
+    def map_to_simulation_ceremony_result_model_list(self, rows: Sequence)->list[SimulationCeremonyResult]:
+
+        simulation_results_by_ceremony = {}
+
+        for row in rows:
+            simulation_by_ceremony = simulation_results_by_ceremony.get(row.ceremony_id)
+
+            if simulation_by_ceremony is None:
+                simulation = SimulationCeremonyResult(ceremony_id=row.ceremony_id, ceremony_type=CeremonyType(id=row.ceremony_type_id, name=row.ceremony_type_name))
+
+                participant_result = self.build_participant_result(row=row)
+                
+                simulation.results.append(participant_result)
+
+                simulation_results_by_ceremony[row.ceremony_id] = simulation
+
+            else:
+
+                participant_result = self.build_participant_result(row=row)
+                
+                simulation_by_ceremony.results.append(participant_result)
+
+        return list(simulation_results_by_ceremony.values())
+
+
+    def build_participant_info_model_by_song(self, song: Song)->Participant:
+
+        participant_info = f"{song.country.name}. {song.artist} - {song.title}. Jury potential score: {song.jury_potential_score} | Televote potential score: {song.televote_potential_score}"
+        return Participant(country_id=song.country.id, song_id=song.id, participant_info=participant_info)
+    
+    def build_participant_info(self, country_name: str, 
+                               artist: str, title: str, jury_potential_score: int, 
+                               televote_potential_score: int)->str:
+        
+        return f"{country_name}. {artist} - {title}. Jury potential score: {jury_potential_score} | Televote potential score: {televote_potential_score}"
+
+    
+    def build_participant_result(self, row)->ParticipantResult:
+        participant_info = self.build_participant_info(country_name=row.country_name, artist=row.song_artist,
+        title=row.song_title, jury_potential_score=row.jury_potential_score,televote_potential_score=row.televote_potential_score)
+        
+        return ParticipantResult(country_id=row.country_id, song_id=row.song_id, participant_info=participant_info, jury_score=row.jury_score,
+        televote_score=row.televote_score, total_score=row.total_score)
+
+        
     

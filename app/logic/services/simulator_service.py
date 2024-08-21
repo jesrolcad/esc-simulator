@@ -1,8 +1,9 @@
 
-from app.logic.models import Participant, Song
+from app.logic.models import Participant, SimulationCeremonyResult
 from app.logic.services.base_service import BaseService
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
-from app.logic.model_mappers import CeremonyModelMapper
+from app.persistence.repositories.voting_repository import VotingRepository
+from app.logic.model_mappers import CeremonyModelMapper, SimulationModelMapper
 
 
 class SimulatorService(BaseService):
@@ -15,10 +16,20 @@ class SimulatorService(BaseService):
         if ceremony is None:
             return []
         
-        return [self.build_participant_info(song) for song in ceremony.songs]
+        return [SimulationModelMapper().build_participant_info(song) for song in ceremony.songs]
+    
+    def get_simulation_event_results(self, event_id: int)->SimulationCeremonyResult:
+
+        #Repository retrieves a list of rows containing song_id, ceremony_id, jury_score, televote_score, total_score
+        #Get song and ceremony information with those song_id and ceremony_id
+        results = VotingRepository(self.session).get_scores_by_event_id(event_id=event_id)
 
 
-    def build_participant_info(self, song: Song)->Participant:
+        if results is None:
+            return []
 
-        participant_info = f"{song.country.name}. {song.artist} - {song.title}. Jury potential score: {song.jury_potential_score} | Televote potential score: {song.televote_potential_score}"
-        return Participant(country_id=song.country.id, song_id=song.id, participant_info=participant_info)
+        return SimulationModelMapper().map_to_simulation_ceremony_result_model_list(results)
+
+
+
+    
