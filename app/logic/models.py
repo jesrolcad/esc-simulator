@@ -58,6 +58,13 @@ class Voting(BaseModel):
     song: Song
     country: Country
 
+class VotingIds(BaseModel):
+    song_id: int
+    country_id: int
+    ceremony_id: int
+    voting_type_id: int 
+    score: int
+
 class Participant(BaseModel):
     country_id: int
     song_id: int
@@ -72,5 +79,11 @@ class SimulationCeremonyResult(BaseModel):
     ceremony_id: int
     ceremony_type: CeremonyType
     results: List[ParticipantResult] = []
+
+class SimulationSong(BaseModel):
+    song_id: int
+    country_id: int
+    jury_potential_score: int
+    televote_potential_score: int
 
     

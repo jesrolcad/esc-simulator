@@ -80,6 +80,41 @@ class VotingRepository(BaseRepository):
                 CeremonyTypeEntity.name)
             .order_by(desc('total_score')))
             .all())
+
+    def get_qualified_song_ids_for_grand_final(self, semifinal_one_ceremony_id: int, semifinal_two_ceremony_id: int)->list[int]:
+        semifinal_one_subquery = (
+            select(
+            VotingEntity.song_id, VotingEntity.ceremony_id, 
+            func.sum(case((VotingEntity.voting_type_id == 1, VotingEntity.score), else_= 0)).label('jury_score'),
+            func.sum(case((VotingEntity.voting_type_id == 2, VotingEntity.score), else_= 0)).label('televote_score'),
+            func.sum(VotingEntity.score).label('total_score')
+            )
+            .where(VotingEntity.ceremony_id == semifinal_one_ceremony_id)
+            .group_by(VotingEntity.song_id, VotingEntity.ceremony_id)
+            .order_by(desc("total_score"))
+            .limit(10)
+            .subquery()
+            )
+
+        semifinal_two_subquery = (select(
+            VotingEntity.song_id, VotingEntity.ceremony_id, 
+            func.sum(case((VotingEntity.voting_type_id == 1, VotingEntity.score), else_= 0)).label('jury_score'),
+            func.sum(case((VotingEntity.voting_type_id == 2, VotingEntity.score), else_= 0)).label('televote_score'),
+            func.sum(VotingEntity.score).label('total_score')
+            )
+            .where(VotingEntity.ceremony_id == semifinal_two_ceremony_id)
+            .group_by(VotingEntity.song_id, VotingEntity.ceremony_id)
+            .order_by(desc("total_score"))
+            .limit(10)
+            .subquery()
+            )
+        
+        final_query = select(semifinal_one_subquery.c.song_id).union_all(
+            select(semifinal_two_subquery.c.song_id))
+        
+        return self.session.execute(final_query).scalars().all()
+
+
     
 
     
