@@ -45,7 +45,8 @@ class SimulatorService(BaseService):
         return SimulationModelMapper().map_to_simulation_ceremony_result_model(result) if result else None
     
     def create_simulation(self, event_id: int):
-            
+        
+        # Get songs which will participate in semifinals
         simulation_songs = SongService(self.session).get_simulation_songs_by_event_id(event_id=event_id)
 
         if not simulation_songs:
@@ -62,21 +63,21 @@ class SimulatorService(BaseService):
         
         self.divide_songs_into_semifinals(event_id=event_id, song_ids=[simulation_song.id for simulation_song in simulation_songs])
 
-        # TODO: Simulate each semifinal
+        # Simulate each semifinal
         self.simulate_ceremony(ceremony_id=semifinal_one_ceremony)
         self.simulate_ceremony(ceremony_id=semifinal_two_ceremony)
 
-        # TODO: Add qualified countries to grand final -> Populate song ceremony table
+        #Add qualified countries to grand final -> Populate song ceremony table
         qualified_for_grand_final_songs = VotingRepository.get_qualified_song_ids_for_grand_final(semifinal_one_ceremony_id=semifinal_one_ceremony, 
                                                                                                   semifinal_two_ceremony_id=semifinal_two_ceremony)
         
-        # TODO: Select automatic qualifiers for grand final
-        automatic_qualified_song_ids = SongService.get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id) # Get automatic qualifiers from database
+        # Select automatic qualifiers for grand final
+        automatic_qualified_song_ids = SongService.get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
         qualified_for_grand_final_songs.extend(automatic_qualified_song_ids)
 
         CeremonyRepository(self.session).add_songs_to_ceremony(ceremony_id=ceremonies[constants.GRAND_FINAL_CEREMONY_TYPE_ID], song_ids=qualified_for_grand_final_songs)
 
-        # TODO: Simulate grand final
+        # Simulate grand final
         self.simulate_ceremony(ceremony_id=ceremonies[constants.GRAND_FINAL_CEREMONY_TYPE_ID])
 
         
