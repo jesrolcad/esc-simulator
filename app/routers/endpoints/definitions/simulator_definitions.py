@@ -40,3 +40,18 @@ get_event_ceremony_type_results_endpoint = {
         }
     }
 }
+
+create_event_simulation_endpoint = {
+    "summary": "Create event simulation",
+    "description": "Create event simulation",
+    "responses": {
+        status.HTTP_200_OK: {
+            "description": "Event simulation created successfully"
+        }, 
+
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Event not found"
+        }
+    }
+}
