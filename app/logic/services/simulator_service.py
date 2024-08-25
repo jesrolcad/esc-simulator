@@ -120,7 +120,8 @@ class SimulatorService(BaseService):
                                     voting_type_id=constants.JURY_VOTING_TYPE_ID, score=(round(random.random(), 3)) * simulation_song.jury_potential_score)
             
             televote_score = VotingIds(song_id=simulation_song.id, country_id=country_id, ceremony_id=ceremony_id, 
-                                    voting_type_id=constants.TELEVOTE_VOTING_TYPE_ID, score=(round(random.random(), 3)) *round(random.random(), 3)) * simulation_song.televote_potential_score)
+                                    voting_type_id=constants.TELEVOTE_VOTING_TYPE_ID, score=(round(random.random(), 3)) * simulation_song.televote_potential_score)
+            
             jury_scores.append(jury_score)
             televote_scores.append(televote_score)
 
