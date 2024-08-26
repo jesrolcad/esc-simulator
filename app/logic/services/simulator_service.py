@@ -105,9 +105,10 @@ class SimulatorService(BaseService):
         for song in ceremony_songs:
             scores_by_country = self.generate_scores_by_country(country_id=song.country_id, ceremony_id=ceremony_id, simulation_songs=ceremony_songs)
             votings.extend(scores_by_country)
-        
+
+        VotingRepository(self.session).add_votings(votings=votings)
             
-    def generate_scores_by_country(self, country_id: int, ceremony_id: int, simulation_songs: list[SimulationSong])->list[VotingIds]:
+    def generate_scores_by_country(self, country_id: int, ceremony_id: int, simulation_songs: list[SimulationSong])->dict:
 
         jury_scores = []
         televote_scores = []
@@ -116,12 +117,15 @@ class SimulatorService(BaseService):
             if simulation_song.country_id == country_id:
                 continue
 
-            jury_score = VotingIds(song_id=simulation_song.id, country_id=country_id, ceremony_id=ceremony_id, 
-                                    voting_type_id=constants.JURY_VOTING_TYPE_ID, score=(round(random.random(), 3)) * simulation_song.jury_potential_score)
+            jury_score = {"song_id": simulation_song.id, "country_id": country_id, "ceremony_id": ceremony_id, 
+                          "voting_type_id": constants.JURY_VOTING_TYPE_ID, 
+                          "score": (round(random.random(), 3)) * simulation_song.jury_potential_score}
+
+            televote_score = {"song_id": simulation_song.id, "country_id": country_id, "ceremony_id": ceremony_id, 
+                            "voting_type_id": constants.TELEVOTE_VOTING_TYPE_ID, 
+                            "score": (round(random.random(), 3)) * simulation_song.televote_potential_score}
             
-            televote_score = VotingIds(song_id=simulation_song.id, country_id=country_id, ceremony_id=ceremony_id, 
-                                    voting_type_id=constants.TELEVOTE_VOTING_TYPE_ID, score=(round(random.random(), 3)) * simulation_song.televote_potential_score)
-            
+
             jury_scores.append(jury_score)
             televote_scores.append(televote_score)
 
