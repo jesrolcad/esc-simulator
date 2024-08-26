@@ -58,7 +58,8 @@ class SimulatorService(BaseService):
         semifinal_one_ceremony = ceremonies[constants.FIRST_SEMIFINAL_CEREMONY_TYPE_ID]
         semifinal_two_ceremony = ceremonies[constants.SECOND_SEMIFINAL_CEREMONY_TYPE_ID]
         
-        self.divide_songs_into_semifinals(event_id=event_id, song_ids=[simulation_song.id for simulation_song in simulation_songs])
+        self.divide_songs_into_semifinals(semifinal_one_ceremony=semifinal_one_ceremony, semifinal_two_ceremony=semifinal_two_ceremony, 
+                                          song_ids=[simulation_song.id for simulation_song in simulation_songs])
 
         # Simulate each semifinal
         self.simulate_ceremony(ceremony_id=semifinal_one_ceremony)
@@ -78,16 +79,13 @@ class SimulatorService(BaseService):
         self.simulate_ceremony(ceremony_id=ceremonies[constants.GRAND_FINAL_CEREMONY_TYPE_ID])
 
         
-    def divide_songs_into_semifinals(self, ceremonies: dict[int, int], song_ids: list[int]):
-        
-        ceremony_semifinal_one = ceremonies[constants.FIRST_SEMIFINAL_CEREMONY_TYPE_ID]
-        ceremony_semifinal_two = ceremonies[constants.SECOND_SEMIFINAL_CEREMONY_TYPE_ID]
-
+    def divide_songs_into_semifinals(self, semifinal_one_ceremony: int, semifinal_two_ceremony: int, song_ids: list[int]):
+    
         songs_per_semifinal = len(song_ids) // 2
 
         random.shuffle(song_ids)
 
-        song_ids_by_ceremony = [(ceremony_semifinal_one, song_ids[:songs_per_semifinal]), (ceremony_semifinal_two, song_ids[songs_per_semifinal:])]
+        song_ids_by_ceremony = [(semifinal_one_ceremony, song_ids[:songs_per_semifinal]), (semifinal_two_ceremony, song_ids[songs_per_semifinal:])]
 
         for ceremony, songs in song_ids_by_ceremony:
             CeremonyRepository(self.session).add_songs_to_ceremony(ceremony_id=ceremony, song_ids=songs)
