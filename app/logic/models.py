@@ -58,13 +58,6 @@ class Voting(BaseModel):
     song: Song
     country: Country
 
-class VotingIds(BaseModel):
-    song_id: int
-    country_id: int
-    ceremony_id: int
-    voting_type_id: int 
-    score: int
-
 class Participant(BaseModel):
     country_id: int
     song_id: int

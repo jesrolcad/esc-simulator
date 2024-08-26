@@ -1,16 +1,13 @@
-
-from ast import Tuple
-from app.logic.models import Participant, SimulationCeremonyResult, SimulationSong, VotingIds
+import random
+from app.logic.models import Participant, SimulationCeremonyResult, SimulationSong
 from app.logic.services.base_service import BaseService
 from app.logic.services.ceremony_service import CeremonyService
 from app.logic.services.song_service import SongService
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
 from app.persistence.repositories.voting_repository import VotingRepository
-from app.persistence.repositories.song_repository import SongRepository
 from app.logic.model_mappers import CeremonyModelMapper, SimulationModelMapper
 from app.utils.exceptions import NotFoundError
 from app.utils import constants
-import random
 
 
 class SimulatorService(BaseService):
