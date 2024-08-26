@@ -105,6 +105,8 @@ class SimulatorService(BaseService):
             
     def generate_scores_by_country(self, country_id: int, ceremony_id: int, simulation_songs: list[SimulationSong])->dict:
 
+        scores = []
+
         jury_scores = []
         televote_scores = []
 
@@ -112,11 +114,11 @@ class SimulatorService(BaseService):
             if simulation_song.country_id == country_id:
                 continue
 
-            jury_score = {"song_id": simulation_song.id, "country_id": country_id, "ceremony_id": ceremony_id, 
+            jury_score = {"song_id": simulation_song.song_id, "country_id": simulation_song.country_id, "ceremony_id": ceremony_id, 
                           "voting_type_id": constants.JURY_VOTING_TYPE_ID, 
                           "score": (round(random.random(), 3)) * simulation_song.jury_potential_score}
 
-            televote_score = {"song_id": simulation_song.id, "country_id": country_id, "ceremony_id": ceremony_id, 
+            televote_score = {"song_id": simulation_song.song_id, "country_id": simulation_song.country_id, "ceremony_id": ceremony_id, 
                             "voting_type_id": constants.TELEVOTE_VOTING_TYPE_ID, 
                             "score": (round(random.random(), 3)) * simulation_song.televote_potential_score}
             
@@ -124,16 +126,22 @@ class SimulatorService(BaseService):
             jury_scores.append(jury_score)
             televote_scores.append(televote_score)
 
-        jury_scores = jury_scores.sort(key=lambda jury_voting: jury_voting.score, reverse=True)[:10]
-        televote_scores = televote_scores.sort(key=lambda televote_voting: televote_voting.score, reverse=True)[:10]
+        jury_scores = sorted(jury_scores, key=lambda jury_voting: jury_voting['score'], reverse=True)[:10]
+        televote_scores = sorted(televote_scores, key=lambda televote_voting: televote_voting['score'], reverse=True)[:10]
         
         for i, jury_score in enumerate(jury_scores):
-            jury_score.score = constants.POSSIBLE_POINTS[i]
+            jury_score['score'] = constants.POSSIBLE_POINTS[i]
 
         for i, televote_score in enumerate(televote_scores):
-            televote_score.score = constants.POSSIBLE_POINTS[i]
+            televote_score['score'] = constants.POSSIBLE_POINTS[i]
 
-        return jury_scores[:10].extend(televote_scores[:10])
+        scores.extend(jury_scores[:10])
+        scores.extend(televote_scores[:10])
+
+        return scores
+        
+
+
 
     
 
