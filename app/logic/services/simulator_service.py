@@ -59,24 +59,28 @@ class SimulatorService(BaseService):
         semifinal_two_ceremony = ceremonies[constants.SECOND_SEMIFINAL_CEREMONY_TYPE_ID]
         
         self.divide_songs_into_semifinals(semifinal_one_ceremony=semifinal_one_ceremony, semifinal_two_ceremony=semifinal_two_ceremony, 
-                                          song_ids=[simulation_song.id for simulation_song in simulation_songs])
+                                          song_ids=[simulation_song.song_id for simulation_song in simulation_songs])
 
         # Simulate each semifinal
         self.simulate_ceremony(ceremony_id=semifinal_one_ceremony)
         self.simulate_ceremony(ceremony_id=semifinal_two_ceremony)
 
         #Add qualified countries to grand final -> Populate song ceremony table
-        qualified_for_grand_final_songs = VotingRepository.get_qualified_song_ids_for_grand_final(semifinal_one_ceremony_id=semifinal_one_ceremony, 
+        qualified_for_grand_final_songs = VotingRepository(self.session).get_qualified_song_ids_for_grand_final(semifinal_one_ceremony_id=semifinal_one_ceremony, 
                                                                                                   semifinal_two_ceremony_id=semifinal_two_ceremony)
         
         # Select automatic qualifiers for grand final
-        automatic_qualified_song_ids = SongService.get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
+        automatic_qualified_song_ids = SongService(self.session).get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
         qualified_for_grand_final_songs.extend(automatic_qualified_song_ids)
 
         CeremonyRepository(self.session).add_songs_to_ceremony(ceremony_id=ceremonies[constants.GRAND_FINAL_CEREMONY_TYPE_ID], song_ids=qualified_for_grand_final_songs)
 
+        print("Songs added to grand final ceremony")
+
         # Simulate grand final
         self.simulate_ceremony(ceremony_id=ceremonies[constants.GRAND_FINAL_CEREMONY_TYPE_ID])
+
+        print("Simulation completed successfully")
 
         
     def divide_songs_into_semifinals(self, semifinal_one_ceremony: int, semifinal_two_ceremony: int, song_ids: list[int]):

@@ -81,6 +81,19 @@ def test_get_event_ceremony(mocker, mock_session, ceremony_entity, ceremony_mode
     CeremonyRepository(mock_session).get_event_ceremony.assert_called_once_with(ceremony_id=1, event_id=1)
 
 
+def test_get_event_ceremonies(mocker, mock_session, ceremony_entity, ceremony_model):
+    mocker.patch.object(CeremonyRepository, 'get_ceremonies_by_event_id', return_value=[ceremony_entity])
+    mocker.patch.object(CeremonyModelMapper,'map_to_ceremony_model_without_event', return_value=ceremony_model)
+
+    result = CeremonyService(mock_session).get_event_ceremonies(event_id=1)
+    
+    assert isinstance(result, list)
+    assert isinstance(result[0], Ceremony)
+    assert result[0] == ceremony_model
+
+    CeremonyRepository(mock_session).get_ceremonies_by_event_id.assert_called_once_with(event_id=1)
+
+
 def test_get_event_ceremony_not_found(mocker, mock_session):
     mocker.patch.object(CeremonyRepository, 'get_event_ceremony', return_value=None)
 
@@ -102,6 +115,16 @@ def test_create_event(mocker, mock_session, event_entity, event_model, ceremony_
     assert isinstance(result, Event)
     assert result == event_model
 
+def test_create_ceremony(mocker, mock_session, ceremony_entity):
+
+    created_ceremony_id = 1
+    mocker.patch.object(CeremonyModelMapper, 'map_to_ceremony_entity', return_value=ceremony_entity)
+    mocker.patch.object(CeremonyRepository, 'create_ceremony', return_value=created_ceremony_id)
+
+    result = CeremonyService(mock_session).create_ceremony(ceremony=ceremony_entity)
+
+    assert result == created_ceremony_id
+
 def test_update_event(mocker, mock_session, event_model, event_entity):
     mocker.patch.object(EventRepository, "update_event", return_value=event_entity)
     mocker.patch.object(EventModelMapper, "map_to_event_model", return_value=event_model)
@@ -120,6 +143,14 @@ def test_update_event_not_found(mocker, mock_session, event_model):
     with pytest.raises(Exception) as exception:
         EventService(mock_session).update_event(event_id=1, event=event_model)
         assert exception.field == "event_id"
+
+def test_add_songs_to_ceremony(mocker, mock_session):
+    mocker.patch.object(CeremonyRepository, "add_songs_to_ceremony", return_value=None)
+
+    try:
+        CeremonyService(mock_session).add_songs_to_ceremony(ceremony_id=1, song_ids=[1,2,3])
+    except Exception as exception:
+        pytest.fail(f"Test failed with exception: {exception}")
 
 
 
