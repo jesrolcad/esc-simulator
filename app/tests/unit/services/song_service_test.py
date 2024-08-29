@@ -1,9 +1,10 @@
+from re import S
 import pytest
 from app.logic.services.song_service import SongService
 from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.event_repository import EventRepository
-from app.logic.models import Song, Country, Event
+from app.logic.models import SimulationSong, Song, Country, Event
 from app.logic.model_mappers import SongModelMapper
 from app.persistence.entities import SongEntity, CountryEntity, EventEntity
 from app.utils.exceptions import NotFoundError, BusinessLogicValidationError
@@ -39,6 +40,10 @@ def song_model():
                                 belongs_to_host_country=False, jury_potential_score=1, televote_potential_score=1,
                                 country=Country(id=1, name="test", code="COD"), event=Event(id=1, year=1, slogan="test", host_city="test", arena="test"),
                                 ceremonies=[], votings=[])
+
+@pytest.fixture
+def simulation_song_model():
+    return SimulationSong(song_id=1, country_id=2, jury_potential_score=10, televote_potential_score=3)
 
 def test_get_song(mocker, mock_session, song_entity, song_model):
 
@@ -76,6 +81,40 @@ def test_get_songs(mocker, mock_session, song_entity, song_model):
     assert isinstance(result[0], Song)
     assert result[0] == song_model
     SongRepository(mock_session).get_songs.assert_called_once()
+
+def test_get_simulation_songs_by_event_id(mocker, mock_session, simulation_song_model):
+    
+    mocker.patch.object(SongRepository, 'get_simulation_songs_info_by_event_id', return_value=[])
+    mocker.patch.object(SongModelMapper, 'map_to_simulation_song_model_list', return_value=[simulation_song_model])
+
+    event_id = 1
+    result = SongService(mock_session).get_simulation_songs_by_event_id(event_id=event_id)
+
+    assert isinstance(result, list)
+    assert isinstance(result[0], SimulationSong)
+    assert result[0] == simulation_song_model
+
+def test_get_simulation_songs_by_ceremony_id(mocker, mock_session, simulation_song_model):
+    
+    mocker.patch.object(SongRepository, 'get_simulation_songs_info_by_ceremony_id', return_value=[])
+    mocker.patch.object(SongModelMapper, 'map_to_simulation_song_model_list', return_value=[simulation_song_model])
+
+    ceremony_id = 1
+    result = SongService(mock_session).get_simulation_songs_by_ceremony_id(ceremony_id=ceremony_id)
+
+    assert isinstance(result, list)
+    assert isinstance(result[0], SimulationSong)
+    assert result[0] == simulation_song_model
+
+def test_get_automatic_qualified_songs_for_grand_final_by_event_id(mocker, mock_session, song_entity, song_model):
+    event_id = 1
+
+    mocker.patch.object(SongRepository, 'get_automatic_qualified_songs_for_grand_final_by_event_id', return_value=[1,1])
+    mocker.patch.object(SongModelMapper, 'map_to_song_country_ids', return_value=[SongModelMapper.CountrySong(country_id=1, song_id=1)])
+    try:
+        SongService(mock_session).get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
+    except Exception as exc:
+        pytest.fail(str(exc))
 
 
 def test_create_song(mocker, mock_session, song_model, song_entity, country_entity, event_entity):

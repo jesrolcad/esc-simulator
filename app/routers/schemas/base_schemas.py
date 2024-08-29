@@ -79,3 +79,6 @@ class BaseParticipant(BaseModel):
         return validation_utils.validate_str_not_blank(field)
 
 
+class BaseSimulationResult(BaseModel):
+    ceremony_id: int = Field(..., json_schema_extra={"description":"Ceremony id", "example":1})
+
