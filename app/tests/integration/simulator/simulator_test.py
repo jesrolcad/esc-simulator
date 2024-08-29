@@ -1,12 +1,11 @@
 import pytest
-from sqlalchemy import insert
+from sqlalchemy import insert,select
 from fastapi import status
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db.database import get_db_as_context_manager
 from app.persistence.entities import CeremonyEntity, CeremonyTypeEntity, CountryEntity, EventEntity, SongCeremony, SongEntity, VotingEntity, VotingTypeEntity
 from app.tests.integration.simulator import test_cases
-from app.utils import constants
 
 @pytest.fixture
 def client():
@@ -16,16 +15,14 @@ def client():
 @pytest.fixture
 def events():
     with get_db_as_context_manager() as session:
-        session.execute(insert(CountryEntity).values(id=10, name="COUNTRY", code="COU"))
-        session.execute(insert(CountryEntity).values(id=11, name="COUNTRY2", code="CO2"))
+        session.execute(insert(CountryEntity).values(id=1, name="COUNTRY", code="COU"))
+        session.execute(insert(CountryEntity).values(id=2, name="COUNTRY2", code="CO2"))
         session.execute(insert(EventEntity).values(id=1, year=1, slogan="EVENT", host_city="HOST_CITY", arena="ARENA"))
-
-
-        session.execute(insert(SongEntity).values(id=1, title="SONG1", artist="SONG_ARTIST1", country_id=10, event_id=1,
+        session.execute(insert(SongEntity).values(id=1, title="SONG1", artist="SONG_ARTIST1", country_id=1, event_id=1,
                                                 belongs_to_host_country=False, jury_potential_score=10,
                                                 televote_potential_score=10))
         
-        session.execute(insert(SongEntity).values(id=2, title="SONG2", artist="SONG_ARTIST2", country_id=11, event_id=1,
+        session.execute(insert(SongEntity).values(id=2, title="SONG2", artist="SONG_ARTIST2", country_id=2, event_id=1,
                                                 belongs_to_host_country=False, jury_potential_score=8,
                                                 televote_potential_score=8))
 
@@ -41,11 +38,11 @@ def events():
         session.execute(insert(VotingTypeEntity).values(id=1, name="Jury"))
         session.execute(insert(VotingTypeEntity).values(id=2, name="Televote"))
 
-        session.execute(insert(VotingEntity).values(id=1, ceremony_id=1, country_id=10, song_id=2, voting_type_id=1, score=1))
-        session.execute(insert(VotingEntity).values(id=2, ceremony_id=1, country_id=10, song_id=2, voting_type_id=2, score=12))
+        session.execute(insert(VotingEntity).values(id=1, ceremony_id=1, country_id=1, song_id=2, voting_type_id=1, score=1))
+        session.execute(insert(VotingEntity).values(id=2, ceremony_id=1, country_id=1, song_id=2, voting_type_id=2, score=12))
 
-        session.execute(insert(VotingEntity).values(id=3, ceremony_id=1, country_id=11, song_id=1, voting_type_id=1, score=10))
-        session.execute(insert(VotingEntity).values(id=4, ceremony_id=1, country_id=11, song_id=1, voting_type_id=2, score=6))
+        session.execute(insert(VotingEntity).values(id=3, ceremony_id=1, country_id=2, song_id=1, voting_type_id=1, score=10))
+        session.execute(insert(VotingEntity).values(id=4, ceremony_id=1, country_id=2, song_id=1, voting_type_id=2, score=6))
 
         session.execute(insert(SongCeremony).values(id=1, song_id=1, ceremony_id=1))
 
