@@ -16,7 +16,7 @@ class CeremonyService(BaseService):
     
     def get_event_ceremonies(self, event_id: int)->dict[int, int]:
         ceremony_entities = CeremonyRepository(self.session).get_ceremonies_by_event_id(event_id=event_id)
-        return [CeremonyModelMapper().map_to_ceremony_model_without_event(ceremony_entity=ceremony_entity) for ceremony_entity in ceremony_entities]
+        return CeremonyModelMapper().map_to_ceremony_map(rows=ceremony_entities)
 
 
     def create_ceremony(self, ceremony: Ceremony)->int:

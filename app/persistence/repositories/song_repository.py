@@ -19,14 +19,14 @@ class SongRepository(BaseRepository):
         return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
     
     def get_simulation_songs_info_by_event_id(self, event_id: int)-> Sequence[Any]:
-        return self.session.scalars(select(SongEntity.id, SongEntity.country_id, SongEntity.jury_potential_score, SongEntity.televote_potential_score)
+        return self.session.execute(select(SongEntity.id, SongEntity.country_id, SongEntity.jury_potential_score, SongEntity.televote_potential_score)
                                     .where(and_(SongEntity.event_id == event_id, 
-                                                SongEntity.belongs_to_host_country is False, 
-                                                SongEntity.country_id not in BIG_FIVE_IDS))).all()
+                                                SongEntity.belongs_to_host_country.is_(False), 
+                                                ~SongEntity.country_id.in_(BIG_FIVE_IDS)))).all()
     
     def get_simulation_songs_info_by_ceremony_id(self, ceremony_id: int)-> Sequence[Any]:
-        return self.session.scalars(select(SongEntity.id, SongEntity.country_id, SongEntity.jury_potential_score, SongEntity.televote_potential_score)
-                                    .join(SongCeremony).where(SongCeremony.ceremony_id == ceremony_id)).all()
+        return self.session.execute(select(SongEntity.id, SongEntity.country_id, SongEntity.jury_potential_score, SongEntity.televote_potential_score)
+                                    .join(SongCeremony, SongEntity.id == SongCeremony.c.song_id).where(SongCeremony.c.ceremony_id == ceremony_id)).all()
 
 
     def get_song_by_country_and_event_id(self, song_id: int, country_id: int, event_id: int)-> SongEntity:
@@ -34,9 +34,9 @@ class SongRepository(BaseRepository):
                                                                 SongEntity.event_id == event_id))).first()
 
     def get_automatic_qualified_songs_for_grand_final_by_event_id(self, event_id: int)-> Sequence[Any]:
-        return self.session.scalars(select(SongEntity.id).where(and_(SongEntity.event_id == event_id, 
-                                                                SongEntity.belongs_to_host_country is True, 
-                                                                SongEntity.country_id in BIG_FIVE_IDS))).all()
+        return self.session.execute(select(SongEntity.id, SongEntity.country_id).where(and_(SongEntity.event_id == event_id, 
+                                                                or_(SongEntity.belongs_to_host_country.is_(True), 
+                                                                SongEntity.country_id.in_(BIG_FIVE_IDS))))).all()
     
 
     def check_existing_song_marked_as_belongs_to_host_country(self, song_id: int, event_id: int)->int:
@@ -68,5 +68,10 @@ class SongRepository(BaseRepository):
 
     def delete_song(self, song_id: int):
         delete_stmt = (delete(SongEntity).where(SongEntity.id == song_id))
+        self.session.execute(delete_stmt)
+
+
+    def delete_songs_from_ceremonies(self, ceremonies: list[int]):
+        delete_stmt = (delete(SongCeremony).where(SongCeremony.c.ceremony_id.in_(ceremonies)))
         self.session.execute(delete_stmt)
 

@@ -1,6 +1,6 @@
 from typing import Any
 from sqlalchemy import Sequence, desc, and_
-from sqlalchemy.sql import func, case, select, insert
+from sqlalchemy.sql import func, case, select, insert, delete
 from app.persistence.repositories.base_repository import BaseRepository
 from app.persistence.entities import CeremonyTypeEntity, CountryEntity, SongEntity, VotingEntity, EventEntity, CeremonyEntity
 
@@ -116,6 +116,9 @@ class VotingRepository(BaseRepository):
     
     def add_votings(self, votings: list[dict]):
         self.session.execute(insert(VotingEntity), votings)
+
+    def delete_votings_by_ceremonies(self, ceremonies: list[int]):
+        self.session.execute((delete(VotingEntity).where(VotingEntity.ceremony_id.in_(ceremonies))))
 
 
     

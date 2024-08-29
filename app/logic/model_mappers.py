@@ -1,3 +1,4 @@
+import collections
 from sqlalchemy import Sequence
 from app.logic.models import Ceremony, CeremonyType, Country, Event, Participant, ParticipantResult, SimulationCeremonyResult, SimulationSong, Song, Voting, VotingType
 from app.persistence.entities import CeremonyEntity, CeremonyTypeEntity, CountryEntity, EventEntity, SongEntity, VotingEntity, VotingTypeEntity, SongCeremony
@@ -16,16 +17,18 @@ class CeremonyModelMapper:
         ceremony_votings = [VotingModelMapper().map_to_voting_model_without_ceremony(voting) for voting in ceremony_entity.votings]
         return Ceremony(id=ceremony_entity.id, date=ceremony_entity.date, ceremony_type=ceremony_type, 
                         songs=ceremony_songs, votings=ceremony_votings)
-
-    def map_to_ceremony_map(self, rows: Sequence)->dict[int, int]:
-        return {row.ceremony_type_id:row.ceremony_id for row in rows}
     
 
     def map_to_ceremony_type_model(self, ceremony_type_entity: CeremonyTypeEntity)->CeremonyType:
         return CeremonyType(id=ceremony_type_entity.id, name=ceremony_type_entity.name, code=ceremony_type_entity.code)
+    
+    def map_to_ceremony_map(self, rows: Sequence)->dict[int, int]:
+        return {row.ceremony_type_id:row.id for row in rows}
 
 
 class SongModelMapper:
+
+    CountrySong = collections.namedtuple('CountrySong', ['song_id', 'country_id'])
 
     def map_to_song_entity(self, song: Song)->SongEntity:
         
@@ -68,8 +71,11 @@ class SongModelMapper:
         return song
     
     def map_to_simulation_song_model_list(self, rows: Sequence)->list[SimulationSong]:
-        return [SimulationSong(song_id=row.song_id, country_id=row.country_id, jury_potential_score=row.jury_potential_score, 
+        return [SimulationSong(song_id=row.id, country_id=row.country_id, jury_potential_score=row.jury_potential_score, 
                                televote_potential_score=row.televote_potential_score) for row in rows]
+
+    def map_to_song_country_ids(self, rows: Sequence)->CountrySong:
+        return [self.CountrySong(song_id=row.id, country_id=row.country_id) for row in rows]
 
 class CountryModelMapper:
 
