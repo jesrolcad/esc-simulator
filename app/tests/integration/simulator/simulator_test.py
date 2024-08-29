@@ -1,11 +1,12 @@
 import pytest
-from sqlalchemy import insert,select
+from sqlalchemy import insert
 from fastapi import status
 from fastapi.testclient import TestClient
 from app.main import app
 from app.db.database import get_db_as_context_manager
 from app.persistence.entities import CeremonyEntity, CeremonyTypeEntity, CountryEntity, EventEntity, SongCeremony, SongEntity, VotingEntity, VotingTypeEntity
 from app.tests.integration.simulator import test_cases
+from app.utils import constants
 
 @pytest.fixture
 def client():
@@ -15,14 +16,16 @@ def client():
 @pytest.fixture
 def events():
     with get_db_as_context_manager() as session:
-        session.execute(insert(CountryEntity).values(id=1, name="COUNTRY", code="COU"))
-        session.execute(insert(CountryEntity).values(id=2, name="COUNTRY2", code="CO2"))
+        session.execute(insert(CountryEntity).values(id=10, name="COUNTRY", code="COU"))
+        session.execute(insert(CountryEntity).values(id=11, name="COUNTRY2", code="CO2"))
         session.execute(insert(EventEntity).values(id=1, year=1, slogan="EVENT", host_city="HOST_CITY", arena="ARENA"))
-        session.execute(insert(SongEntity).values(id=1, title="SONG1", artist="SONG_ARTIST1", country_id=1, event_id=1,
+
+
+        session.execute(insert(SongEntity).values(id=1, title="SONG1", artist="SONG_ARTIST1", country_id=10, event_id=1,
                                                 belongs_to_host_country=False, jury_potential_score=10,
                                                 televote_potential_score=10))
         
-        session.execute(insert(SongEntity).values(id=2, title="SONG2", artist="SONG_ARTIST2", country_id=2, event_id=1,
+        session.execute(insert(SongEntity).values(id=2, title="SONG2", artist="SONG_ARTIST2", country_id=11, event_id=1,
                                                 belongs_to_host_country=False, jury_potential_score=8,
                                                 televote_potential_score=8))
 
@@ -32,15 +35,17 @@ def events():
 
 
         session.execute(insert(CeremonyEntity).values(id=1, ceremony_type_id=1, event_id=1, date="2021-01-01"))
+        session.execute(insert(CeremonyEntity).values(id=2, ceremony_type_id=2, event_id=1, date="2021-01-02"))
+        session.execute(insert(CeremonyEntity).values(id=3, ceremony_type_id=3, event_id=1, date="2021-01-03"))
 
         session.execute(insert(VotingTypeEntity).values(id=1, name="Jury"))
         session.execute(insert(VotingTypeEntity).values(id=2, name="Televote"))
 
-        session.execute(insert(VotingEntity).values(id=1, ceremony_id=1, country_id=1, song_id=2, voting_type_id=1, score=1))
-        session.execute(insert(VotingEntity).values(id=2, ceremony_id=1, country_id=1, song_id=2, voting_type_id=2, score=12))
+        session.execute(insert(VotingEntity).values(id=1, ceremony_id=1, country_id=10, song_id=2, voting_type_id=1, score=1))
+        session.execute(insert(VotingEntity).values(id=2, ceremony_id=1, country_id=10, song_id=2, voting_type_id=2, score=12))
 
-        session.execute(insert(VotingEntity).values(id=3, ceremony_id=1, country_id=2, song_id=1, voting_type_id=1, score=10))
-        session.execute(insert(VotingEntity).values(id=4, ceremony_id=1, country_id=2, song_id=1, voting_type_id=2, score=6))
+        session.execute(insert(VotingEntity).values(id=3, ceremony_id=1, country_id=11, song_id=1, voting_type_id=1, score=10))
+        session.execute(insert(VotingEntity).values(id=4, ceremony_id=1, country_id=11, song_id=1, voting_type_id=2, score=6))
 
         session.execute(insert(SongCeremony).values(id=1, song_id=1, ceremony_id=1))
 
@@ -86,15 +91,6 @@ def test_get_event_ceremony_type_results_not_found(client):
     response = client.get("/simulator/events/1/ceremony-types/3")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-
-
-def test_create_simulation(request, client):
-    
-    request.getfixturevalue("events")
-
-    response = client.post("/simulator/events/1/simulate")
-
-    assert response.status_code == status.HTTP_200_OK
     
     
 

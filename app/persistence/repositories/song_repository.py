@@ -24,6 +24,8 @@ class SongRepository(BaseRepository):
                                                 SongEntity.belongs_to_host_country.is_(False), 
                                                 ~SongEntity.country_id.in_(BIG_FIVE_IDS)))).all()
     
+
+    
     def get_simulation_songs_info_by_ceremony_id(self, ceremony_id: int)-> Sequence[Any]:
         return self.session.execute(select(SongEntity.id, SongEntity.country_id, SongEntity.jury_potential_score, SongEntity.televote_potential_score)
                                     .join(SongCeremony, SongEntity.id == SongCeremony.c.song_id).where(SongCeremony.c.ceremony_id == ceremony_id)).all()

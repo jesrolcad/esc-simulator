@@ -55,6 +55,7 @@ class SimulatorService(BaseService):
 
         if not ceremonies:
             raise NotFoundError(field="event_id", message=f"No ceremonies found for event_id {event_id}")
+    
         
          # Delete previous simulation data
         ceremony_ids = list(ceremonies.values())

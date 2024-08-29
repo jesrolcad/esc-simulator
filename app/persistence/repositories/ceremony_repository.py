@@ -1,4 +1,5 @@
-from sqlalchemy import insert, select, and_
+from typing import Any
+from sqlalchemy import insert, select, and_, Sequence
 from app.persistence.entities import CeremonyEntity, CeremonyTypeEntity, SongCeremony
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -10,7 +11,7 @@ class CeremonyRepository(BaseRepository):
     def get_ceremony_type(self, code: str)->CeremonyTypeEntity:
         return self.session.scalars(select(CeremonyTypeEntity).where(CeremonyTypeEntity.code == code)).first()
 
-    def get_ceremonies_by_event_id(self, event_id: int)->list[CeremonyEntity]:
+    def get_ceremonies_by_event_id(self, event_id: int)->Sequence[Any]:
         return self.session.execute(select(CeremonyEntity.ceremony_type_id, CeremonyEntity.id).where(CeremonyEntity.event_id == event_id)).all()
 
     def create_ceremony(self, ceremony: CeremonyEntity)->int:

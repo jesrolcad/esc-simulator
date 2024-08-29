@@ -82,15 +82,14 @@ def test_get_event_ceremony(mocker, mock_session, ceremony_entity, ceremony_mode
 
 
 def test_get_event_ceremonies(mocker, mock_session, ceremony_entity, ceremony_model):
-    mocker.patch.object(CeremonyRepository, 'get_ceremonies_by_event_id', return_value=[ceremony_entity])
-    mocker.patch.object(CeremonyModelMapper,'map_to_ceremony_model_without_event', return_value=ceremony_model)
+    mocker.patch.object(CeremonyRepository, 'get_ceremonies_by_event_id', return_value=[1,2])
+    mocker.patch.object(CeremonyModelMapper,'map_to_ceremony_map', return_value={1:2})
 
     result = CeremonyService(mock_session).get_event_ceremonies(event_id=1)
-    
-    assert isinstance(result, list)
-    assert isinstance(result[0], Ceremony)
-    assert result[0] == ceremony_model
 
+    assert isinstance(result, dict)
+    assert result == {1:2}
+    
     CeremonyRepository(mock_session).get_ceremonies_by_event_id.assert_called_once_with(event_id=1)
 
 

@@ -109,7 +109,8 @@ def test_get_simulation_songs_by_ceremony_id(mocker, mock_session, simulation_so
 def test_get_automatic_qualified_songs_for_grand_final_by_event_id(mocker, mock_session, song_entity, song_model):
     event_id = 1
 
-    mocker.patch.object(SongRepository, 'get_automatic_qualified_songs_for_grand_final_by_event_id', return_value=[1,2,3])
+    mocker.patch.object(SongRepository, 'get_automatic_qualified_songs_for_grand_final_by_event_id', return_value=[1,1])
+    mocker.patch.object(SongModelMapper, 'map_to_song_country_ids', return_value=[SongModelMapper.CountrySong(country_id=1, song_id=1)])
     try:
         SongService(mock_session).get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
     except Exception as exc:

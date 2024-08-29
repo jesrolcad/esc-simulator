@@ -24,6 +24,8 @@ class SongService(BaseService):
     def get_simulation_songs_by_event_id(self, event_id: int)->list[SimulationSong]:
         simulation_songs = SongRepository(self.session).get_simulation_songs_info_by_event_id(event_id=event_id)
 
+        print("SIMULATION SONGS: ", simulation_songs)
+
         return SongModelMapper().map_to_simulation_song_model_list(rows=simulation_songs)
     
     def get_simulation_songs_by_ceremony_id(self, ceremony_id: int)->list[SimulationSong]:
