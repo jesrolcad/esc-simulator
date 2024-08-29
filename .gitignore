@@ -9,3 +9,4 @@ __pycache__/
 .pylintrc
 .coverage
 htmlcov/
+alembic*
