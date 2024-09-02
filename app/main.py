@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
+from strawberry.fastapi import GraphQLRouter
 from app.core.config import BaseSettings as Settings
 from app.routers.endpoints import data_endpoints, song_endpoints, country_endpoints, event_endpoints, simulator_endpoints
 from app.utils.exceptions import BusinessLogicValidationError, InternalError, NotFoundError
@@ -38,12 +39,15 @@ app.add_exception_handler(InternalError, handle_internal_error)
 app.add_exception_handler(NotFoundError, handle_not_found_error)
 app.add_exception_handler(RequestValidationError, handle_request_validation_error)
 
-# Routers
+# REST Routers
 app.include_router(data_endpoints.router)
 app.include_router(song_endpoints.router)
 app.include_router(country_endpoints.router)
 app.include_router(event_endpoints.router)
 app.include_router(simulator_endpoints.router)
+
+# GraphQL Router
+#app.add_route("/", GraphQLRouter(schema_name="schema"))
 
 if __name__ == "__main__":
     uvicorn.run(app="app.main:app", host="localhost", port=8000, reload=True)
