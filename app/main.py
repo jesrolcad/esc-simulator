@@ -1,10 +1,14 @@
 import uvicorn
+import strawberry
+from strawberry.fastapi import BaseContext
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
 from strawberry.fastapi import GraphQLRouter
 from app.core.config import BaseSettings as Settings
+from app.db.database import get_db
 from app.routers.endpoints import data_endpoints, song_endpoints, country_endpoints, event_endpoints, simulator_endpoints
+from app.routers.operations.song_operations import SongQuery
 from app.utils.exceptions import BusinessLogicValidationError, InternalError, NotFoundError
 from app.routers.exception_handlers import handle_bad_request_error, handle_internal_error, handle_not_found_error, handle_request_validation_error
 
@@ -47,7 +51,26 @@ app.include_router(event_endpoints.router)
 app.include_router(simulator_endpoints.router)
 
 # GraphQL Router
-#app.add_route("/", GraphQLRouter(schema_name="schema"))
+# create Query class, which extends from another query classes (song, country, event...)
+# Example:
+@strawberry.type
+class Query(SongQuery):
+    pass
+
+# GraphQL Custom Context
+class CustomContext(BaseContext):
+    def __init__(self, db):
+        self.db = db
+
+def get_context() -> CustomContext:
+    db = get_db()
+    return CustomContext(db=db)
+
+schema = strawberry.Schema(query=Query)
+
+graphql_app = GraphQLRouter(schema, context_getter=get_context)
+
+app.include_router(graphql_app, prefix="/graphql")
 
 if __name__ == "__main__":
     uvicorn.run(app="app.main:app", host="localhost", port=8000, reload=True)
