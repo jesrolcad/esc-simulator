@@ -1,10 +1,11 @@
 import uvicorn
 import strawberry
 from strawberry.fastapi import BaseContext
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
 from strawberry.fastapi import GraphQLRouter
+from sqlalchemy.orm import Session
 from app.core.config import BaseSettings as Settings
 from app.db.database import get_db
 from app.routers.endpoints import data_endpoints, song_endpoints, country_endpoints, event_endpoints, simulator_endpoints
@@ -62,8 +63,7 @@ class CustomContext(BaseContext):
     def __init__(self, db):
         self.db = db
 
-def get_context() -> CustomContext:
-    db = get_db()
+def get_context(db: Session = Depends(get_db)) -> CustomContext:
     return CustomContext(db=db)
 
 schema = strawberry.Schema(query=Query)
