@@ -1,5 +1,4 @@
 import strawberry
-from app.db.database import get_db, get_db_as_context_manager
 from app.logic.services.song_service import SongService
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
 from app.routers.schemas.song_schemas import SongDataResponseQL
