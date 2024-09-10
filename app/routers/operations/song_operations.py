@@ -9,3 +9,9 @@ class SongQuery:
     def songs(self, info: strawberry.Info, title: str | None = None, country_code: str | None = None, event_year: int | None = None) -> list[SongDataResponseQL]:
         response = SongService(info.context.db).get_songs(title=title, country_code=country_code, event_year=event_year)
         return [SongApiMapper().map_to_song_data_response_ql(song) for song in response]
+
+
+    @strawberry.field
+    def song(self, song_id: int, info: strawberry.Info) -> SongDataResponseQL:
+        response = SongService(info.context.db).get_song(song_id)
+        return SongApiMapper().map_to_song_data_response_ql(response)
