@@ -1,8 +1,8 @@
 from random import randint
-from app.logic.models import SimulationSong, Song
+from app.logic.models import Country, SimulationSong, Song
 from app.persistence.repositories.song_repository import SongRepository
-from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.event_repository import EventRepository
+from app.logic.services.country_service import CountryService
 from app.persistence.entities import SongEntity
 from app.logic.services.base_service import BaseService
 from app.logic.model_mappers import SongModelMapper
@@ -21,10 +21,18 @@ class SongService(BaseService):
         return [SongModelMapper().map_to_song_model(song_entity=song) for song in SongRepository(self.session)
                 .get_songs(title=title, country_code=country_code, event_year=event_year)]
     
+    # TODO: Implement get_song_summary method 
+    def get_song_summary(self, song_id: int, title: str, artist: str, country_name: str)->str:
+        if country_name is None:
+            country = CountryService(self.session).get_country_by_song_id(song_id=song_id)
+            country_name = country.name
+
+        return f"{country_name}. {artist} - {title}"
+             
+
+    
     def get_simulation_songs_by_event_id(self, event_id: int)->list[SimulationSong]:
         simulation_songs = SongRepository(self.session).get_simulation_songs_info_by_event_id(event_id=event_id)
-
-        print("SIMULATION SONGS: ", simulation_songs)
 
         return SongModelMapper().map_to_simulation_song_model_list(rows=simulation_songs)
     
@@ -37,8 +45,6 @@ class SongService(BaseService):
         country_song_ids = SongRepository(self.session).get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
 
         return SongModelMapper().map_to_song_country_ids(rows=country_song_ids)
-
-
 
     def create_song(self, song: Song)-> Song:
         song_entity = SongModelMapper().map_to_song_entity(song=song)

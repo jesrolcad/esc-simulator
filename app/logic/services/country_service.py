@@ -15,6 +15,9 @@ class CountryService(BaseService):
     def get_countries(self)->list[Country]:
         return [CountryModelMapper().map_to_country_model(country_entity=country_entity) 
                 for country_entity in CountryRepository(self.session).get_countries()]
+    
+    def get_country_by_song_id(self, song_id: int):
+        return CountryModelMapper().map_to_country_model_without_submodels(CountryRepository(self.session).get_country_by_song_id(song_id=song_id))
 
     def create_country(self, country: Country)->Country:
         self.check_country_by_name_or_code_exists(country_id=None,country=country)

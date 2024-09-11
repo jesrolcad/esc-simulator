@@ -1,5 +1,5 @@
 from sqlalchemy import insert, select, update, or_, and_, delete
-from app.persistence.entities import CountryEntity
+from app.persistence.entities import CountryEntity, SongEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
 class CountryRepository(BaseRepository):
@@ -25,6 +25,8 @@ class CountryRepository(BaseRepository):
     def get_country_by_name_or_code(self, country_id: int, name: str, code: str)->CountryEntity:
         return self.session.scalars(select(CountryEntity).where(and_(CountryEntity.id != country_id, or_(CountryEntity.name.ilike(name), CountryEntity.code.ilike(code))))).first()
 
+    def get_country_by_song_id(self, song_id: int)->CountryEntity:
+        return self.session.scalars(select(CountryEntity).join(SongEntity).where(SongEntity.id == song_id)).first()
 
     def create_country(self, country: CountryEntity)->CountryEntity:
         insert_stmt = (insert(CountryEntity).values(name=country.name,code=country.code).returning(CountryEntity.id))

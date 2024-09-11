@@ -1,16 +1,11 @@
 from typing import List
-import strawberry
 from pydantic.fields import Field
 from pydantic import BaseModel
-from app.routers.schemas.base_schemas import BaseId, BaseSong, BaseIdQL, BaseSongQL
-from app.routers.schemas.common_schemas import CountryWithoutSongsVotingsDataResponse, CountryWithoutSongsVotingsDataResponseQL
+from app.routers.schemas.base_schemas import BaseId, BaseSong
+from app.routers.schemas.common_schemas import CountryWithoutSongsVotingsDataResponse
 
 class SongDataResponse(BaseSong, BaseId):
     country: CountryWithoutSongsVotingsDataResponse
-
-@strawberry.type
-class SongDataResponseQL(BaseSongQL, BaseIdQL):
-    country: CountryWithoutSongsVotingsDataResponseQL
 
 
 class SongDataResponseList(BaseModel):
