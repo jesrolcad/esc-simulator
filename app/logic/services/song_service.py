@@ -1,7 +1,8 @@
 from random import randint
-from app.logic.models import Country, SimulationSong, Song
+from app.logic.models import SimulationSong, Song
 from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.event_repository import EventRepository
+from app.persistence.repositories.country_repository import CountryRepository
 from app.logic.services.country_service import CountryService
 from app.persistence.entities import SongEntity
 from app.logic.services.base_service import BaseService
@@ -21,7 +22,7 @@ class SongService(BaseService):
         return [SongModelMapper().map_to_song_model(song_entity=song) for song in SongRepository(self.session)
                 .get_songs(title=title, country_code=country_code, event_year=event_year)]
     
-    # TODO: Implement get_song_summary method 
+
     def get_song_summary(self, song_id: int, title: str, artist: str, country_name: str)->str:
         if country_name is None:
             country = CountryService(self.session).get_country_by_song_id(song_id=song_id)

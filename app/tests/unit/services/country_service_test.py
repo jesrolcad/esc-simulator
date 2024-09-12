@@ -54,6 +54,17 @@ def test_get_countries(mocker, mock_session, country_entity, country_model):
     assert result[0] == country_model
     CountryRepository.get_countries.assert_called_once()
 
+def test_get_country_by_song_id(mocker, mock_session, country_entity, country_model):
+    
+    mocker.patch.object(CountryRepository, "get_country_by_song_id", return_value=country_entity)
+    mocker.patch.object(CountryModelMapper, "map_to_country_model", return_value=country_model)
+    
+    song_id = 1
+    result = CountryService(mock_session).get_country_by_song_id(song_id=song_id)
+    
+    assert isinstance(result, Country)
+    assert result == country_model
+
 def test_create_country(mocker, mock_session, country_entity, country_model):
 
     mocker.patch.object(CountryRepository, "get_country_by_name_or_code", return_value=None)

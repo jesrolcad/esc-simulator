@@ -1,6 +1,7 @@
 from re import S
 import pytest
 from app.logic.services.song_service import SongService
+from app.logic.services.country_service import CountryService
 from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.event_repository import EventRepository
@@ -81,6 +82,25 @@ def test_get_songs(mocker, mock_session, song_entity, song_model):
     assert isinstance(result[0], Song)
     assert result[0] == song_model
     SongRepository(mock_session).get_songs.assert_called_once()
+
+def test_get_song_summary(mocker, mock_session):
+
+    result = SongService(mock_session).get_song_summary(song_id=1, title="title", artist="artist", country_name="country_name")
+
+    expected = "country_name. artist - title"
+
+    assert result == expected
+
+def test_get_song_summary_country_name_none(mocker, mock_session):
+    
+    mocker.patch.object(CountryService, 'get_country_by_song_id', return_value=Country(name="country_name"))
+    
+    result = SongService(mock_session).get_song_summary(song_id=1, title="title", artist="artist", country_name=None)
+    
+    expected = "country_name. artist - title"
+    
+    CountryService(mock_session).get_country_by_song_id.assert_called_once()
+    assert result == expected
 
 def test_get_simulation_songs_by_event_id(mocker, mock_session, simulation_song_model):
     
