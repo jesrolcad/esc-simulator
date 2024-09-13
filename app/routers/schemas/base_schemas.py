@@ -39,13 +39,13 @@ class ScoreEnum(Enum):
     NINE = 9
     TEN = 10
     
-@strawberry.type
+@strawberry.input
 class BaseSongQL:
     title: str
     artist: str
     belongs_to_host_country: bool
-    jury_potential_score: int
-    televote_potential_score: int
+    jury_potential_score: ScoreEnum
+    televote_potential_score: ScoreEnum
 
 
 

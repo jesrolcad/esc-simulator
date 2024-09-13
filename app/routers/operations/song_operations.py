@@ -3,9 +3,11 @@ from app.logic.services.song_service import SongService
 from app.logic.services.country_service import CountryService
 from app.routers.api_mappers.country_api_mapper import CountryApiMapper
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
+from app.routers.schemas.api_schemas import ResultResponse, ResultResponseQL
 from app.routers.schemas.base_schemas import BaseIdQL, BaseSongQL, ScoreEnum
 from app.routers.schemas.common_schemas import CountryWithoutSongsVotingsDataResponseQL
 from app.logic.models import Song
+from app.routers.schemas.song_schemas import SongRequestQL
 
 
 @strawberry.type
@@ -45,3 +47,24 @@ class SongQuery:
     def song(self, song_id: int, info: strawberry.Info) -> SongDataResponseQL:
         response = SongService(info.context.db).get_song(song_id)
         return SongDataResponseQL.map_to_song_data_response_ql(response)
+    
+@strawberry.type
+class SongMutation:
+    @strawberry.mutation
+    def create_song(self, info: strawberry.Info, song: SongRequestQL)->SongDataResponseQL:
+        song_model = SongApiMapper().map_song_request_ql_to_song_model(song_schema_ql=song)
+        response = SongService(info.context.db).create_song(song=song_model)
+        return SongDataResponseQL.map_to_song_data_response_ql(response)
+    
+    @strawberry.mutation
+    def update_song(self, info: strawberry.Info, song_id: int, song: SongRequestQL)->ResultResponseQL:
+        song_model = SongApiMapper().map_song_request_ql_to_song_model(song_schema_ql=song)
+        SongService(info.context.db).update_song(song_id=song_id, updated_song=song_model)
+        return ResultResponseQL(success=True, message=f"Song with id {song_id} updated successfully")
+    
+    @strawberry.mutation
+    def delete_song(self, info: strawberry.Info, song_id: int)->ResultResponseQL:
+        SongService(info.context.db).delete_song(song_id)
+        return ResultResponseQL(success=True, message=f"Song with id {song_id} deleted successfully")
+    
+

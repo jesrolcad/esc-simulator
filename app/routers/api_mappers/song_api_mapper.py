@@ -1,5 +1,5 @@
 from app.logic.models import Song, Event, Country
-from app.routers.schemas.song_schemas import SongDataResponse, SongRequest
+from app.routers.schemas.song_schemas import SongDataResponse, SongRequest, SongRequestQL
 
 class SongApiMapper:
 
@@ -17,3 +17,11 @@ class SongApiMapper:
                     jury_potential_score=song_schema.jury_potential_score,
                     televote_potential_score=song_schema.televote_potential_score,
                     event=Event(id=song_schema.event_id), country=Country(id=song_schema.country_id))
+    
+    def map_song_request_ql_to_song_model(self, song_schema_ql: SongRequestQL)->Song:
+        Song.model_rebuild()
+        return Song(title=song_schema_ql.title, artist=song_schema_ql.artist,
+                    belongs_to_host_country=song_schema_ql.belongs_to_host_country,
+                    jury_potential_score=song_schema_ql.jury_potential_score.value,
+                    televote_potential_score=song_schema_ql.televote_potential_score.value,
+                    event=Event(id=song_schema_ql.event_id), country=Country(id=song_schema_ql.country_id))
