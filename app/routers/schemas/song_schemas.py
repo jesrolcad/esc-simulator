@@ -2,7 +2,7 @@ from typing import List
 import strawberry
 from pydantic.fields import Field
 from pydantic import BaseModel
-from app.routers.schemas.base_schemas import BaseId, BaseSong, BaseSongQL
+from app.routers.schemas.base_schemas import BaseId, BaseSong, BaseSongQL, PotentialScoreEnum
 from app.routers.schemas.common_schemas import CountryWithoutSongsVotingsDataResponse
 
 class SongDataResponse(BaseSong, BaseId):
@@ -21,6 +21,8 @@ class SongRequest(BaseSong):
 class SongRequestQL(BaseSongQL):
     country_id: int
     event_id: int
+    jury_potential_score: PotentialScoreEnum
+    televote_potential_score: PotentialScoreEnum
 
 
     

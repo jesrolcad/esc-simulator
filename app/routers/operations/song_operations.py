@@ -3,16 +3,19 @@ from app.logic.services.song_service import SongService
 from app.logic.services.country_service import CountryService
 from app.routers.api_mappers.country_api_mapper import CountryApiMapper
 from app.routers.api_mappers.song_api_mapper import SongApiMapper
-from app.routers.schemas.api_schemas import ResultResponse, ResultResponseQL
-from app.routers.schemas.base_schemas import BaseIdQL, BaseSongQL, ScoreEnum
+from app.routers.schemas.api_schemas import ResultResponseQL
+from app.routers.schemas.base_schemas import BaseIdQL, BaseSongQL, PotentialScoreEnum
 from app.routers.schemas.common_schemas import CountryWithoutSongsVotingsDataResponseQL
 from app.logic.models import Song
 from app.routers.schemas.song_schemas import SongRequestQL
+from app.routers.operations.validators import *
 
 
 @strawberry.type
 class SongDataResponseQL(BaseSongQL, BaseIdQL):
     _country: strawberry.Private[CountryWithoutSongsVotingsDataResponseQL] = None
+    jury_potential_score: int
+    televote_potential_score: int
 
     @strawberry.field
     def country(self, info: strawberry.Info) -> CountryWithoutSongsVotingsDataResponseQL:
@@ -32,8 +35,8 @@ class SongDataResponseQL(BaseSongQL, BaseIdQL):
     def map_to_song_data_response_ql(song_model: Song)->'SongDataResponseQL':
         return SongDataResponseQL(id=song_model.id, title=song_model.title, artist=song_model.artist,
                                   belongs_to_host_country=song_model.belongs_to_host_country,
-                                  jury_potential_score=ScoreEnum(song_model.jury_potential_score).value,
-                                  televote_potential_score=ScoreEnum(song_model.televote_potential_score).value)
+                                  jury_potential_score=PotentialScoreEnum(song_model.jury_potential_score).value,
+                                  televote_potential_score=PotentialScoreEnum(song_model.televote_potential_score).value)
 
 @strawberry.type
 class SongQuery:
@@ -52,12 +55,14 @@ class SongQuery:
 class SongMutation:
     @strawberry.mutation
     def create_song(self, info: strawberry.Info, song: SongRequestQL)->SongDataResponseQL:
+        validate_song_request_ql(song)
         song_model = SongApiMapper().map_song_request_ql_to_song_model(song_schema_ql=song)
         response = SongService(info.context.db).create_song(song=song_model)
         return SongDataResponseQL.map_to_song_data_response_ql(response)
     
     @strawberry.mutation
     def update_song(self, info: strawberry.Info, song_id: int, song: SongRequestQL)->ResultResponseQL:
+        validate_song_request_ql(song)
         song_model = SongApiMapper().map_song_request_ql_to_song_model(song_schema_ql=song)
         SongService(info.context.db).update_song(song_id=song_id, updated_song=song_model)
         return ResultResponseQL(success=True, message=f"Song with id {song_id} updated successfully")

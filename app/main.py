@@ -37,7 +37,7 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
-# Exception handlers
+# REST Exception handlers
 app.add_exception_handler(BusinessLogicValidationError, handle_bad_request_error)
 app.add_exception_handler(InternalError, handle_internal_error)
 app.add_exception_handler(NotFoundError, handle_not_found_error)
@@ -70,7 +70,7 @@ class CustomContext(BaseContext):
 async def get_context(db: Session = Depends(get_db)) -> CustomContext:
     return CustomContext(db=db)
 
-# TODO mutations are not being configured properly. Fix it
+
 schema = strawberry.Schema(Query, Mutation)
 
 graphql_app = GraphQLRouter(schema, context_getter=get_context)

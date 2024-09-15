@@ -27,7 +27,7 @@ class BaseSong(BaseModel):
         return validation_utils.validate_str_not_blank(field)
 
 @strawberry.enum  
-class ScoreEnum(Enum):
+class PotentialScoreEnum(Enum):
     ONE = 1
     TWO = 2
     THREE = 3
@@ -44,8 +44,6 @@ class BaseSongQL:
     title: str
     artist: str
     belongs_to_host_country: bool
-    jury_potential_score: ScoreEnum
-    televote_potential_score: ScoreEnum
 
 
 
