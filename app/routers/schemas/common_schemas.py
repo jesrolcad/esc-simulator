@@ -8,7 +8,8 @@ class SongWithoutCountryCeremoniesVotings(BaseSong, BaseId):
 
 @strawberry.type
 class SongWithoutCountryCeremoniesVotingsQL(BaseSongQL, BaseIdQL):
-    pass
+    jury_potential_score: int
+    televote_potential_score: int
 
 
 class CountryWithoutSongsVotingsDataResponse(BaseCountry, BaseId):

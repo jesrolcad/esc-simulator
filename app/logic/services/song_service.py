@@ -29,7 +29,11 @@ class SongService(BaseService):
             country_name = country.name
 
         return f"{country_name}. {artist} - {title}"
-             
+
+    def get_songs_by_country_id(self, country_id: int)->list[Song]:
+        songs = SongRepository(self.session).get_songs_by_country_id(country_id=country_id)
+
+        return [SongModelMapper().map_to_song_model_without_submodels(song_entity=song_entity) for song_entity in songs]
 
     
     def get_simulation_songs_by_event_id(self, event_id: int)->list[SimulationSong]:

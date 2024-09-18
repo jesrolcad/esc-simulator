@@ -6,15 +6,22 @@ from app.utils.exceptions import AlreadyExistsError, NotFoundError
 
 
 class CountryService(BaseService):
-    def get_country(self, id: int = None, name: str = None, code: str = None)->Country:
+    def get_country(self, id: int = None, name: str = None, code: str = None, submodels: bool = True)->Country:
         country_entity = CountryRepository(self.session).get_country(id, name, code)
         if country_entity is None:
             raise NotFoundError(field="country_id",message=f"Country with id {id} not found")
+        
+        if not submodels:
+            return CountryModelMapper().map_to_country_model_without_submodels(country_entity=country_entity)
+
         return CountryModelMapper().map_to_country_model(country_entity=country_entity)
     
-    def get_countries(self)->list[Country]:
-        return [CountryModelMapper().map_to_country_model(country_entity=country_entity) 
+    def get_countries(self, submodels: bool = False)->list[Country]:
+        if not submodels:
+            return [CountryModelMapper().map_to_country_model_without_submodels(country_entity=country_entity) 
                 for country_entity in CountryRepository(self.session).get_countries()]
+        
+        return [CountryModelMapper().map_to_country_model(country_entity=country_entity) for country_entity in CountryRepository(self.session).get_countries()]
     
     def get_country_by_song_id(self, song_id: int):
         return CountryModelMapper().map_to_country_model_without_submodels(CountryRepository(self.session).get_country_by_song_id(song_id=song_id))

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.config import BaseSettings as Settings
 from app.db.database import get_db
 from app.routers.endpoints import data_endpoints, song_endpoints, country_endpoints, event_endpoints, simulator_endpoints
+from app.routers.operations.country_operations import CountryMutation, CountryQuery
 from app.routers.operations.song_operations import SongQuery, SongMutation
 from app.utils.exceptions import BusinessLogicValidationError, InternalError, NotFoundError
 from app.routers.exception_handlers import handle_bad_request_error, handle_internal_error, handle_not_found_error, handle_request_validation_error
@@ -54,11 +55,11 @@ app.include_router(simulator_endpoints.router)
 # create Query class, which extends from another query classes (song, country, event...)
 # Example:
 @strawberry.type
-class Query(SongQuery):
+class Query(SongQuery, CountryQuery):
     pass
 
 @strawberry.type
-class Mutation(SongMutation):
+class Mutation(SongMutation, CountryMutation):
     pass
 
 # GraphQL Custom Context

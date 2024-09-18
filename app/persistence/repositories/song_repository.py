@@ -18,6 +18,9 @@ class SongRepository(BaseRepository):
     def get_song(self, song_id: int)-> SongEntity:
         return self.session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
     
+    def get_songs_by_country_id(self, country_id: int)-> list[SongEntity]:
+        return self.session.scalars(select(SongEntity).where(SongEntity.country_id == country_id)).all()
+    
     def get_simulation_songs_info_by_event_id(self, event_id: int)-> Sequence[Any]:
         return self.session.execute(select(SongEntity.id, SongEntity.country_id, SongEntity.jury_potential_score, SongEntity.televote_potential_score)
                                     .where(and_(SongEntity.event_id == event_id, 
