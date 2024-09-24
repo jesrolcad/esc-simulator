@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from app.core.config import BaseSettings as Settings
 from app.utils import constants
 from app.logic.services.base_service import BaseService
@@ -19,16 +20,17 @@ SCRAPING_BASE_URL = "https://eurovisionworld.com/eurovision/"
 
 GITHUB_ACTIONS_CHROME_DRIVER_PATH = "/usr/bin/chromedriver"
 
-if os.getenv('GITHUB_ACTIONS') == 'true':
-    service = Service(GITHUB_ACTIONS_CHROME_DRIVER_PATH)
+# if os.getenv('GITHUB_ACTIONS') == 'true':
+#     service = Service(GITHUB_ACTIONS_CHROME_DRIVER_PATH)
 
-else:
-    service = Service(Settings.CHROME_DRIVER_PATH)
+# else:
+#     service = Service(Settings.CHROME_DRIVER_PATH)
 
-options = webdriver.ChromeOptions()
-options.add_argument("--incognito")
-options.add_argument("--headless")
-driver = webdriver.Chrome(service=service, options=options)
+# options = Options()
+# options.add_argument("--incognito")
+# options.add_argument("--headless")
+# options.add_argument("--disable-gpu")
+# driver = webdriver.Chrome(service=service, options=options)
 
 class DataService(BaseService):
 

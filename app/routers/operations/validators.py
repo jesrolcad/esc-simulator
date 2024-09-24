@@ -1,7 +1,10 @@
 from fastapi.exceptions import RequestValidationError
+from app.routers.schemas.base_schemas import BaseEventQL
 from app.routers.schemas.country_schemas import CountryRequestQL
+from app.routers.schemas.event_schemas import UpdateEventRequestQL
 from app.routers.schemas.song_schemas import SongRequestQL
 from app.utils.exceptions import ValidationError
+import datetime
 
 def validate_song_request_ql(song: SongRequestQL):
 
@@ -29,6 +32,48 @@ def validate_country_request_ql(country: CountryRequestQL):
 
     if len(errors) > 0:
         raise ValidationError(message=errors)
+    
+def validate_event_request_ql(event: BaseEventQL):
+
+    errors = ""
+
+    # event year cannot be less than current year
+    if event.year < datetime.datetime.now().year:
+        errors += "Year cannot be less than current year. "
+
+    if not event.slogan.strip() or len(event.slogan) >= 50:
+        errors += "Slogan is required and should be less than 50 characters. "
+
+    if not event.host_city.strip() or len(event.host_city) >= 50:
+        errors += "Host city is required and should be less than 50 characters. "
+
+    if not event.arena.strip() or len(event.arena) >= 50:
+        errors += "Arena is required and should be less than 50 characters. "
+    
+
+    if len(errors) > 0:
+        raise ValidationError(message=errors)
+
+    
+def validate_create_event_request_ql(event: UpdateEventRequestQL):
+
+    errors = ""
+
+    try:
+        validate_event_request_ql(event)
+    except ValidationError as e:
+        errors += e.message
+
+    if event.year != event.grand_final_date.year:
+        errors += "Year should be the same as grand final date year. "
+
+    if event.grand_final_date < datetime.datetime.now().date():
+        errors += "Grand final date cannot be less than current date. "
+
+    if len(errors) > 0:
+        raise ValidationError(message=errors)
+
+    
     
 
 

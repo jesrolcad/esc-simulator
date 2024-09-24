@@ -12,12 +12,20 @@ class CeremonyModelMapper:
     def map_to_ceremony_model_without_event(self, ceremony_entity: CeremonyEntity)->Ceremony:
         if ceremony_entity is None:
             return None
+
         ceremony_type = CeremonyModelMapper().map_to_ceremony_type_model(ceremony_entity.ceremony_type)
         ceremony_songs = [SongModelMapper().map_to_song_with_country_model(song) for song in ceremony_entity.songs]
         ceremony_votings = [VotingModelMapper().map_to_voting_model_without_ceremony(voting) for voting in ceremony_entity.votings]
         return Ceremony(id=ceremony_entity.id, date=ceremony_entity.date, ceremony_type=ceremony_type, 
                         songs=ceremony_songs, votings=ceremony_votings)
     
+    def map_to_ceremony_model_with_ceremony_type(self, ceremony_entity: CeremonyEntity)->Ceremony:
+        if ceremony_entity is None:
+            return None
+
+        ceremony_type = CeremonyModelMapper().map_to_ceremony_type_model(ceremony_entity.ceremony_type)
+        
+        return Ceremony(id=ceremony_entity.id, date=ceremony_entity.date, ceremony_type=ceremony_type)
 
     def map_to_ceremony_type_model(self, ceremony_type_entity: CeremonyTypeEntity)->CeremonyType:
         return CeremonyType(id=ceremony_type_entity.id, name=ceremony_type_entity.name, code=ceremony_type_entity.code)

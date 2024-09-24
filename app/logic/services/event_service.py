@@ -8,15 +8,22 @@ from app.utils.exceptions import NotFoundError
 
 class EventService(BaseService):
 
-    def get_events(self)->list[Event]:
+    def get_events(self, submodels: bool = True)->list[Event]:
         event_entities = EventRepository(self.session).get_events()
+
+        if not submodels:
+            return [EventModelMapper().map_to_event_model_without_submodels(event_entity=event_entity) for event_entity in event_entities]
+
         return [EventModelMapper().map_to_event_model(event_entity) for event_entity in event_entities]
 
-    def get_event(self, id: int = None, year: int = None)->Event:
+    def get_event(self, id: int = None, year: int = None, submodels: bool = True)->Event:
         event_entity = EventRepository(self.session).get_event(id, year)
 
         if event_entity is None:
             raise NotFoundError(field="id",message=f"Event with id {id} not found")
+        
+        if not submodels:
+            return EventModelMapper().map_to_event_model_without_submodels(event_entity=event_entity)
 
         return EventModelMapper().map_to_event_model(event_entity)
 

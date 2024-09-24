@@ -1,6 +1,7 @@
 from typing import List
 import strawberry
-from app.routers.schemas.base_schemas import BaseId, BaseIdQL, BaseCountry, BaseSong, BaseSongQL, BaseCeremony, BaseVoting, BaseEvent, BaseCeremonyType, BaseVotingType
+from app.logic.models import Ceremony
+from app.routers.schemas.base_schemas import BaseCeremonyQL, BaseCeremonyTypeQL, BaseId, BaseIdQL, BaseCountry, BaseSong, BaseSongQL, BaseCeremony, BaseVoting, BaseEvent, BaseCeremonyType, BaseVotingType
 
 
 class SongWithoutCountryCeremoniesVotings(BaseSong, BaseId):
@@ -52,8 +53,16 @@ class EventWithoutCeremoniesDataResponse(BaseEvent, BaseId):
 class CeremonyTypeDataResponse(BaseCeremonyType, BaseId):
     pass
 
+@strawberry.type
+class CeremonyTypeDataResponseQL(BaseCeremonyTypeQL, BaseIdQL):
+    pass
+
 
 class CeremonyWithoutEventDataResponse(BaseCeremony, BaseId):
     ceremony_type: CeremonyTypeDataResponse
     songs: List[SongWithCountryDataResponse] = []
     votings: List[VotingWithoutCeremonyEvent] = []
+
+@strawberry.type
+class CeremonyWithoutEventDataResponseQL(BaseCeremonyQL, BaseIdQL):
+    ceremony_type: CeremonyTypeDataResponseQL

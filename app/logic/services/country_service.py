@@ -16,7 +16,7 @@ class CountryService(BaseService):
 
         return CountryModelMapper().map_to_country_model(country_entity=country_entity)
     
-    def get_countries(self, submodels: bool = False)->list[Country]:
+    def get_countries(self, submodels: bool = True)->list[Country]:
         if not submodels:
             return [CountryModelMapper().map_to_country_model_without_submodels(country_entity=country_entity) 
                 for country_entity in CountryRepository(self.session).get_countries()]

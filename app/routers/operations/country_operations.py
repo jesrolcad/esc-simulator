@@ -14,7 +14,6 @@ from app.routers.operations.validators import validate_country_request_ql
 
 @strawberry.type
 class CountryDataResponseQL(BaseCountryQL, BaseIdQL):
-    pass
 
     @strawberry.field
     def songs(self, info: strawberry.Info)->list[SongWithoutCountryCeremoniesVotingsQL]:
@@ -37,7 +36,7 @@ class CountryQuery:
         response = CountryService(info.context.db).get_countries(submodels=False)
         return [CountryDataResponseQL.map_to_country_data_response_ql(country) for country in response]
 
-# TODO: Add validation
+
 @strawberry.type
 class CountryMutation:
     @strawberry.mutation

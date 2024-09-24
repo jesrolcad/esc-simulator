@@ -2,7 +2,8 @@ from typing import List
 from datetime import date
 from pydantic import Field
 from pydantic import BaseModel
-from app.routers.schemas.base_schemas import BaseId, BaseEvent
+import strawberry
+from app.routers.schemas.base_schemas import BaseEventQL, BaseId, BaseEvent
 from app.routers.schemas.common_schemas import CeremonyWithoutEventDataResponse
 
 
@@ -14,3 +15,11 @@ class EventDataResponseList(BaseModel):
 
 class EventRequest(BaseEvent):
     grand_final_date: date = Field(..., json_schema_extra={"description":"Grand Final ceremony date", "example":"2020-05-16"})
+
+@strawberry.input
+class CreateEventRequestQL(BaseEventQL):
+    grand_final_date: date
+
+@strawberry.input
+class UpdateEventRequestQL(BaseEventQL):
+    pass
