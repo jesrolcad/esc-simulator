@@ -1,5 +1,5 @@
 from typing import Any
-from sqlalchemy import select, insert, and_, or_, update, delete, Sequence
+from sqlalchemy import exists, select, insert, and_, or_, update, delete, Sequence
 from app.persistence.entities import SongEntity, CountryEntity, EventEntity, SongCeremony
 from app.persistence.repositories.base_repository import BaseRepository
 from app.utils.constants import BIG_FIVE_IDS
@@ -47,6 +47,9 @@ class SongRepository(BaseRepository):
     def check_existing_song_marked_as_belongs_to_host_country(self, song_id: int, event_id: int)->int:
         return self.session.scalars(select(SongEntity.id).where(and_(bool(SongEntity.belongs_to_host_country), 
                                                                 SongEntity.id != song_id, SongEntity.event_id == event_id))).first()
+
+    def check_is_song_participating_in_a_ceremony(self, song_id: int)->bool:
+        return self.session.scalars(select(exists().where(SongCeremony.c.song_id == song_id))).first()
 
 
     def create_song(self, song: SongEntity)-> SongEntity:

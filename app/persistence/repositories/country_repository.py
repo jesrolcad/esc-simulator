@@ -1,5 +1,6 @@
-from sqlalchemy import insert, select, update, or_, and_, delete
-from app.persistence.entities import CountryEntity, SongEntity
+from sqlalchemy import exists, insert, select, update, or_, and_, delete
+from sqlalchemy.orm import aliased
+from app.persistence.entities import CountryEntity, SongCeremony, SongEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
 class CountryRepository(BaseRepository):
@@ -27,6 +28,15 @@ class CountryRepository(BaseRepository):
 
     def get_country_by_song_id(self, song_id: int)->CountryEntity:
         return self.session.scalars(select(CountryEntity).join(SongEntity).where(SongEntity.id == song_id)).first()
+    
+    def check_country_is_participating_in_a_ceremony(self, country_id: int)->bool:
+        sc = aliased(SongCeremony)
+        s = aliased(SongEntity)
+        c = aliased(CountryEntity)
+
+        subquery = select(1).select_from(sc).join(s, sc.c.song_id == s.id).join(c, s.country_id == c.id).where(c.id == country_id)
+
+        return self.session.scalars(select(exists(subquery))).first()
 
     def create_country(self, country: CountryEntity)->CountryEntity:
         insert_stmt = (insert(CountryEntity).values(name=country.name,code=country.code).returning(CountryEntity.id))

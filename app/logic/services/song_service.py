@@ -1,3 +1,4 @@
+from operator import is_
 from random import randint
 from app.logic.models import SimulationSong, Song
 from app.persistence.repositories.song_repository import SongRepository
@@ -59,6 +60,11 @@ class SongService(BaseService):
 
     def update_song(self, song_id: int, updated_song: Song):
         self.get_song(song_id=song_id)
+        is_participating_in_ceremony = self.check_song_is_participating_in_a_ceremony(song_id=song_id)
+
+        if is_participating_in_ceremony:
+            raise BusinessLogicValidationError(field="song_id",message=f"Song with id {song_id} cannot be updated because it is participating in a ceremony")
+        
         updated_song_entity = SongModelMapper().map_to_song_entity(song=updated_song)
         updated_song_entity.id = song_id
         self.validate_song(song_entity=updated_song_entity)
@@ -67,6 +73,10 @@ class SongService(BaseService):
     
     def delete_song(self, song_id: int):
         self.get_song(song_id=song_id)
+        is_participating_in_ceremony = self.check_song_is_participating_in_a_ceremony(song_id=song_id)
+        
+        if is_participating_in_ceremony:
+            raise BusinessLogicValidationError(field="song_id",message=f"Song with id {song_id} cannot be deleted because it is participating in a ceremony")
         SongRepository(self.session).delete_song(song_id=song_id)
 
 
@@ -96,6 +106,9 @@ class SongService(BaseService):
         retrieved_song_id = SongRepository(self.session).check_existing_song_marked_as_belongs_to_host_country(song_id=song_id, event_id=event_id)
         if retrieved_song_id:
             raise BusinessLogicValidationError(field="belongs_to_host_country",message=f"Song with id {retrieved_song_id} is already marked as belongs to host country.")
+
+    def check_song_is_participating_in_a_ceremony(self, song_id: int)->bool:
+        return SongRepository(self.session).check_is_song_participating_in_a_ceremony(song_id=song_id)
 
     def calculate_potential_scores(self, position: int)-> tuple: 
         """

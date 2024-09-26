@@ -2,7 +2,7 @@ from app.logic.models import Country
 from app.logic.model_mappers import CountryModelMapper
 from app.logic.services.base_service import BaseService
 from app.persistence.repositories.country_repository import CountryRepository
-from app.utils.exceptions import AlreadyExistsError, NotFoundError
+from app.utils.exceptions import AlreadyExistsError, BusinessLogicValidationError, NotFoundError
 
 
 class CountryService(BaseService):
@@ -41,6 +41,11 @@ class CountryService(BaseService):
 
         self.check_country_by_name_or_code_exists(country_id=country_id,country=country)
 
+        is_participating = self.check_country_is_participating_in_a_ceremony(country_id=country_id)
+
+        if is_participating:
+            raise BusinessLogicValidationError(field="country_id",message=f"Country with id {country_id} cannot be updated because it is participating in a ceremony")
+
         country_entity = CountryModelMapper().map_to_country_entity(country=country)
         CountryRepository(self.session).update_country(country_id=country_id, country=country_entity)
 
@@ -53,11 +58,19 @@ class CountryService(BaseService):
                 message=(f"Another country with id {existing_country.id}, name {existing_country.name} " +
                         f"and code {existing_country.code} already exists. Please revise name and code"))
         
+    def check_country_is_participating_in_a_ceremony(self, country_id: int)->bool:
+        return CountryRepository(self.session).check_country_is_participating_in_a_ceremony(country_id=country_id)
+        
 
     def delete_country(self, country_id: int):
         existing_country = CountryRepository(self.session).get_country(id=country_id)
 
         if existing_country is None:
             raise NotFoundError(field="country_id",message=f"Country with id {country_id} not found")
+
+        is_participating = self.check_country_is_participating_in_a_ceremony(country_id=country_id)
+
+        if is_participating:
+            raise BusinessLogicValidationError(field="country_id",message=f"Country with id {country_id} cannot be deleted because it is participating in a ceremony")
 
         CountryRepository(self.session).delete_country(country_id=country_id)
