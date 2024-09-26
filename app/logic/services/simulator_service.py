@@ -1,5 +1,5 @@
 import random
-from app.logic.models import Participant, SimulationCeremonyResult, SimulationSong
+from app.logic.models import Participant, SimulationCeremonyResult, SimulationSong, Voting
 from app.logic.services.base_service import BaseService
 from app.logic.services.ceremony_service import CeremonyService
 from app.logic.services.song_service import SongService
@@ -153,6 +153,23 @@ class SimulatorService(BaseService):
         scores.extend(televote_scores[:10])
 
         return scores
+    
+    def delete_simulation_by_event_id(self, event_id: int):
+
+        ceremonies = CeremonyService(self.session).get_event_ceremonies(event_id=event_id)
+
+        if not ceremonies:
+            raise NotFoundError(field="event_id", message=f"No ceremonies found for event_id {event_id}")
+        
+        ceremony_ids = list(ceremonies.values())
+        
+        exists_simulation = VotingRepository(self.session).check_exists_votings_by_ceremonies(ceremonies=ceremony_ids)
+
+        if not exists_simulation:
+            raise NotFoundError(field="event_id", message=f"No simulation found for event_id {event_id}")
+        
+        VotingRepository(self.session).delete_votings_by_ceremonies(ceremonies=ceremony_ids)
+        SongRepository(self.session).delete_songs_from_ceremonies(ceremonies=ceremony_ids)
         
 
 

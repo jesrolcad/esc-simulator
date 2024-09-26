@@ -1,5 +1,5 @@
 from typing import Any
-from sqlalchemy import Sequence, desc, and_
+from sqlalchemy import Sequence, desc, and_, exists
 from sqlalchemy.sql import func, case, select, insert, delete
 from app.persistence.repositories.base_repository import BaseRepository
 from app.persistence.entities import CeremonyTypeEntity, CountryEntity, SongEntity, VotingEntity, EventEntity, CeremonyEntity
@@ -119,6 +119,9 @@ class VotingRepository(BaseRepository):
 
     def delete_votings_by_ceremonies(self, ceremonies: list[int]):
         self.session.execute((delete(VotingEntity).where(VotingEntity.ceremony_id.in_(ceremonies))))
+
+    def check_exists_votings_by_ceremonies(self, ceremonies: list[int])->bool:
+        return self.session.scalars(select(exists().where(VotingEntity.ceremony_id.in_(ceremonies)))).first()
 
 
     

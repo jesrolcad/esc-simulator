@@ -3,7 +3,7 @@ from app.db.database import get_db
 from app.logic.services.simulator_service import SimulatorService
 from app.routers.api_mappers.simulator_api_mapper import SimulatorApiMapper
 from app.routers.schemas.api_schemas import ResultResponse
-from .definitions.simulator_definitions import get_event_ceremony_participants_endpoint, get_event_results_endpoint, get_event_ceremony_type_results_endpoint, create_event_simulation_endpoint
+from .definitions.simulator_definitions import *
 
 
 router = APIRouter(prefix="/simulator", tags=["simulator"])
@@ -41,6 +41,16 @@ async def create_event_simulation(event_id: int, db: get_db = Depends()):
     SimulatorService(db).create_simulation(event_id=event_id)
         
     return ResultResponse(message="Event simulated successfully")
+
+
+@router.delete(path="/events/{event_id}", summary=delete_event_simulation_endpoint["summary"], 
+               description=delete_event_simulation_endpoint["description"],
+            responses=delete_event_simulation_endpoint["responses"])
+async def delete_event_simulation(event_id: int, db: get_db = Depends()):
+            
+    SimulatorService(db).delete_simulation_by_event_id(event_id=event_id)
+            
+    return ResultResponse(message="Event simulation deleted successfully")
 
 
 
