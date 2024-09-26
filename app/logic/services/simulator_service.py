@@ -101,10 +101,6 @@ class SimulatorService(BaseService):
             CeremonyRepository(self.session).add_songs_to_ceremony(ceremony_id=ceremony, song_ids=songs)
 
     def simulate_ceremony(self, ceremony_id: int, grand_final_voters: list[int] = None):
-        if grand_final_voters:
-            print(len(grand_final_voters))
-            print(grand_final_voters)
-
         votings = []
 
         ceremony_songs = SongService(self.session).get_simulation_songs_by_ceremony_id(ceremony_id=ceremony_id)

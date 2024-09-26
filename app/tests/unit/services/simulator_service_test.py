@@ -177,8 +177,6 @@ def test_divide_songs_into_semifinals(mocker, mock_session):
 
     add_songs_to_ceremony_args = add_songs_to_ceremony_spy.call_args_list
 
-    print("Args: ", add_songs_to_ceremony_args)
-
     first_call_args = add_songs_to_ceremony_args[0].kwargs
     second_call_args = add_songs_to_ceremony_args[1].kwargs
 
