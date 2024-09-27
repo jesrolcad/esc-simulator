@@ -120,7 +120,14 @@ class BaseParticipant(BaseModel):
     def validate_str_not_blank(cls, field: str)->str:
         return validation_utils.validate_str_not_blank(field)
 
+@strawberry.experimental.pydantic.type(model=BaseParticipant, all_fields=True)
+class BaseParticipantQL:
+    pass
 
 class BaseSimulationResult(BaseModel):
     ceremony_id: int = Field(..., json_schema_extra={"description":"Ceremony id", "example":1})
+
+@strawberry.experimental.pydantic.type(model=BaseSimulationResult, all_fields=True)
+class BaseSimulationResultQL:
+    pass
 
