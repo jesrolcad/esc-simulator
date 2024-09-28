@@ -50,3 +50,8 @@ class EventMutation:
         event_model = EventApiMapper().map_event_request_ql_to_event_model(event_schema_ql=event)
         EventService(info.context.db).update_event(event_id=event_id, event=event_model)
         return ResultResponseQL(success=True, message=f"Event with id {event_id} updated successfully")
+    
+    @strawberry.mutation
+    def delete_event(self, info: strawberry.Info, event_id: int)->ResultResponseQL:
+        EventService(info.context.db).delete_event(event_id=event_id)
+        return ResultResponseQL(success=True, message=f"Event with id {event_id} deleted successfully")

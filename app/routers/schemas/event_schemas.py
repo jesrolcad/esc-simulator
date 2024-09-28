@@ -26,5 +26,7 @@ class CreateEventRequestQL(BaseEventQL):
     grand_final_date: date
 
 @strawberry.input
-class UpdateEventRequestQL(BaseEventQL):
-    pass
+class UpdateEventRequestQL:
+    slogan: str
+    host_city: str
+    arena: str
