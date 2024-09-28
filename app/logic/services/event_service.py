@@ -4,6 +4,8 @@ from app.persistence.repositories.event_repository import EventRepository
 from app.persistence.repositories.ceremony_repository import CeremonyRepository
 from app.logic.model_mappers import EventModelMapper, CeremonyModelMapper
 from app.logic.models import Event, Ceremony
+from app.persistence.repositories.song_repository import SongRepository
+from app.persistence.repositories.voting_repository import VotingRepository
 from app.utils.exceptions import NotFoundError
 
 class EventService(BaseService):
@@ -20,7 +22,7 @@ class EventService(BaseService):
         event_entity = EventRepository(self.session).get_event(id, year)
 
         if event_entity is None:
-            raise NotFoundError(field="id",message=f"Event with id {id} not found")
+            raise NotFoundError(field="event_id",message=f"Event with id {id} not found")
         
         if not submodels:
             return EventModelMapper().map_to_event_model_without_submodels(event_entity=event_entity)
@@ -60,7 +62,24 @@ class EventService(BaseService):
 
     def update_event(self, event_id: int, event: Event):
         self.get_event(id=event_id)
+        exists_event_simulation = VotingRepository(self.session).check_exists_votings_by_event_id(event_id=event_id)
+
+        if exists_event_simulation:
+            raise NotFoundError(field="event_id", message=f"Event with id {event_id} cannot be updated because it has already been simulated")
+        
         updated_event_entity = EventModelMapper().map_to_event_entity(event=event)
         updated_event_entity.id = event_id
         EventRepository(self.session).update_event(event=updated_event_entity)
 
+
+    def delete_event(self, event_id: int):
+        self.get_event(id=event_id)
+
+        exists_event_simulation = VotingRepository(self.session).check_exists_votings_by_event_id(event_id=event_id)
+
+        if exists_event_simulation:
+            raise NotFoundError(field="event_id", message=f"Event with id {event_id} cannot be deleted because it has already been simulated")
+        
+        SongRepository(self.session).delete_songs_by_event_id(event_id=event_id)
+        CeremonyRepository(self.session).delete_ceremonies_by_event_id(event_id=event_id)
+        EventRepository(self.session).delete_event(event_id=event_id)

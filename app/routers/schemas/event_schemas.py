@@ -13,8 +13,13 @@ class EventDataResponse(BaseEvent, BaseId):
 class EventDataResponseList(BaseModel):
     events: List[EventDataResponse]
 
-class EventRequest(BaseEvent):
+class CreateEventRequest(BaseEvent):
     grand_final_date: date = Field(..., json_schema_extra={"description":"Grand Final ceremony date", "example":"2020-05-16"})
+
+class UpdateEventRequest(BaseModel):
+    slogan: str = Field(None, json_schema_extra={"description":"Event slogan", "example":"All Aboard!"}, min_length=1, max_length=50)
+    host_city: str = Field(None, json_schema_extra={"description":"Event host city", "example":"Lisbon"}, min_length=1, max_length=50)
+    arena: str = Field(None, json_schema_extra={"description":"Event arena", "example":"Altice Arena"}, min_length=1, max_length=50)
 
 @strawberry.input
 class CreateEventRequestQL(BaseEventQL):

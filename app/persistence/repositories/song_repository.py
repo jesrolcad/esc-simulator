@@ -83,3 +83,8 @@ class SongRepository(BaseRepository):
         delete_stmt = (delete(SongCeremony).where(SongCeremony.c.ceremony_id.in_(ceremonies)))
         self.session.execute(delete_stmt)
 
+    
+    def delete_songs_by_event_id(self, event_id: int):
+        delete_stmt = (delete(SongEntity).where(SongEntity.event_id == event_id))
+        self.session.execute(delete_stmt)
+

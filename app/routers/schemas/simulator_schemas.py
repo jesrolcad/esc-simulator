@@ -1,6 +1,5 @@
 from typing import List
 from pydantic import BaseModel
-import strawberry
 from .base_schemas import BaseParticipant, BaseSimulationResult
 
 class ParticipantDataResponse(BaseParticipant):

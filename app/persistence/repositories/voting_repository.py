@@ -122,6 +122,12 @@ class VotingRepository(BaseRepository):
 
     def check_exists_votings_by_ceremonies(self, ceremonies: list[int])->bool:
         return self.session.scalars(select(exists().where(VotingEntity.ceremony_id.in_(ceremonies)))).first()
+    
+    def check_exists_votings_by_event_id(self, event_id: int)->bool:
+        
+        subquery = select(1).select_from(VotingEntity).join(CeremonyEntity, VotingEntity.ceremony_id == CeremonyEntity.id).join(EventEntity, CeremonyEntity.event_id == EventEntity.id).where(EventEntity.id == event_id)
+
+        return self.session.scalars(select(exists(subquery))).first()
 
 
     

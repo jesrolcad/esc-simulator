@@ -60,7 +60,7 @@ delete_event_simulation_endpoint = {
     "summary": "Delete event simulation",
     "description": "Delete event simulation",
     "responses": {
-        status.HTTP_200_OK: {
+        status.HTTP_204_NO_CONTENT: {
             "description": "Event simulation deleted successfully"
         }, 
 
