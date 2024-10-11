@@ -78,5 +78,4 @@ def test_delete_event_simulation(mocker, client):
     
     response = client.delete("/simulator/events/1")
     
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json() == ResultResponse(message="Event simulation deleted successfully").model_dump()
+    assert response.status_code == status.HTTP_204_NO_CONTENT

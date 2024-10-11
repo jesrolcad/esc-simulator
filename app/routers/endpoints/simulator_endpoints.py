@@ -45,7 +45,7 @@ async def create_event_simulation(event_id: int, db: get_db = Depends()):
 
 @router.delete(path="/events/{event_id}", summary=delete_event_simulation_endpoint["summary"], 
                description=delete_event_simulation_endpoint["description"],
-            responses=delete_event_simulation_endpoint["responses"])
+            responses=delete_event_simulation_endpoint["responses"], status_code=status.HTTP_204_NO_CONTENT)
 async def delete_event_simulation(event_id: int, db: get_db = Depends()):
             
     SimulatorService(db).delete_simulation_by_event_id(event_id=event_id)
