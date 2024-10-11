@@ -72,3 +72,11 @@ def test_create_event_simulation(mocker, client):
     assert response.json() == ResultResponse(message="Event simulated successfully").model_dump()
 
 
+def test_delete_event_simulation(mocker, client):
+    
+    mocker.patch.object(SimulatorService, 'delete_simulation_by_event_id', return_value=None)
+    
+    response = client.delete("/simulator/events/1")
+    
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == ResultResponse(message="Event simulation deleted successfully").model_dump()

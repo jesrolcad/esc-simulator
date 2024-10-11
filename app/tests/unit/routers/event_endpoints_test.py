@@ -8,7 +8,7 @@ from app.logic.models import Event, Ceremony, CeremonyType
 from app.main import app
 from app.routers.api_mappers.event_api_mapper import EventApiMapper
 from app.routers.api_mappers.ceremony_api_mapper import CeremonyApiMapper
-from app.routers.schemas.event_schemas import EventDataResponse, EventRequest
+from app.routers.schemas.event_schemas import CreateEventRequest, EventDataResponse, UpdateEventRequest
 from app.routers.schemas.common_schemas import CeremonyWithoutEventDataResponse, CeremonyTypeDataResponse
 from app.utils.exceptions import NotFoundError
 
@@ -35,10 +35,12 @@ def event_ceremony_schema():
     return CeremonyWithoutEventDataResponse(id=1, ceremony_type=CeremonyTypeDataResponse(id=1,name="Semifinal 1", code="SF1"), date=datetime.datetime.now().date())
 
 @pytest.fixture
-def event_request_schema():
-    return EventRequest(year=2023, slogan="TEST", host_city="TEST", arena="TEST", grand_final_date=datetime.datetime.now().date())
+def create_event_request_schema():
+    return CreateEventRequest(year=2023, slogan="TEST", host_city="TEST", arena="TEST", grand_final_date=datetime.datetime.now().date())
 
-
+@pytest.fixture
+def update_event_request_schema():
+    return UpdateEventRequest(slogan="TEST", host_city="TEST", arena="TEST")
 
 @pytest.mark.asyncio
 async def test_get_events(mocker, client, event_model, event_schema):
@@ -95,11 +97,11 @@ async def test_get_event_ceremony_not_found(mocker, client):
 
 
 @pytest.mark.asyncio
-async def test_create_event(mocker, client, event_model, event_request_schema):
+async def test_create_event(mocker, client, event_model, create_event_request_schema):
     mocker.patch.object(EventApiMapper, "map_to_event_model", return_value=event_model)
     mocker.patch.object(EventService, "create_event_and_associated_ceremonies", return_value=event_model)
 
-    request = event_request_schema.model_dump(mode='json')
+    request = create_event_request_schema.model_dump(mode='json')
     request['grand_final_date'] = "2023-05-13"
 
     response = client.post("/events", json=request)
@@ -109,12 +111,11 @@ async def test_create_event(mocker, client, event_model, event_request_schema):
 
 
 @pytest.mark.asyncio
-async def test_update_event(mocker, client, event_request_schema, event_model):
+async def test_update_event(mocker, client, update_event_request_schema, event_model):
     mocker.patch.object(EventApiMapper, "map_to_event_model", return_value=event_model)
     mocker.patch.object(EventService, "update_event", return_value=None)
 
-    request = event_request_schema.model_dump(mode='json')
-    request['grand_final_date'] = "2023-05-13"
+    request = update_event_request_schema.model_dump(mode='json')
 
     response = client.put("/events/1", json=request)
 
@@ -122,13 +123,28 @@ async def test_update_event(mocker, client, event_request_schema, event_model):
 
 
 @pytest.mark.asyncio
-async def test_update_event_not_found(mocker, client, event_request_schema, event_model):
+async def test_update_event_not_found(mocker, client, update_event_request_schema, event_model):
     mocker.patch.object(EventApiMapper, "map_to_event_model", return_value=event_model)
     mocker.patch.object(EventService, "update_event", side_effect=NotFoundError)
 
-    request = event_request_schema.model_dump(mode='json')
-    request['grand_final_date'] = "2023-05-13"
+    request = update_event_request_schema.model_dump(mode='json')
 
     response = client.put("/events/1", json=request)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.asyncio
+async def test_delete_event(mocker, client):
+    mocker.patch.object(EventService, "delete_event")
+
+    response = client.delete("/events/1")
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+@pytest.mark.asyncio
+async def test_delete_event_not_found(mocker, client):
+    mocker.patch.object(EventService, "delete_event", side_effect=NotFoundError)
+
+    response = client.delete("/events/1")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
