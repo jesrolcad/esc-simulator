@@ -123,7 +123,7 @@ def test_create_event_positive(client, test_case):
     for ceremony in created_event_ceremonies:
         assert ceremony.event_id == created_event.id
     
-@pytest.mark.parametrize("test_case", test_cases.create_update_event_negative_test_cases)
+@pytest.mark.parametrize("test_case", test_cases.create_event_negative_test_cases)
 def test_create_event_negative(client, test_case):
 
     response = client.post("/events", json=test_case['body'])
@@ -151,7 +151,8 @@ def test_update_event_positive(client, test_case):
     assert updated_event.arena == test_case['arena']
 
 
-@pytest.mark.parametrize("test_case", test_cases.create_update_event_negative_test_cases)
+@pytest.mark.parametrize("test_case", test_cases.update_event_negative_test_cases)
+@pytest.mark.usefixtures("event")
 def test_update_event_negative(client, test_case):
 
     response = client.put("/events/1", json=test_case['body'])

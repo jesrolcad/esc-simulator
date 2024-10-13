@@ -165,7 +165,7 @@ create_update_event_positive_test_cases = [
 ]
 
 
-create_update_event_negative_test_cases = [
+create_event_negative_test_cases = [
 
     {
         "case": "empty_body_none_fields",
@@ -246,3 +246,34 @@ create_update_event_negative_test_cases = [
         "invalid_fields": ["slogan", "host_city", "arena"]
     }
 ]
+
+update_event_negative_test_cases = [
+
+    {
+        "case": "empty_body_none_fields",
+        "body": {},
+        "invalid_fields": ["slogan", "host_city", "arena"]
+    }, 
+
+    {
+        "case": "blank_str_fields",
+        "body": {
+            "slogan": "   ",
+            "host_city": "   ",
+            "arena": "   "
+        },
+        "invalid_fields": ["slogan", "host_city", "arena"]
+    },
+
+    {
+        "case": "more_than_50_characters_str_fields",
+        "body": {
+            "year": 2021,
+            "slogan": "E" * 51,
+            "host_city": "H" * 51,
+            "arena": "A" * 51
+        },
+        "invalid_fields": ["slogan", "host_city", "arena"]
+    }
+]
+
