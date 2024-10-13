@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy import insert,select
+from sqlalchemy import func, insert,select
 from fastapi import status
 from fastapi.testclient import TestClient
 from app.main import app
@@ -46,9 +46,6 @@ def events():
 
         session.execute(insert(SongCeremony).values(id=1, song_id=1, ceremony_id=1))
 
-
-
-
 @pytest.mark.parametrize("test_case", test_cases.get_event_ceremony_participants_test_cases)
 def test_get_event_ceremony_participants(request, client, test_case):
 
@@ -74,9 +71,8 @@ def test_get_event_results(request, client, test_case):
     assert len(response.json()) == test_case['expected_ceremony_results_count']
     assert response.json() == test_case["expected_response"]
 
-
-def test_get_event_ceremony_type_results(request, client):
-    request.getfixturevalue("events")
+@pytest.mark.usefixtures("events")
+def test_get_event_ceremony_type_results(client):
 
     response = client.get("/simulator/events/1/ceremony-types/1")
 
@@ -88,6 +84,29 @@ def test_get_event_ceremony_type_results_not_found(client):
     response = client.get("/simulator/events/1/ceremony-types/3")
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+# TODO: create simulation test
+
+@pytest.mark.usefixtures("events")
+def test_delete_event_simulation(client):
+
+    response = client.delete("/simulator/events/1")
+
+    with get_db_as_context_manager() as session:
+        votings_count = session.execute(select(func.count()).where(VotingEntity.ceremony_id.in_([1,2,3]))).scalar()
+        song_ceremonies_count = session.execute(select(func.count()).where(SongCeremony.c.ceremony_id.in_([1,2,3]))).scalar()
+
+    assert votings_count == 0
+    assert song_ceremonies_count == 0
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+@pytest.mark.usefixtures("events")
+def test_delete_event_simulation_not_found(client):
+
+    response = client.delete("/simulator/events/1000")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
     
     
 
