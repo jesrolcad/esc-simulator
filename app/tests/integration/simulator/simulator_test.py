@@ -1,3 +1,4 @@
+import random
 import pytest
 from sqlalchemy import func, insert,select
 from fastapi import status
@@ -46,6 +47,26 @@ def events():
 
         session.execute(insert(SongCeremony).values(id=1, song_id=1, ceremony_id=1))
 
+@pytest.fixture
+def create_simulation_event_fixture():
+    with get_db_as_context_manager() as session:
+        session.execute(insert(EventEntity).values(id=1, year=1, slogan="EVENT", host_city="HOST_CITY", arena="ARENA"))
+
+        session.execute(insert(CeremonyTypeEntity).values(id=1, name="SEMIFINAL 1", code="SF1"))
+        session.execute(insert(CeremonyTypeEntity).values(id=2, name="SEMIFINAL 2", code="SF2"))
+        session.execute(insert(CeremonyTypeEntity).values(id=3, name="GRAND FINAL", code="GF"))
+
+        session.execute(insert(CeremonyEntity).values(id=1, ceremony_type_id=1, event_id=1, date="2021-01-01"))
+        session.execute(insert(CeremonyEntity).values(id=2, ceremony_type_id=2, event_id=1, date="2021-01-02"))
+        session.execute(insert(CeremonyEntity).values(id=3, ceremony_type_id=3, event_id=1, date="2021-01-03"))
+
+        session.execute(insert(VotingTypeEntity).values(id=1, name="Jury"))
+        session.execute(insert(VotingTypeEntity).values(id=2, name="Televote"))
+
+        session.execute(insert(CountryEntity), build_simulation_countries())
+        session.execute(insert(SongEntity), build_simulation_songs())
+
+
 @pytest.mark.parametrize("test_case", test_cases.get_event_ceremony_participants_test_cases)
 def test_get_event_ceremony_participants(request, client, test_case):
 
@@ -85,7 +106,18 @@ def test_get_event_ceremony_type_results_not_found(client):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
-# TODO: create simulation test
+@pytest.mark.usefixtures("create_simulation_event_fixture")
+def test_create_simulation(client):
+
+    response = client.post("/simulator/events/1/simulate")
+
+    with get_db_as_context_manager() as session:
+        votings_count = session.execute(select(func.count()).where(VotingEntity.ceremony_id.in_([1,2,3]))).scalar()
+        song_ceremonies_count = session.execute(select(func.count()).where(SongCeremony.c.ceremony_id.in_([1,2,3]))).scalar()
+
+    assert votings_count > 0
+    assert song_ceremonies_count > 0
+    assert response.status_code == status.HTTP_200_OK
 
 @pytest.mark.usefixtures("events")
 def test_delete_event_simulation(client):
@@ -107,6 +139,21 @@ def test_delete_event_simulation_not_found(client):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+def build_simulation_countries()->list[dict]:
+
+    return [{"id": i, "name": "Country" + str(i), "code": "CO" + str(i)} for i in range(1, 41)]
+
+
+def build_simulation_songs()->list[dict]:
+
+    belongs_to_host_country_song = {"id": 1, "country_id": 1, "event_id": 1, "title": "Song1", "artist": "Artist1", 
+                                    "belongs_to_host_country": True, "jury_potential_score": random.randint(1,10), "televote_potential_score": random.randint(1,10)}
+
+    rest_of_songs = [{"id": i, "country_id": i, "event_id": 1, "title": "Song" + str(i), "artist": "Artist" + str(i), 
+                      "belongs_to_host_country": False, "jury_potential_score": random.randint(1,10), "televote_potential_score": random.randint(1,10)} 
+                      for i in range(2, 41)]
+
+    return [belongs_to_host_country_song] + rest_of_songs
     
     
 

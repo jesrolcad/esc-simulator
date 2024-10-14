@@ -69,6 +69,7 @@ class SimulatorService(BaseService):
         
         self.divide_songs_into_semifinals(semifinal_one_ceremony=semifinal_one_ceremony, semifinal_two_ceremony=semifinal_two_ceremony, 
                                           song_ids=[simulation_song.song_id for simulation_song in simulation_songs])
+    
 
         # Simulate each semifinal
         self.simulate_ceremony(ceremony_id=semifinal_one_ceremony)
@@ -77,6 +78,7 @@ class SimulatorService(BaseService):
         #Add qualified countries to grand final -> Populate song ceremony table
         qualified_for_grand_final_songs = VotingRepository(self.session).get_qualified_song_ids_for_grand_final(semifinal_one_ceremony_id=semifinal_one_ceremony, 
                                                                                                   semifinal_two_ceremony_id=semifinal_two_ceremony)
+        
         
         # Select automatic qualifiers for grand final
         automatic_qualified_country_song_ids = SongService(self.session).get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
@@ -87,7 +89,6 @@ class SimulatorService(BaseService):
         # Simulate grand final
         grand_final_voters = [simulation_song.country_id for simulation_song in simulation_songs] + [country_song.country_id for country_song in automatic_qualified_country_song_ids]
         self.simulate_ceremony(ceremony_id=ceremonies[constants.GRAND_FINAL_CEREMONY_TYPE_ID], grand_final_voters = grand_final_voters)
-
         
     def divide_songs_into_semifinals(self, semifinal_one_ceremony: int, semifinal_two_ceremony: int, song_ids: list[int]):
     
