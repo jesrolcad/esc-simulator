@@ -1,4 +1,3 @@
-from numpy import isin
 import pytest
 import strawberry
 from app.logic.models import Song, Country, Event
