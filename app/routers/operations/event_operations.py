@@ -1,4 +1,3 @@
-from datetime import datetime
 import strawberry
 
 from app.logic.services.ceremony_service import CeremonyService
