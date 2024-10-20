@@ -5,7 +5,6 @@ from app.logic.services.simulator_service import SimulatorService
 from app.routers.schemas.api_schemas import ResultResponseQL
 from app.routers.schemas.base_schemas import BaseParticipantQL, BaseSimulationResultQL
 
-# TODO: Decide whether participant_info should have a resolver or not
 class ParticipantDataResponseQL(BaseParticipantQL):
 
     @staticmethod
