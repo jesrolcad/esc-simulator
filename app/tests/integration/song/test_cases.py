@@ -56,6 +56,28 @@ create_update_song_positive_test_cases = [
         "country_id": 1,
         "event_id": 1
     }
+]
+
+create_update_song_mutation_positive_test_cases = [
+    {
+        "title": "a",
+        "artist": "a",
+        "belongs_to_host_country": "false",
+        "jury_potential_score": "TEN",
+        "televote_potential_score": "TEN",
+        "country_id": 1,
+        "event_id": 1
+    },
+
+    {
+        "title": "50char50char50char50char50char50char50char50char50",
+        "artist": "50char50char50char50char50char50char50char50char50",
+        "belongs_to_host_country": "true",
+        "jury_potential_score": "ONE",
+        "televote_potential_score": "ONE",
+        "country_id": 1,
+        "event_id": 1
+    }
 
 ]
 
@@ -224,5 +246,68 @@ create_update_song_negative_test_cases = [
             "event_id": 2
         },
         "invalid_fields": ["belongs_to_host_country"]
+    }
+]
+
+create_update_song_mutation_negative_test_cases = [
+    {
+        "title": "",
+        "artist": "",
+        "belongs_to_host_country": "false",
+        "jury_potential_score": "TEN",
+        "televote_potential_score": "TEN",
+        "country_id": 1,
+        "event_id": 1
+    },
+
+    {
+        "title": "   ",
+        "artist": "   ",
+        "belongs_to_host_country": "false",
+        "jury_potential_score": "TEN",
+        "televote_potential_score": "TEN",
+        "country_id": 1,
+        "event_id": 1
+    },
+
+
+    {
+        "title": "51char51char51char51char51char51char51char51char51c",
+        "artist": "51char51char51char51char51char51char51char51char51c",
+        "belongs_to_host_country": "false",
+        "jury_potential_score": "TEN",
+        "televote_potential_score": "TEN",
+        "country_id": 1,
+        "event_id": 1
+    },
+
+    {
+        "title": "TEST CREATE",
+        "artist": "TEST CREATE",
+        "belongs_to_host_country": "false",
+        "jury_potential_score": "ZERO",
+        "televote_potential_score": "ZERO",
+        "country_id": 1,
+        "event_id": 1
+    },
+
+    {
+        "title": "TEST CREATE",
+        "artist": "TEST CREATE",
+        "belongs_to_host_country": "false",
+        "jury_potential_score": "ELEVEN",
+        "televote_potential_score": "ELEVEN",
+        "country_id": 1,
+        "event_id": 1
+    },
+
+    {
+        "title": "a",
+        "artist": "a",
+        "belongs_to_host_country": "false",
+        "jury_potential_score": "TEN",
+        "televote_potential_score": "TEN",
+        "country_id": 0,
+        "event_id": 1
     }
 ]
