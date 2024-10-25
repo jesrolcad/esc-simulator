@@ -109,3 +109,31 @@ create_update_country_negative_test_cases = [
         "invalid_fields": ["name,code"]
     }
 ]
+
+create_update_country_mutation_negative_test_cases = [
+    {
+        "name": "",
+        "code": ""
+
+    },
+
+    {
+        "name": "TEST",
+        "code": ""
+    },
+
+    {
+        "name": "",
+        "code": "TEST"
+    },
+
+    {
+        "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "code": "TEST"
+    },
+
+    {
+        "name": "TEST",
+        "code": "6CHARS"
+    }
+]

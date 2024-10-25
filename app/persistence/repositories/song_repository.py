@@ -50,6 +50,9 @@ class SongRepository(BaseRepository):
 
     def check_is_song_participating_in_a_ceremony(self, song_id: int)->bool:
         return self.session.scalars(select(exists().where(SongCeremony.c.song_id == song_id))).first()
+    
+    def check_songs_by_country_id(self, country_id: int)->bool:
+        return self.session.scalars(select(exists().where(SongEntity.country_id == country_id))).first()
 
 
     def create_song(self, song: SongEntity)-> SongEntity:

@@ -2,6 +2,7 @@ from app.logic.models import Country
 from app.logic.model_mappers import CountryModelMapper
 from app.logic.services.base_service import BaseService
 from app.persistence.repositories.country_repository import CountryRepository
+from app.persistence.repositories.song_repository import SongRepository
 from app.utils.exceptions import AlreadyExistsError, BusinessLogicValidationError, NotFoundError
 
 
@@ -60,6 +61,9 @@ class CountryService(BaseService):
         
     def check_country_is_participating_in_a_ceremony(self, country_id: int)->bool:
         return CountryRepository(self.session).check_country_is_participating_in_a_ceremony(country_id=country_id)
+
+    def check_country_has_associated_songs(self, country_id: int)->bool:
+        return SongRepository(self.session).check_songs_by_country_id(country_id=country_id)
         
 
     def delete_country(self, country_id: int):
@@ -72,5 +76,10 @@ class CountryService(BaseService):
 
         if is_participating:
             raise BusinessLogicValidationError(field="country_id",message=f"Country with id {country_id} cannot be deleted because it is participating in a ceremony")
+        
+        has_associated_songs = self.check_country_has_associated_songs(country_id=country_id)
+
+        if has_associated_songs:
+            raise BusinessLogicValidationError(field="country_id",message=f"Country with id {country_id} cannot be deleted because it has associated songs")
 
         CountryRepository(self.session).delete_country(country_id=country_id)
