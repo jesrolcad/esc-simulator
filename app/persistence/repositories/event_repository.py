@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, update
+from sqlalchemy import select, insert, update, delete
 from app.persistence.entities import EventEntity
 from app.persistence.repositories.base_repository import BaseRepository
 
@@ -33,8 +33,13 @@ class EventRepository(BaseRepository):
 
     def update_event(self, event: EventEntity):
         update_stmt = (update(EventEntity).where(EventEntity.id == event.id)
-                        .values(year=event.year, slogan=event.slogan, host_city=event.host_city, arena=event.arena))
+                        .values(slogan=event.slogan, host_city=event.host_city, arena=event.arena))
 
         self.session.execute(update_stmt)
+
+    
+    def delete_event(self, event_id: int):
+        delete_stmt = (delete(EventEntity).where(EventEntity.id == event_id))
+        self.session.execute(delete_stmt)
 
 

@@ -8,6 +8,16 @@ class BusinessLogicValidationError(Exception):
     def __str__(self):
         return self.message
     
+class ValidationError(Exception):
+    def __init__(self, field: str = None, message: str = None):
+        if not message:
+            message = "Validation error"
+        self.field = field
+        self.message = message
+
+    def __str__(self):
+        return self.message
+    
 
 class NotFoundError(Exception):
     def __init__(self, field=None, message: str = None):

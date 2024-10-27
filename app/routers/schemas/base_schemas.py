@@ -1,11 +1,18 @@
+import strawberry
+from enum import Enum
 from typing import Literal
 from datetime import date as date_type
 from pydantic import BaseModel, Field, field_validator
+
 from . import validation_utils
 
 
 class BaseId(BaseModel):
     id: int = Field(..., json_schema_extra={"description":"Id", "example":1})
+
+@strawberry.experimental.pydantic.type(model=BaseId, all_fields=True)
+class BaseIdQL:
+    pass
 
 
 class BaseSong(BaseModel):
@@ -20,6 +27,26 @@ class BaseSong(BaseModel):
     def validate_str_not_blank(cls, field: str)->str:
         return validation_utils.validate_str_not_blank(field)
 
+@strawberry.enum  
+class PotentialScoreEnum(Enum):
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+    SIX = 6
+    SEVEN = 7
+    EIGHT = 8
+    NINE = 9
+    TEN = 10
+    
+@strawberry.input
+class BaseSongQL:
+    title: str
+    artist: str
+    belongs_to_host_country: bool
+
+
 
 class  BaseCountry(BaseModel):
     name: str = Field(..., json_schema_extra={"description":"Country name", "example":"Spain"}, min_length=3, max_length=50)
@@ -29,6 +56,10 @@ class  BaseCountry(BaseModel):
     @classmethod
     def validate_str_not_blank(cls, field: str)->str:
         return validation_utils.validate_str_not_blank(field)
+    
+@strawberry.experimental.pydantic.type(model=BaseCountry, all_fields=True)
+class BaseCountryQL:
+    pass
 
 
 class BaseEvent(BaseModel):
@@ -42,6 +73,10 @@ class BaseEvent(BaseModel):
     def validate_str_not_blank(cls, field: str)->str:
         return validation_utils.validate_str_not_blank(field)
 
+@strawberry.experimental.pydantic.type(model=BaseEvent, all_fields=True) 
+class BaseEventQL:
+    pass
+
 class BaseCeremonyType(BaseModel):
     name: str = Field(..., json_schema_extra={"description":"Ceremony type name", "example":"Semifinal 1"}, min_length=1, max_length=50)
     code: str = Field(..., json_schema_extra={"description":"Ceremony type code", "example":"SF1"}, min_length=1, max_length=5)
@@ -51,9 +86,17 @@ class BaseCeremonyType(BaseModel):
     def validate_str_not_blank(cls, field: str)->str:
         return validation_utils.validate_str_not_blank(field)
 
+@strawberry.experimental.pydantic.type(model=BaseCeremonyType, all_fields=True)
+class BaseCeremonyTypeQL:
+    pass
+
 class BaseCeremony(BaseModel):
 
     date: date_type = Field(..., json_schema_extra={"description":"Ceremony date", "example":"2023-05-13"})
+
+@strawberry.experimental.pydantic.type(model=BaseCeremony, all_fields=True) 
+class BaseCeremonyQL:
+    pass
 
 
 class BaseVotingType(BaseModel):
@@ -78,7 +121,14 @@ class BaseParticipant(BaseModel):
     def validate_str_not_blank(cls, field: str)->str:
         return validation_utils.validate_str_not_blank(field)
 
+@strawberry.experimental.pydantic.type(model=BaseParticipant, all_fields=True)
+class BaseParticipantQL:
+    pass
 
 class BaseSimulationResult(BaseModel):
     ceremony_id: int = Field(..., json_schema_extra={"description":"Ceremony id", "example":1})
+
+@strawberry.experimental.pydantic.type(model=BaseSimulationResult, all_fields=True)
+class BaseSimulationResultQL:
+    pass
 

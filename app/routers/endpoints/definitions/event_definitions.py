@@ -70,3 +70,18 @@ update_event_endpoint = {
         }
     }
 }
+
+delete_event_endpoint = {
+    "summary": "Delete event. Songs and ceremonies associated with the event will be deleted automatically. An event which has been simulated cannot be deleted",
+    "description": "Delete event",
+    "responses": {
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Event deleted successfully"
+        },
+
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Event not found"
+        }
+    }
+}

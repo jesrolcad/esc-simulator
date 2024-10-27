@@ -22,6 +22,14 @@ get_event_ceremony_participants_test_cases = [
     }
 ]
 
+event_ceremony_participants_query_expected_response = [
+    {
+        "countryId": 1,
+        "songId": 1,
+        "participantInfo": "COUNTRY. SONG_ARTIST1 - SONG1. Jury potential score: 10 | Televote potential score: 10"
+    }
+]
+
 get_event_results_test_cases = [
 
     {
@@ -64,6 +72,34 @@ get_event_results_test_cases = [
         ]
     }
 ]
+
+event_results_query_expected_response = [
+                {
+                    "ceremonyId": 1,
+                    "ceremonyTypeId": 1,
+                    "ceremonyTypeName": "SEMIFINAL 1",
+                    "results":  [
+                            {
+                                "countryId": 1,
+                                "songId": 1,
+                                "participantInfo": "COUNTRY. SONG_ARTIST1 - SONG1. Jury potential score: 10 | Televote potential score: 10",
+                                "position": 1,
+                                "totalScore": 16,
+                                "juryScore": 10,
+                                "televoteScore": 6
+                            },
+                            {
+                                "countryId": 2,
+                                "songId": 2,
+                                "participantInfo": "COUNTRY2. SONG_ARTIST2 - SONG2. Jury potential score: 8 | Televote potential score: 8",
+                                "position": 2,
+                                "totalScore": 13,
+                                "juryScore": 1,
+                                "televoteScore": 12
+                            }
+                        ]
+                    }
+        ]
 
 get_event_ceremony_type_results_test_cases = {
             "expected_response": {
