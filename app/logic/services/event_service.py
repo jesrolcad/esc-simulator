@@ -6,7 +6,7 @@ from app.logic.model_mappers import EventModelMapper, CeremonyModelMapper
 from app.logic.models import Event, Ceremony
 from app.persistence.repositories.song_repository import SongRepository
 from app.persistence.repositories.voting_repository import VotingRepository
-from app.utils.exceptions import NotFoundError
+from app.utils.exceptions import BusinessLogicValidationError, NotFoundError
 
 class EventService(BaseService):
 
@@ -78,7 +78,7 @@ class EventService(BaseService):
         exists_event_simulation = VotingRepository(self.session).check_exists_votings_by_event_id(event_id=event_id)
 
         if exists_event_simulation:
-            raise NotFoundError(field="event_id", message=f"Event with id {event_id} cannot be deleted because it has already been simulated")
+            raise BusinessLogicValidationError(field="event_id", message=f"Event with id {event_id} cannot be deleted because it has already been simulated")
         
         SongRepository(self.session).delete_songs_by_event_id(event_id=event_id)
         CeremonyRepository(self.session).delete_ceremonies_by_event_id(event_id=event_id)

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytest
 from sqlalchemy import insert, select
 from fastapi import status
@@ -26,7 +26,7 @@ def events():
                                                 belongs_to_host_country=True, jury_potential_score=10,
                                                 televote_potential_score=10))
         session.execute(insert(CeremonyTypeEntity).values(id=1, name="SEMIFINAL 1", code="SF1"))
-        session.execute(insert(CeremonyEntity).values(id=1, ceremony_type_id=1, event_id=1, date="2021-01-01"))
+        session.execute(insert(CeremonyEntity).values(id=1, ceremony_type_id=1, event_id=1, date=test_cases.sf1_date))
 
         session.execute(insert(SongCeremony).values(id=1, song_id=1, ceremony_id=1))
         session.execute(insert(SongCeremony).values(id=2, song_id=2, ceremony_id=1))
@@ -60,12 +60,78 @@ def test_get_events(request, client, test_case):
     assert response.json() == test_case['expected_response']
 
 @pytest.mark.usefixtures("events")
+def test_events_query(client):
+
+    query = '''
+        query {
+            events {
+                id
+                year
+                hostCity
+                arena
+                slogan
+                ceremonies {
+                    id
+                    date
+                    ceremonyType {
+                        id
+                        name
+                        code
+                    }
+                }
+            }
+        }
+        '''
+    
+    response = client.post("/graphql", json={"query": query})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()['data']['events']
+    assert len(response_data) == 1
+
+    assert response_data[0] == test_cases.expected_event_query_response
+
+
+
+@pytest.mark.usefixtures("events")
 def test_get_event(client):
 
     response = client.get("/events/1")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == test_cases.expected_get_events_response
+
+@pytest.mark.usefixtures("events")
+def test_event_query(client):
+    
+    query = '''
+        query {
+            event(eventId: 1) {
+                id
+                year
+                hostCity
+                arena
+                slogan
+                ceremonies {
+                    id
+                    date
+                    ceremonyType {
+                        id
+                        name
+                        code
+                    }
+                }
+            }
+        }
+        '''
+    
+    response = client.post("/graphql", json={"query": query})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()['data']['event']
+    assert response_data == test_cases.expected_event_query_response
 
 
 def test_get_event_not_found(client):
@@ -81,7 +147,6 @@ def test_get_event_ceremony(client):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == test_cases.expected_get_event_ceremony_response
-
 
 def test_get_event_ceremony_not_found(client):
 
@@ -114,11 +179,51 @@ def test_create_event_positive(client, test_case):
     assert len(created_event_ceremonies) == 3
 
     assert sf1_ceremony.ceremony_type_id == 1
-    assert sf1_ceremony.date == datetime.strptime("2021-05-06", "%Y-%m-%d").date()
+    assert sf1_ceremony.date.strftime("%Y-%m-%d") == test_cases.sf1_date_str
     assert sf2_ceremony.ceremony_type_id == 2
-    assert sf2_ceremony.date == datetime.strptime("2021-05-08", "%Y-%m-%d").date() 
+    assert sf2_ceremony.date.strftime("%Y-%m-%d") == test_cases.sf2_date_str
     assert gf_ceremony.ceremony_type_id == 3
-    assert gf_ceremony.date == datetime.strptime("2021-05-10", "%Y-%m-%d").date()  
+    assert gf_ceremony.date.strftime("%Y-%m-%d") == test_cases.grand_final_date_str
+
+    for ceremony in created_event_ceremonies:
+        assert ceremony.event_id == created_event.id
+
+@pytest.mark.parametrize("test_case", test_cases.create_update_event_positive_test_cases)
+@pytest.mark.usefixtures("ceremony_types")
+def test_create_event_mutation_positive(client, test_case):
+
+    query = f'''
+    mutation {{
+        createEvent(event: {{year: {test_case['year']}, slogan: "{test_case['slogan']}", 
+        hostCity: "{test_case['host_city']}", arena: "{test_case['arena']}", grandFinalDate: "{test_case['grand_final_date']}"}}) {{
+            id
+        }}
+    }}
+    '''
+
+    response = client.post("/graphql", json={"query": query})
+    response_id = response.json()['data']['createEvent']['id']
+
+    with get_db_as_context_manager() as session:
+        created_event = session.scalars(select(EventEntity).where(EventEntity.id == response_id)).first()
+        created_event_ceremonies = created_event.ceremonies
+
+    sf1_ceremony = created_event_ceremonies[0]
+    sf2_ceremony = created_event_ceremonies[1]
+    gf_ceremony = created_event_ceremonies[2]
+
+    assert created_event.year == test_case['year']
+    assert created_event.slogan == test_case['slogan']
+    assert created_event.host_city == test_case['host_city']
+    assert created_event.arena == test_case['arena']
+    assert len(created_event_ceremonies) == 3
+
+    assert sf1_ceremony.ceremony_type_id == 1
+    assert sf1_ceremony.date.strftime("%Y-%m-%d") == test_cases.sf1_date_str
+    assert sf2_ceremony.ceremony_type_id == 2
+    assert sf2_ceremony.date.strftime("%Y-%m-%d") == test_cases.sf2_date_str
+    assert gf_ceremony.ceremony_type_id == 3
+    assert gf_ceremony.date.strftime("%Y-%m-%d") == test_cases.grand_final_date_str
 
     for ceremony in created_event_ceremonies:
         assert ceremony.event_id == created_event.id
@@ -134,6 +239,22 @@ def test_create_event_negative(client, test_case):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response_invalid_fields == test_case['invalid_fields']
 
+@pytest.mark.parametrize("test_case", test_cases.create_event_mutation_negative_test_cases)
+def test_create_event_mutation_negative(client, test_case):
+    
+    query = f'''
+    mutation {{
+        createEvent(event: {{year: {test_case['year']}, slogan: "{test_case['slogan']}", 
+        hostCity: "{test_case['host_city']}", arena: "{test_case['arena']}", grandFinalDate: "{test_case['grand_final_date']}"}}) {{
+            id
+        }}
+    }}
+    '''
+
+    response = client.post("/graphql", json={"query": query})
+    assert response.json()['errors'] is not None
+
+
 @pytest.mark.parametrize("test_case", test_cases.create_update_event_positive_test_cases)
 @pytest.mark.usefixtures("event")
 def test_update_event_positive(client, test_case):
@@ -143,9 +264,29 @@ def test_update_event_positive(client, test_case):
     with get_db_as_context_manager() as session:
         updated_event = session.scalars(select(EventEntity).where(EventEntity.id == 1)).first()
 
-
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert updated_event.year == test_case['year']
+    assert updated_event.slogan == test_case['slogan']
+    assert updated_event.host_city == test_case['host_city']
+    assert updated_event.arena == test_case['arena']
+
+@pytest.mark.parametrize("test_case", test_cases.create_update_event_positive_test_cases)
+@pytest.mark.usefixtures("event")
+def test_update_event_mutation_positive(client, test_case):
+    
+    query = f'''
+    mutation {{
+        updateEvent(eventId: 1, event: {{slogan: "{test_case['slogan']}", 
+        hostCity: "{test_case['host_city']}", arena: "{test_case['arena']}"}}) {{
+            success
+        }}
+    }}
+    '''
+
+    client.post("/graphql", json={"query": query})
+
+    with get_db_as_context_manager() as session:
+        updated_event = session.scalars(select(EventEntity).where(EventEntity.id == 1)).first()
+
     assert updated_event.slogan == test_case['slogan']
     assert updated_event.host_city == test_case['host_city']
     assert updated_event.arena == test_case['arena']
@@ -163,6 +304,22 @@ def test_update_event_negative(client, test_case):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response_invalid_fields == test_case['invalid_fields']
 
+@pytest.mark.parametrize("test_case", test_cases.update_event_mutation_negative_test_cases)
+@pytest.mark.usefixtures("event")
+def test_update_event_mutation_negative(client, test_case):
+
+    query = f'''
+    mutation {{
+        updateEvent(eventId: 1, event: {{slogan: "{test_case['slogan']}", 
+        hostCity: "{test_case['host_city']}", arena: "{test_case['arena']}"}}) {{
+            success
+        }}
+    }}
+    '''
+
+    response = client.post("/graphql", json={"query": query})
+    assert response.json()['errors'] is not None
+
 
 def test_update_event_not_found(client):
 
@@ -172,6 +329,51 @@ def test_update_event_not_found(client):
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+@pytest.mark.usefixtures("event")
+def test_delete_event(client, event):
+
+    response = client.delete("/events/1")
+
+    with get_db_as_context_manager() as session:
+        event = session.scalars(select(EventEntity).where(EventEntity.id == 1)).first()
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert event is None
+
+@pytest.mark.usefixtures("event")
+def test_delete_event_mutation(client, event):
+    
+    query = '''
+    mutation {
+        deleteEvent(eventId: 1) {
+            success
+        }
+    }
+    '''
+
+    client.post("/graphql", json={"query": query})
+
+    with get_db_as_context_manager() as session:
+        event = session.scalars(select(EventEntity).where(EventEntity.id == 1)).first()
+
+    assert event is None
+
+def test_delete_event_not_found(client):
+
+    event_id = 300
+
+    response = client.delete(f"/events/{event_id}")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.usefixtures("events")
+def test_delete_simulated_event(client):
+
+    event_id = 1
+
+    response = client.delete(f"/events/{event_id}")
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
     
