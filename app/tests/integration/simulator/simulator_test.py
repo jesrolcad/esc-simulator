@@ -80,6 +80,25 @@ def test_get_event_ceremony_participants(request, client, test_case):
     assert len(response.json()) == test_case['expected_participant_count']
     assert response.json() == test_case["expected_response"]
 
+@pytest.mark.usefixtures("events")
+def test_event_ceremony_participants_query(client):
+
+    query = '''
+    query {
+        eventCeremonyParticipants(eventId: 1, ceremonyId: 1) {
+            countryId
+            songId
+            participantInfo
+        }
+    }
+    '''
+
+    response = client.post("/graphql", json={"query": query})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["data"]["eventCeremonyParticipants"] == test_cases.event_ceremony_participants_query_expected_response
+
+
 @pytest.mark.parametrize("test_case", test_cases.get_event_results_test_cases)
 def test_get_event_results(request, client, test_case):
     
@@ -93,12 +112,64 @@ def test_get_event_results(request, client, test_case):
     assert response.json() == test_case["expected_response"]
 
 @pytest.mark.usefixtures("events")
+def test_event_results_query(client):
+
+    query = '''
+    query {
+        eventResults(eventId: 1) {
+            ceremonyId
+            ceremonyTypeId
+            ceremonyTypeName
+            results {
+                countryId
+                songId
+                participantInfo
+                position
+                totalScore
+                juryScore
+                televoteScore
+            }
+        }
+    }
+    '''
+
+    response = client.post("/graphql", json={"query": query})
+
+    assert response.json()["data"]["eventResults"] == test_cases.event_results_query_expected_response
+
+@pytest.mark.usefixtures("events")
 def test_get_event_ceremony_type_results(client):
 
     response = client.get("/simulator/events/1/ceremony-types/1")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == test_cases.get_event_ceremony_type_results_test_cases["expected_response"]
+
+@pytest.mark.usefixtures("events")
+def test_event_ceremony_type_results_query(client):
+
+    query = '''
+    query {
+        eventCeremonyTypeResults(eventId: 1, ceremonyTypeId: 1) {
+            ceremonyId
+            ceremonyTypeId
+            ceremonyTypeName
+            results {
+                countryId
+                songId
+                participantInfo
+                position
+                totalScore
+                juryScore
+                televoteScore
+            }
+        }
+    }
+    '''
+
+    response = client.post("/graphql", json={"query": query})
+
+    assert response.json()["data"]["eventCeremonyTypeResults"] == test_cases.event_results_query_expected_response[0]
 
 def test_get_event_ceremony_type_results_not_found(client):
 
@@ -119,6 +190,27 @@ def test_create_simulation(client):
     assert song_ceremonies_count > 0
     assert response.status_code == status.HTTP_200_OK
 
+@pytest.mark.usefixtures("create_simulation_event_fixture")
+def test_create_simulation_mutation(client):
+
+    query = '''
+    mutation {
+        createEventSimulation(eventId: 1) {
+            success
+            message
+        }
+    }
+    '''
+
+    client.post("/graphql", json={"query": query})
+
+    with get_db_as_context_manager() as session:
+        votings_count = session.execute(select(func.count()).where(VotingEntity.ceremony_id.in_([1,2,3]))).scalar()
+        song_ceremonies_count = session.execute(select(func.count()).where(SongCeremony.c.ceremony_id.in_([1,2,3]))).scalar()
+
+    assert votings_count > 0
+    assert song_ceremonies_count > 0
+
 @pytest.mark.usefixtures("events")
 def test_delete_event_simulation(client):
 
@@ -131,6 +223,27 @@ def test_delete_event_simulation(client):
     assert votings_count == 0
     assert song_ceremonies_count == 0
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+@pytest.mark.usefixtures("events")
+def test_delete_event_simulation_mutation(client):
+
+    query = '''
+    mutation {
+        deleteEventSimulation(eventId: 1) {
+            success
+            message
+        }
+    }
+    '''
+
+    client.post("/graphql", json={"query": query})
+
+    with get_db_as_context_manager() as session:
+        votings_count = session.execute(select(func.count()).where(VotingEntity.ceremony_id.in_([1,2,3]))).scalar()
+        song_ceremonies_count = session.execute(select(func.count()).where(SongCeremony.c.ceremony_id.in_([1,2,3]))).scalar()
+
+    assert votings_count == 0
+    assert song_ceremonies_count == 0
 
 @pytest.mark.usefixtures("events")
 def test_delete_event_simulation_not_found(client):
