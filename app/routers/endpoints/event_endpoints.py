@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from app.db.database import get_db 
-from app.routers.endpoints.definitions.event_definitions import get_events_endpoint, get_event_endpoint, get_event_ceremony_endpoint, create_event_endpoint, update_event_endpoint
+from app.routers.endpoints.definitions.event_definitions import *
 from app.logic.services.event_service import EventService
 from app.logic.services.ceremony_service import CeremonyService
 from app.routers.api_mappers.event_api_mapper import EventApiMapper, CeremonyApiMapper
-from app.routers.schemas.event_schemas import EventRequest
+from app.routers.schemas.event_schemas import CreateEventRequest, UpdateEventRequest
 from app.routers.schemas.api_schemas import ResultResponse
 from app.routers.schemas.common_schemas import BaseId
 
@@ -34,7 +34,7 @@ async def get_event_ceremony(event_id: int, ceremony_id: int, db: get_db = Depen
 
 @router.post(path="", summary=create_event_endpoint["summary"], description=create_event_endpoint["description"],
             responses=create_event_endpoint["responses"], status_code=status.HTTP_201_CREATED)
-async def create_event(event: EventRequest, db: get_db = Depends()):
+async def create_event(event: CreateEventRequest, db: get_db = Depends()):
 
     event_model = EventApiMapper().map_to_event_model(event_schema=event)
     event_response = EventService(db).create_event_and_associated_ceremonies(event=event_model, grand_final_date=event.grand_final_date)
@@ -43,9 +43,16 @@ async def create_event(event: EventRequest, db: get_db = Depends()):
 
 @router.put(path="/{event_id}", summary=update_event_endpoint["summary"], description=update_event_endpoint["description"],
             responses=update_event_endpoint["responses"], status_code=status.HTTP_204_NO_CONTENT)
-async def update_event(event_id: int, event: EventRequest, db: get_db = Depends()):
+async def update_event(event_id: int, event: UpdateEventRequest, db: get_db = Depends()):
     
     event_model = EventApiMapper().map_to_event_model(event_schema=event)
     EventService(db).update_event(event_id=event_id,event=event_model)
     return ResultResponse(message="Event updated successfully")
+
+@router.delete(path="/{event_id}", summary=delete_event_endpoint["summary"], description=delete_event_endpoint["description"],
+               responses=delete_event_endpoint["responses"], status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event(event_id: int, db: get_db = Depends()):
+    EventService(db).delete_event(event_id=event_id)
+
+    return ResultResponse(message="Event deleted successfully")
 

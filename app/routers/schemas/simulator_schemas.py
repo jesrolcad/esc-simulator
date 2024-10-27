@@ -13,13 +13,11 @@ class ParticipantResultDataResponse(BaseParticipant):
     total_score: int
     jury_score: int
     televote_score: int
-    
 
 class ParticipantResultDataResponseList(BaseModel):
     participants: List[ParticipantResultDataResponse]
 
 class SimulationCeremonyResultDataResponse(BaseSimulationResult):
-    ceremony_id: int
     ceremony_type_id: int
     ceremony_type_name: str
     results: ParticipantResultDataResponseList

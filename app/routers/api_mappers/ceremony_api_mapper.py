@@ -1,5 +1,5 @@
 from app.logic.models import Ceremony
-from app.routers.schemas.common_schemas import CeremonyWithoutEventDataResponse, CeremonyTypeDataResponse, SongWithCountryDataResponse, CountryWithoutSongsVotingsDataResponse, VotedSong, VotingCountry, VotingTypeDataResponse, VotingWithoutCeremonyEvent
+from app.routers.schemas.common_schemas import CeremonyTypeDataResponseQL, CeremonyWithoutEventDataResponse, CeremonyTypeDataResponse, CeremonyWithoutEventDataResponseQL, SongWithCountryDataResponse, CountryWithoutSongsVotingsDataResponse, VotedSong, VotingCountry, VotingTypeDataResponse, VotingWithoutCeremonyEvent
 
 class CeremonyApiMapper:
 
@@ -17,3 +17,11 @@ class CeremonyApiMapper:
             votings.append(VotingWithoutCeremonyEvent(id=voting.id, score=voting.score, voting_country=voting_country, voted_song=voted_song, voting_type=voting_type))
 
         return CeremonyWithoutEventDataResponse(id=ceremony.id, date=ceremony.date, ceremony_type=ceremony_type, songs=songs, votings=votings)
+    
+    def map_to_ceremony_without_event_data_response_ql(self, ceremony: Ceremony)->CeremonyWithoutEventDataResponseQL:
+        ceremony_type = CeremonyTypeDataResponseQL(id=ceremony.ceremony_type.id, name=ceremony.ceremony_type.name, code=ceremony.ceremony_type.code)
+
+        ceremony = CeremonyWithoutEventDataResponseQL(id=ceremony.id, date=ceremony.date, ceremony_type=ceremony_type)
+
+        return ceremony
+        

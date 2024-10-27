@@ -1,8 +1,10 @@
+from operator import is_
 from random import randint
 from app.logic.models import SimulationSong, Song
 from app.persistence.repositories.song_repository import SongRepository
-from app.persistence.repositories.country_repository import CountryRepository
 from app.persistence.repositories.event_repository import EventRepository
+from app.persistence.repositories.country_repository import CountryRepository
+from app.logic.services.country_service import CountryService
 from app.persistence.entities import SongEntity
 from app.logic.services.base_service import BaseService
 from app.logic.model_mappers import SongModelMapper
@@ -21,10 +23,22 @@ class SongService(BaseService):
         return [SongModelMapper().map_to_song_model(song_entity=song) for song in SongRepository(self.session)
                 .get_songs(title=title, country_code=country_code, event_year=event_year)]
     
+
+    def get_song_summary(self, song_id: int, title: str, artist: str, country_name: str)->str:
+        if country_name is None:
+            country = CountryService(self.session).get_country_by_song_id(song_id=song_id)
+            country_name = country.name
+
+        return f"{country_name}. {artist} - {title}"
+
+    def get_songs_by_country_id(self, country_id: int)->list[Song]:
+        songs = SongRepository(self.session).get_songs_by_country_id(country_id=country_id)
+
+        return [SongModelMapper().map_to_song_model_without_submodels(song_entity=song_entity) for song_entity in songs]
+
+    
     def get_simulation_songs_by_event_id(self, event_id: int)->list[SimulationSong]:
         simulation_songs = SongRepository(self.session).get_simulation_songs_info_by_event_id(event_id=event_id)
-
-        print("SIMULATION SONGS: ", simulation_songs)
 
         return SongModelMapper().map_to_simulation_song_model_list(rows=simulation_songs)
     
@@ -38,8 +52,6 @@ class SongService(BaseService):
 
         return SongModelMapper().map_to_song_country_ids(rows=country_song_ids)
 
-
-
     def create_song(self, song: Song)-> Song:
         song_entity = SongModelMapper().map_to_song_entity(song=song)
         self.validate_song(song_entity=song_entity)
@@ -48,6 +60,11 @@ class SongService(BaseService):
 
     def update_song(self, song_id: int, updated_song: Song):
         self.get_song(song_id=song_id)
+        is_participating_in_ceremony = self.check_song_is_participating_in_a_ceremony(song_id=song_id)
+
+        if is_participating_in_ceremony:
+            raise BusinessLogicValidationError(field="song_id",message=f"Song with id {song_id} cannot be updated because it is participating in a ceremony")
+        
         updated_song_entity = SongModelMapper().map_to_song_entity(song=updated_song)
         updated_song_entity.id = song_id
         self.validate_song(song_entity=updated_song_entity)
@@ -56,6 +73,10 @@ class SongService(BaseService):
     
     def delete_song(self, song_id: int):
         self.get_song(song_id=song_id)
+        is_participating_in_ceremony = self.check_song_is_participating_in_a_ceremony(song_id=song_id)
+        
+        if is_participating_in_ceremony:
+            raise BusinessLogicValidationError(field="song_id",message=f"Song with id {song_id} cannot be deleted because it is participating in a ceremony")
         SongRepository(self.session).delete_song(song_id=song_id)
 
 
@@ -85,6 +106,9 @@ class SongService(BaseService):
         retrieved_song_id = SongRepository(self.session).check_existing_song_marked_as_belongs_to_host_country(song_id=song_id, event_id=event_id)
         if retrieved_song_id:
             raise BusinessLogicValidationError(field="belongs_to_host_country",message=f"Song with id {retrieved_song_id} is already marked as belongs to host country.")
+
+    def check_song_is_participating_in_a_ceremony(self, song_id: int)->bool:
+        return SongRepository(self.session).check_is_song_participating_in_a_ceremony(song_id=song_id)
 
     def calculate_potential_scores(self, position: int)-> tuple: 
         """

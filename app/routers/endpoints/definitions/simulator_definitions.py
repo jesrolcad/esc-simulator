@@ -55,3 +55,18 @@ create_event_simulation_endpoint = {
         }
     }
 }
+
+delete_event_simulation_endpoint = {
+    "summary": "Delete event simulation",
+    "description": "Delete event simulation",
+    "responses": {
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Event simulation deleted successfully"
+        }, 
+
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Event not found"
+        }
+    }
+}

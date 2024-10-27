@@ -8,6 +8,7 @@ from app.persistence.entities import EventEntity, CeremonyEntity, CeremonyTypeEn
 from app.logic.model_mappers import CeremonyModelMapper
 from app.logic.models import Event, Ceremony, CeremonyType
 from app.logic.model_mappers import EventModelMapper
+from app.persistence.repositories.voting_repository import VotingRepository
 
 
 @pytest.fixture
@@ -39,28 +40,53 @@ def ceremony_type_model():
     return CeremonyType(id=1, name="Semifinal 1", code="SF1")
 
 
-def test_get_events(mocker, mock_session, event_entity, event_model):
+def test_get_events_with_submodels(mocker, mock_session, event_entity, event_model):
     mocker.patch.object(EventRepository, 'get_events', return_value=[event_entity])
     mocker.patch.object(EventModelMapper,'map_to_event_model', return_value=event_model)
 
-    result = EventService(mock_session).get_events()
+    result = EventService(mock_session).get_events(submodels=True)
     
     assert isinstance(result, list)
     assert isinstance(result[0], Event)
     assert result[0] == event_model
     EventRepository(mock_session).get_events.assert_called_once()
+    EventModelMapper().map_to_event_model.assert_called_once()
 
 
-def test_get_event(mocker, mock_session, event_entity, event_model):
+def test_get_events_without_submodels(mocker, mock_session, event_entity, event_model):
+    mocker.patch.object(EventRepository, 'get_events', return_value=[event_entity])
+    mocker.patch.object(EventModelMapper,'map_to_event_model_without_submodels', return_value=event_model)
+
+    result = EventService(mock_session).get_events(submodels=False)
+    
+    assert isinstance(result, list)
+    assert isinstance(result[0], Event)
+    assert result[0] == event_model
+    EventRepository(mock_session).get_events.assert_called_once()
+    EventModelMapper().map_to_event_model_without_submodels.assert_called_once()
+
+
+def test_get_event_with_submodels(mocker, mock_session, event_entity, event_model):
     mocker.patch.object(EventRepository, 'get_event', return_value=event_entity)
     mocker.patch.object(EventModelMapper,'map_to_event_model', return_value=event_model)
 
-    result = EventService(mock_session).get_event(id=1, year=None)
+    result = EventService(mock_session).get_event(id=1, year=None, submodels=True)
     
     assert isinstance(result, Event)
     assert result == event_model
     EventRepository(mock_session).get_event.assert_called_once_with(1,None)
+    EventModelMapper().map_to_event_model.assert_called_once()
 
+def test_get_event_without_submodels(mocker, mock_session, event_entity, event_model):
+    mocker.patch.object(EventRepository, 'get_event', return_value=event_entity)
+    mocker.patch.object(EventModelMapper,'map_to_event_model_without_submodels', return_value=event_model)
+
+    result = EventService(mock_session).get_event(id=1, year=None, submodels=False)
+    
+    assert isinstance(result, Event)
+    assert result == event_model
+    EventRepository(mock_session).get_event.assert_called_once_with(1,None)
+    EventModelMapper().map_to_event_model_without_submodels.assert_called_once()
 
 def test_get_event_not_found(mocker, mock_session):
     mocker.patch.object(EventRepository, 'get_event', return_value=None)
@@ -100,6 +126,16 @@ def test_get_event_ceremony_not_found(mocker, mock_session):
         CeremonyService(mock_session).get_event_ceremony(ceremony_id=1, event_id=1)
         assert exception.field == "event_id,ceremony_id"
 
+def test_get_ceremonies_with_ceremony_types_by_event_id_test(mocker, mock_session, ceremony_entity, ceremony_model):
+    mocker.patch.object(CeremonyRepository, 'get_ceremonies_with_ceremony_types_by_event_id', return_value=[ceremony_entity])
+    mocker.patch.object(CeremonyModelMapper, 'map_to_ceremony_model_with_ceremony_type', return_value=ceremony_model)
+
+    result = CeremonyService(mock_session).get_ceremonies_with_ceremony_types_by_event_id(event_id=1)
+
+    assert isinstance(result, list)
+    assert isinstance(result[0], Ceremony)
+    assert result[0] == ceremony_model
+
 def test_create_event(mocker, mock_session, event_entity, event_model, ceremony_type_entity, ceremony_type_model, ceremony_entity):
     mocker.patch.object(EventModelMapper, "map_to_event_entity", return_value=event_entity)
     mocker.patch.object(EventRepository, "create_event", return_value=event_entity)
@@ -114,6 +150,8 @@ def test_create_event(mocker, mock_session, event_entity, event_model, ceremony_
     assert isinstance(result, Event)
     assert result == event_model
 
+
+
 def test_create_ceremony(mocker, mock_session, ceremony_entity):
 
     created_ceremony_id = 1
@@ -125,6 +163,8 @@ def test_create_ceremony(mocker, mock_session, ceremony_entity):
     assert result == created_ceremony_id
 
 def test_update_event(mocker, mock_session, event_model, event_entity):
+    mocker.patch.object(EventRepository, "get_event", return_value=event_model)
+    mocker.patch.object(VotingRepository, "check_exists_votings_by_event_id", return_value=False)
     mocker.patch.object(EventRepository, "update_event", return_value=event_entity)
     mocker.patch.object(EventModelMapper, "map_to_event_model", return_value=event_model)
     mocker.patch.object(EventModelMapper, "map_to_event_entity", return_value=event_entity)
@@ -137,11 +177,24 @@ def test_update_event(mocker, mock_session, event_model, event_entity):
 
 
 def test_update_event_not_found(mocker, mock_session, event_model):
-    mocker.patch.object(EventRepository, "update_event", return_value=None)
+    mocker.patch.object(EventRepository, "get_event", return_value=None)
+    mocker.patch.object(VotingRepository, "check_exists_votings_by_event_id")
 
     with pytest.raises(Exception) as exception:
         EventService(mock_session).update_event(event_id=1, event=event_model)
         assert exception.field == "event_id"
+
+    VotingRepository(mock_session).check_exists_votings_by_event_id.assert_not_called()
+
+def test_update_simulated_event(mocker, mock_session, event_model):
+    mocker.patch.object(EventRepository, "get_event", return_value=event_model)
+    mocker.patch.object(VotingRepository, "check_exists_votings_by_event_id", return_value=True)
+
+    with pytest.raises(Exception) as exception:
+        EventService(mock_session).update_event(event_id=1, event=event_model)
+        assert exception.field == "event_id"
+
+    VotingRepository(mock_session).check_exists_votings_by_event_id.assert_called_once()
 
 def test_add_songs_to_ceremony(mocker, mock_session):
     mocker.patch.object(CeremonyRepository, "add_songs_to_ceremony", return_value=None)
@@ -151,5 +204,32 @@ def test_add_songs_to_ceremony(mocker, mock_session):
     except Exception as exception:
         pytest.fail(f"Test failed with exception: {exception}")
 
+def test_delete_event(mocker, mock_session, event_model):
+    mocker.patch.object(EventRepository, "get_event", return_value=event_model)
+    mocker.patch.object(VotingRepository, "check_exists_votings_by_event_id", return_value=False)
+    mocker.patch.object(EventRepository, "delete_event", return_value=None)
 
+    try:
+        EventService(mock_session).delete_event(event_id=1)
+    except Exception as exception:
+        pytest.fail(f"Test failed with exception: {exception}")
 
+def test_delete_event_not_found(mocker, mock_session):
+    mocker.patch.object(EventRepository, "get_event", return_value=None)
+    mocker.patch.object(VotingRepository, "check_exists_votings_by_event_id")
+
+    with pytest.raises(Exception) as exception:
+        EventService(mock_session).delete_event(event_id=1)
+        assert exception.field == "event_id"
+
+    VotingRepository(mock_session).check_exists_votings_by_event_id.assert_not_called()
+
+def test_delete_simulated_event(mocker, mock_session, event_model):
+    mocker.patch.object(EventRepository, "get_event", return_value=event_model)
+    mocker.patch.object(VotingRepository, "check_exists_votings_by_event_id", return_value=True)
+
+    with pytest.raises(Exception) as exception:
+        EventService(mock_session).delete_event(event_id=1)
+        assert exception.field == "event_id"
+
+    VotingRepository(mock_session).check_exists_votings_by_event_id.assert_called_once()

@@ -1,11 +1,23 @@
 from typing import List
-from app.routers.schemas.base_schemas import BaseId, BaseCountry, BaseSong, BaseCeremony, BaseVoting, BaseEvent, BaseCeremonyType, BaseVotingType
+import strawberry
+from app.logic.models import Ceremony
+from app.routers.schemas.base_schemas import BaseCeremonyQL, BaseCeremonyTypeQL, BaseId, BaseIdQL, BaseCountry, BaseSong, BaseSongQL, BaseCeremony, BaseVoting, BaseEvent, BaseCeremonyType, BaseVotingType
 
 
 class SongWithoutCountryCeremoniesVotings(BaseSong, BaseId):
     pass
 
+@strawberry.type
+class SongWithoutCountryCeremoniesVotingsQL(BaseSongQL, BaseIdQL):
+    jury_potential_score: int
+    televote_potential_score: int
+
+
 class CountryWithoutSongsVotingsDataResponse(BaseCountry, BaseId):
+    pass
+
+@strawberry.experimental.pydantic.type(model=CountryWithoutSongsVotingsDataResponse, all_fields=True)
+class CountryWithoutSongsVotingsDataResponseQL:
     pass
 
 class SongWithCountryDataResponse(BaseSong, BaseId):
@@ -41,8 +53,16 @@ class EventWithoutCeremoniesDataResponse(BaseEvent, BaseId):
 class CeremonyTypeDataResponse(BaseCeremonyType, BaseId):
     pass
 
+@strawberry.type
+class CeremonyTypeDataResponseQL(BaseCeremonyTypeQL, BaseIdQL):
+    pass
+
 
 class CeremonyWithoutEventDataResponse(BaseCeremony, BaseId):
     ceremony_type: CeremonyTypeDataResponse
     songs: List[SongWithCountryDataResponse] = []
     votings: List[VotingWithoutCeremonyEvent] = []
+
+@strawberry.type
+class CeremonyWithoutEventDataResponseQL(BaseCeremonyQL, BaseIdQL):
+    ceremony_type: CeremonyTypeDataResponseQL

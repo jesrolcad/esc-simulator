@@ -1,8 +1,9 @@
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
-from app.utils.exceptions import BusinessLogicValidationError, InternalError, NotFoundError
+from app.utils.exceptions import BusinessLogicValidationError, InternalError, NotFoundError, ValidationError
 from app.routers.schemas.api_schemas import ErrorDetailResponse, ErrorResponse
+from strawberry.types import ExecutionResult
 
 async def handle_bad_request_error(request: Request, exc: BusinessLogicValidationError):
     error_detail_response = ErrorDetailResponse(field=exc.field, message=exc.message)
@@ -30,3 +31,7 @@ async def handle_request_validation_error(request: Request, exc: RequestValidati
         error_response.errors.append(error_detail_response)
 
     return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=error_response.model_dump())
+
+
+def handle_validation_error_ql(error: ValidationError)-> ExecutionResult:
+    return ExecutionResult(errors=[error.message])

@@ -1,5 +1,5 @@
 import random
-from app.logic.models import Participant, SimulationCeremonyResult, SimulationSong
+from app.logic.models import Participant, SimulationCeremonyResult, SimulationSong, Voting
 from app.logic.services.base_service import BaseService
 from app.logic.services.ceremony_service import CeremonyService
 from app.logic.services.song_service import SongService
@@ -69,6 +69,7 @@ class SimulatorService(BaseService):
         
         self.divide_songs_into_semifinals(semifinal_one_ceremony=semifinal_one_ceremony, semifinal_two_ceremony=semifinal_two_ceremony, 
                                           song_ids=[simulation_song.song_id for simulation_song in simulation_songs])
+    
 
         # Simulate each semifinal
         self.simulate_ceremony(ceremony_id=semifinal_one_ceremony)
@@ -77,6 +78,7 @@ class SimulatorService(BaseService):
         #Add qualified countries to grand final -> Populate song ceremony table
         qualified_for_grand_final_songs = VotingRepository(self.session).get_qualified_song_ids_for_grand_final(semifinal_one_ceremony_id=semifinal_one_ceremony, 
                                                                                                   semifinal_two_ceremony_id=semifinal_two_ceremony)
+        
         
         # Select automatic qualifiers for grand final
         automatic_qualified_country_song_ids = SongService(self.session).get_automatic_qualified_songs_for_grand_final_by_event_id(event_id=event_id)
@@ -87,7 +89,6 @@ class SimulatorService(BaseService):
         # Simulate grand final
         grand_final_voters = [simulation_song.country_id for simulation_song in simulation_songs] + [country_song.country_id for country_song in automatic_qualified_country_song_ids]
         self.simulate_ceremony(ceremony_id=ceremonies[constants.GRAND_FINAL_CEREMONY_TYPE_ID], grand_final_voters = grand_final_voters)
-
         
     def divide_songs_into_semifinals(self, semifinal_one_ceremony: int, semifinal_two_ceremony: int, song_ids: list[int]):
     
@@ -101,10 +102,6 @@ class SimulatorService(BaseService):
             CeremonyRepository(self.session).add_songs_to_ceremony(ceremony_id=ceremony, song_ids=songs)
 
     def simulate_ceremony(self, ceremony_id: int, grand_final_voters: list[int] = None):
-        if grand_final_voters:
-            print(len(grand_final_voters))
-            print(grand_final_voters)
-
         votings = []
 
         ceremony_songs = SongService(self.session).get_simulation_songs_by_ceremony_id(ceremony_id=ceremony_id)
@@ -153,6 +150,23 @@ class SimulatorService(BaseService):
         scores.extend(televote_scores[:10])
 
         return scores
+    
+    def delete_simulation_by_event_id(self, event_id: int):
+
+        ceremonies = CeremonyService(self.session).get_event_ceremonies(event_id=event_id)
+
+        if not ceremonies:
+            raise NotFoundError(field="event_id", message=f"No ceremonies found for event_id {event_id}")
+        
+        ceremony_ids = list(ceremonies.values())
+        
+        exists_simulation = VotingRepository(self.session).check_exists_votings_by_ceremonies(ceremonies=ceremony_ids)
+
+        if not exists_simulation:
+            raise NotFoundError(field="event_id", message=f"No simulation found for event_id {event_id}")
+        
+        VotingRepository(self.session).delete_votings_by_ceremonies(ceremonies=ceremony_ids)
+        SongRepository(self.session).delete_songs_from_ceremonies(ceremonies=ceremony_ids)
         
 
 

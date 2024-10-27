@@ -6,6 +6,7 @@ from app.main import app
 from app.db.database import get_db_as_context_manager
 from app.persistence.entities import CountryEntity, EventEntity, SongEntity
 from app.logic.models import Song, Country, Event
+from app.routers.schemas.base_schemas import PotentialScoreEnum
 from app.tests.integration.song import test_cases
 
 @pytest.fixture
@@ -102,6 +103,48 @@ def test_get_song(client):
     assert song_response.ceremonies == expected_song.ceremonies
     assert song_response.votings == expected_song.votings
 
+@pytest.mark.usefixtures("song")
+def test_song_query(client):
+
+    expected_country = Country(id=1, name="TEST", code="TEST")
+    expected_song = Song(id=1, title="TEST", artist="TEST", country=expected_country,
+                        belongs_to_host_country=False, jury_potential_score=10, televote_potential_score=10)
+
+    song_id = 1
+
+    query = f'''
+        query {{
+            song(songId: {song_id}) {{
+                id
+                title
+                artist
+                belongsToHostCountry
+                juryPotentialScore
+                televotePotentialScore
+                country {{
+                    id
+                    name
+                    code
+                }}
+                summary
+            }}
+        }}'''
+
+    response = client.post("/graphql", json={"query": query})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    song_response = response.json()['data']['song']
+    assert song_response['id'] == expected_song.id
+    assert song_response['title'] == expected_song.title
+    assert song_response['artist'] == expected_song.artist
+    assert song_response['country']['id'] == expected_song.country.id
+    assert song_response['country']['name'] == expected_song.country.name
+    assert song_response['country']['code'] == expected_song.country.code
+    assert song_response['belongsToHostCountry'] == expected_song.belongs_to_host_country
+    assert song_response['juryPotentialScore'] == expected_song.jury_potential_score
+    assert song_response['televotePotentialScore'] == expected_song.televote_potential_score
+    assert song_response['summary'] == expected_song.title + ". " + expected_song.artist + " - " + expected_song.country.name
 
 def test_get_song_not_found(client):
 
@@ -121,6 +164,50 @@ def test_get_songs(request, client, test_case):
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == test_case['expected_songs_count']
+
+@pytest.mark.usefixtures("song")
+def test_song_queries(client):
+    
+    expected_country = Country(id=1, name="TEST", code="TEST")
+    expected_song = Song(id=1, title="TEST", artist="TEST", country=expected_country,
+                        belongs_to_host_country=False, jury_potential_score=10, televote_potential_score=10)
+
+    query = '''
+        query {
+            songs {
+                id
+                title
+                artist
+                belongsToHostCountry
+                juryPotentialScore
+                televotePotentialScore
+                country {
+                    id
+                    name
+                    code
+                }
+                summary
+            }
+        }'''
+
+    response = client.post("/graphql", json={"query": query})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    songs_response = response.json()['data']['songs']
+    assert len(songs_response) == 1
+
+    song_response = songs_response[0]
+    assert song_response['id'] == expected_song.id
+    assert song_response['title'] == expected_song.title
+    assert song_response['artist'] == expected_song.artist
+    assert song_response['country']['id'] == expected_song.country.id
+    assert song_response['country']['name'] == expected_song.country.name
+    assert song_response['country']['code'] == expected_song.country.code
+    assert song_response['belongsToHostCountry'] == expected_song.belongs_to_host_country
+    assert song_response['juryPotentialScore'] == expected_song.jury_potential_score
+    assert song_response['televotePotentialScore'] == expected_song.televote_potential_score
+    assert song_response['summary'] == expected_song.title + ". " + expected_song.artist + " - " + expected_song.country.name
 
 @pytest.mark.usefixtures("countries", "events")
 @pytest.mark.parametrize("test_case", test_cases.create_update_song_positive_test_cases)
@@ -143,6 +230,45 @@ def test_create_song_positive(client, test_case):
     assert created_song.jury_potential_score == test_case['jury_potential_score']
     assert created_song.televote_potential_score == test_case['televote_potential_score']
 
+@pytest.mark.usefixtures("countries", "events")
+@pytest.mark.parametrize("test_case", test_cases.create_update_song_mutation_positive_test_cases)
+def test_create_song_mutation_positive(client, test_case):
+
+    query =  f'''
+        mutation {{
+            createSong(song: {{ 
+                title: "{test_case['title']}", 
+                artist: "{test_case['artist']}",  
+                countryId: {test_case['country_id']}, 
+                eventId: {test_case['event_id']}, 
+                belongsToHostCountry: {test_case['belongs_to_host_country']}, 
+                juryPotentialScore: {test_case['jury_potential_score']}, 
+                televotePotentialScore:  {test_case['televote_potential_score']} 
+                }}) 
+                {{
+                    id
+                }}
+        }}
+    '''
+
+    response = client.post("/graphql", json={"query": query})
+
+    response_id = response.json()['data']['createSong']['id']
+
+    with get_db_as_context_manager() as session:
+        created_song = session.scalars(select(SongEntity).where(SongEntity.id == response_id)).first()
+
+    belongs_to_host_country = test_case['belongs_to_host_country'] == "true"
+
+    assert created_song.title == test_case['title']
+    assert created_song.artist == test_case['artist']
+    assert created_song.country_id == test_case['country_id']
+    assert created_song.event_id == test_case['event_id']
+    assert created_song.belongs_to_host_country == belongs_to_host_country
+    assert created_song.jury_potential_score == PotentialScoreEnum[test_case['jury_potential_score']].value
+    assert created_song.televote_potential_score == PotentialScoreEnum[test_case['televote_potential_score']].value
+    
+
 @pytest.mark.usefixtures("setup_for_create_song_negative")
 @pytest.mark.parametrize("test_case", test_cases.create_update_song_negative_test_cases)
 def test_create_song_negative(client, test_case):
@@ -156,6 +282,32 @@ def test_create_song_negative(client, test_case):
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response_invalid_fields == test_case['invalid_fields']
+
+
+@pytest.mark.usefixtures("setup_for_create_song_negative")
+@pytest.mark.parametrize("test_case", test_cases.create_update_song_mutation_negative_test_cases)
+def test_create_song_mutation_negative(client, test_case):
+
+    query =  f'''
+    mutation {{
+        createSong(song: {{ 
+            title: "{test_case['title']}", 
+            artist: "{test_case['artist']}",  
+            countryId: {test_case['country_id']}, 
+            eventId: {test_case['event_id']}, 
+            belongsToHostCountry: {test_case['belongs_to_host_country']}, 
+            juryPotentialScore: {test_case['jury_potential_score']}, 
+            televotePotentialScore:  {test_case['televote_potential_score']} 
+            }}) 
+            {{
+                id
+            }}
+    }}
+'''
+    
+    response = client.post("/graphql", json={"query": query}) 
+    assert response.json()['errors'] is not None
+
 
 @pytest.mark.usefixtures("song")
 @pytest.mark.parametrize("test_case", test_cases.create_update_song_positive_test_cases)
@@ -177,6 +329,43 @@ def test_update_song_positive(client, test_case):
     assert updated_song.jury_potential_score == test_case['jury_potential_score']
     assert updated_song.televote_potential_score == test_case['televote_potential_score']
 
+@pytest.mark.usefixtures("song")
+@pytest.mark.parametrize("test_case", test_cases.create_update_song_mutation_positive_test_cases)
+def test_update_song_mutation_positive(client, test_case):
+    
+    query =  f'''
+    mutation {{
+        updateSong(songId: 1, song: {{ 
+            title: "{test_case['title']}", 
+            artist: "{test_case['artist']}",  
+            countryId: {test_case['country_id']}, 
+            eventId: {test_case['event_id']}, 
+            belongsToHostCountry: {test_case['belongs_to_host_country']}, 
+            juryPotentialScore: {test_case['jury_potential_score']}, 
+            televotePotentialScore:  {test_case['televote_potential_score']} 
+            }}) 
+            {{
+                success
+            }}
+        }}
+    '''
+
+    client.post("/graphql", json={"query": query})
+    
+    with get_db_as_context_manager() as session:
+        updated_song = session.scalars(select(SongEntity).where(SongEntity.id == 1)).first()
+
+    belongs_to_host_country = test_case['belongs_to_host_country'] == "true"
+
+    assert updated_song.title == test_case['title']
+    assert updated_song.artist == test_case['artist']
+    assert updated_song.country_id == test_case['country_id']
+    assert updated_song.event_id == test_case['event_id']
+    assert updated_song.belongs_to_host_country == belongs_to_host_country
+    assert updated_song.jury_potential_score == PotentialScoreEnum[test_case['jury_potential_score']].value
+    assert updated_song.televote_potential_score == PotentialScoreEnum[test_case['televote_potential_score']].value
+    
+
 @pytest.mark.usefixtures("setup_for_update_song_negative")
 @pytest.mark.parametrize("test_case", test_cases.create_update_song_negative_test_cases)
 def test_update_song_negative(client, test_case):
@@ -195,6 +384,31 @@ def test_update_song_negative(client, test_case):
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response_invalid_fields == test_case['invalid_fields']
+
+@pytest.mark.usefixtures("setup_for_update_song_negative")
+@pytest.mark.parametrize("test_case", test_cases.create_update_song_mutation_negative_test_cases)
+def test_update_song_mutation_negative(client, test_case):
+    
+    query =  f'''
+    mutation {{
+        updateSong(songId: 1, song: {{ 
+            title: "{test_case['title']}", 
+            artist: "{test_case['artist']}",  
+            countryId: {test_case['country_id']}, 
+            eventId: {test_case['event_id']}, 
+            belongsToHostCountry: {test_case['belongs_to_host_country']}, 
+            juryPotentialScore: {test_case['jury_potential_score']}, 
+            televotePotentialScore:  {test_case['televote_potential_score']} 
+            }}) 
+            {{
+                id
+            }}
+    }}
+'''
+    
+    response = client.post("/graphql", json={"query": query})
+    assert response.json()['errors'] is not None
+
 
 
 def test_update_song_not_found(client):
@@ -218,6 +432,25 @@ def test_delete_song(client):
         deleted_song = session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert deleted_song is None
+
+@pytest.mark.usefixtures("song")
+def test_delete_song_mutation(client):
+    
+    song_id = 1
+
+    query = f'''
+    mutation {{
+        deleteSong(songId: {song_id}) {{
+            success
+        }}
+    }}
+    '''
+    client.post("/graphql", json={"query": query})
+
+    with get_db_as_context_manager() as session:
+        deleted_song = session.scalars(select(SongEntity).where(SongEntity.id == song_id)).first()
+
     assert deleted_song is None
 
 
